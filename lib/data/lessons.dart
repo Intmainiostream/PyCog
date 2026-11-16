@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../models/lesson.dart';
+import 'games/data_types_game.dart';
 import 'games/variables_game.dart';
 import 'lessons/data_types_lesson.dart';
 import 'lessons/variables_lesson.dart';
@@ -28,6 +29,7 @@ final List<Lesson> lessons = [
     title: (l10n) => l10n.lessonDataTypes,
     cards: dataTypesLessonCards,
     quiz: dataTypesQuiz,
+    game: dataTypesGame,
     perfectQuizMessage: (l10n) => l10n.lesson2Perfect,
   ),
   Lesson(

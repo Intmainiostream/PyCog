@@ -76,7 +76,7 @@ void main() {
       expect(dataTypes.id, 'data_types');
       expect(dataTypes.cards, hasLength(7));
       expect(dataTypes.quiz, hasLength(6));
-      expect(dataTypes.hasGame, isFalse); // no game yet
+      expect(dataTypes.hasGame, isTrue); // see game2_test.dart
     });
 
     test('every code line on the cards has an arrow note', () {

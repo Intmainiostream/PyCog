@@ -419,6 +419,24 @@
   "quiz2Q6WhyInt": "This is a yes-or-no question, not a count.",
   "quiz2Q6WhyStr": "Text can work, but yes or no has a better type.",
   "quiz2Q6Explain": "Yes-or-no answers use `bool`: `True` or `False`.",
+  "@game2R1Intro": {
+    "description": "Lesson 2 game text. Very simple English, one gentle sentence per hint. int, float, str, bool and quoted values are code: keep them in English."
+  },
+  "game2R1Intro": "These boxes are data types. Put each value in its type box!",
+  "game2R1HintInt": "7 is a whole number. Which type is for whole numbers?",
+  "game2R1HintFloat": "2.5 has a dot. Which type has a dot?",
+  "game2R1HintStr": "\"Cog\" has quotes, so it is text.",
+  "game2R1HintBool": "True means yes. Which type is for yes or no?",
+  "game2R2Intro": "Good! Now look closely. Some values are tricky!",
+  "game2R2HintInt": "100 has no dot and no quotes. It is a whole number.",
+  "game2R2HintFloat": "0.5 has a dot, so it is not a whole number.",
+  "game2R2HintStr": "Look at the quotes! \"5\" is text, not a number.",
+  "game2R2HintBool": "False means no. Which type is for yes or no?",
+  "game2R3Intro": "Last round! Two values look the same. Check for quotes!",
+  "game2R3HintInt": "42 is a whole number.",
+  "game2R3HintFloat": "10.0 has a dot. The dot makes it a float.",
+  "game2R3HintStr": "\"True\" has quotes, so it is text.",
+  "game2R3HintBool": "True has no quotes. It means yes.",
   "@game1R1Intro": {
     "description": "Game text. Intros give the story clues; hints are ONE gentle sentence and must not shame. Text in quotes like \"Cog\" or `code` is code: keep it in English."
   },
