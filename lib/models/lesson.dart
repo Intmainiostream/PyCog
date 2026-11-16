@@ -17,6 +17,7 @@ class Lesson {
     this.cards = const [],
     this.quiz = const [],
     this.game = const [],
+    this.perfectQuizMessage,
   });
 
   /// A stable, language-independent name (useful later for saving progress).
@@ -36,6 +37,10 @@ class Lesson {
 
   /// The "Label the Robot Box" game rounds. Empty = no game yet.
   final List<GameRound> game;
+
+  /// Cog's line for a perfect (3-star) quiz, e.g. "You are a data type
+  /// master!". Null = the default line (which mentions variables).
+  final LocalizedText? perfectQuizMessage;
 
   bool get hasContent => cards.isNotEmpty;
   bool get hasQuiz => quiz.isNotEmpty;

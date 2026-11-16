@@ -216,7 +216,10 @@ class _MarkBadge extends StatelessWidget {
 /// knows what the early lessons use. A `#` outside quotes starts a comment
 /// that runs to the end of the line (muted and italic, like a real editor).
 List<TextSpan> highlightPython(String code) {
-  final token = RegExp(r'"[^"]*"|#.*|\b\d+\b|\b(?:True|False|None)\b|=');
+  // Numbers may have a decimal point (2.5 is one number, not "2" "." "5").
+  final token = RegExp(
+    r'"[^"]*"|#.*|\b\d+(?:\.\d+)?\b|\b(?:True|False|None)\b|=',
+  );
   final spans = <TextSpan>[];
   var last = 0;
   for (final match in token.allMatches(code)) {

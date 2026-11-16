@@ -73,7 +73,7 @@ class QuizResultsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final reaction = switch (stars) {
-      >= 3 => l10n.results3Stars,
+      >= 3 => lesson.perfectQuizMessage?.call(l10n) ?? l10n.results3Stars,
       2 => l10n.results2Stars,
       _ => l10n.results1Star,
     };
