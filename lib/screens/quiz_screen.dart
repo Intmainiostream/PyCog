@@ -13,6 +13,7 @@ import '../widgets/chunky_button.dart';
 import '../widgets/code_box.dart';
 import '../widgets/cog_placeholder.dart';
 import '../widgets/lesson_text.dart';
+import '../widgets/cog_feedback_card.dart';
 import '../widgets/lesson_top_bar.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
@@ -258,13 +259,13 @@ class _QuizScreenState extends State<QuizScreen> {
             style: AppTextStyles.small,
           )
         else
-          _FeedbackCard(
+          CogFeedbackCard(
             key: _feedbackKey,
             text: feedback,
             mood: switch (_phase) {
-              _Phase.correct => _Mood.happy,
-              _Phase.revealed => _Mood.explaining,
-              _Phase.answering => _Mood.hint,
+              _Phase.correct => CogMood.happy,
+              _Phase.revealed => CogMood.explaining,
+              _Phase.answering => CogMood.hint,
             },
           ),
       ],
@@ -436,42 +437,6 @@ class _AnswerButton extends StatelessWidget {
               const SizedBox(width: AppSizes.gap8),
               Icon(icon, color: textColor),
             ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-enum _Mood { happy, hint, explaining }
-
-/// "Cog says…" card under the answers: a cheer, a gentle hint, or the
-/// revealed answer with its explanation.
-class _FeedbackCard extends StatelessWidget {
-  const _FeedbackCard({super.key, required this.text, required this.mood});
-
-  final String text;
-  final _Mood mood;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = switch (mood) {
-      _Mood.happy => AppColors.success,
-      _Mood.hint => AppColors.hintBackground,
-      _Mood.explaining => AppColors.mint,
-    };
-    return Semantics(
-      liveRegion: true, // screen readers announce it when it appears
-      child: Container(
-        margin: const EdgeInsets.only(top: AppSizes.gap8),
-        padding: const EdgeInsets.all(AppSizes.gap12),
-        decoration: AppDecorations.card(color: color),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const CogPlaceholder(size: AppSizes.feedbackCogSize),
-            const SizedBox(width: AppSizes.gap12),
-            Expanded(child: LessonText(text, style: AppTextStyles.bodyBold)),
           ],
         ),
       ),

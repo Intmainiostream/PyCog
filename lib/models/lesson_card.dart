@@ -39,10 +39,16 @@ enum CodeMark { none, good, bad }
 
 /// One line in a code example.
 class CodeLine {
-  const CodeLine(this.code, {this.mark = CodeMark.none});
+  const CodeLine(this.code, {this.mark = CodeMark.none, this.note});
 
   final String code;
   final CodeMark mark;
+
+  /// Optional plain-words note shown after the line as "← note" (changes
+  /// with the language). Use it on lesson cards only, never in quizzes
+  /// (it would give the answer away), and not on `#` comment lines (they
+  /// are already notes).
+  final LocalizedText? note;
 }
 
 /// A variable drawn as a labeled box: name on the label, value inside.

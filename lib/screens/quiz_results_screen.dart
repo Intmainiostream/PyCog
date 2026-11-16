@@ -9,7 +9,9 @@ import '../models/lesson.dart';
 import '../theme/app_theme.dart';
 import '../widgets/chunky_button.dart';
 import '../widgets/cog_placeholder.dart';
+import '../widgets/result_widgets.dart';
 import '../widgets/speech_bubble.dart';
+import 'game_screen.dart';
 import 'quiz_screen.dart';
 
 /// End of a quiz: 1 to 3 stars, Cog's reaction, "Try again" and
@@ -41,6 +43,19 @@ class QuizResultsScreen extends StatelessWidget {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
         builder: (_) => QuizScreen(
+          lesson: lesson,
+          lessonNumber: lessonNumber,
+          settings: settings,
+          progress: progress,
+        ),
+      ),
+    );
+  }
+
+  void _playGame(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => GameScreen(
           lesson: lesson,
           lessonNumber: lessonNumber,
           settings: settings,
@@ -93,6 +108,26 @@ class QuizResultsScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             );
+            // Only lessons that have a game get this button.
+            final playGame = lesson.hasGame
+                ? ChunkyButton(
+                    color: AppColors.success,
+                    onTap: () => _playGame(context),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.extension_rounded),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            l10n.resultsPlayGame,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : null;
 
             return Column(
               children: [
@@ -116,7 +151,11 @@ class QuizResultsScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: AppSizes.gap16),
-                        _StarRow(stars: stars, size: starSize),
+                        StickerStarRow(
+                          stars: stars,
+                          size: starSize,
+                          label: l10n.starsCount(stars),
+                        ),
                         const SizedBox(height: AppSizes.gap16),
                         Center(
                           child: CogPlaceholder(
@@ -131,18 +170,18 @@ class QuizResultsScreen extends StatelessWidget {
                           runSpacing: AppSizes.gap8,
                           children: [
                             if (isNewBest)
-                              _Badge(
+                              StickerBadge(
                                 text: l10n.resultsNewBest,
                                 color: AppColors.star,
                               ),
                             if (unlockedLessonNumber != null)
-                              _Badge(
+                              StickerBadge(
                                 text: l10n.resultsUnlocked(
                                   unlockedLessonNumber!,
                                 ),
                                 color: AppColors.success,
                               ),
-                            _Badge(
+                            StickerBadge(
                               text: l10n.resultsBest(
                                 progress.bestStars(lesson.id),
                               ),
@@ -178,12 +217,20 @@ class QuizResultsScreen extends StatelessWidget {
                               Expanded(child: back),
                               const SizedBox(width: AppSizes.gap12),
                               Expanded(child: tryAgain),
+                              if (playGame != null) ...[
+                                const SizedBox(width: AppSizes.gap12),
+                                Expanded(child: playGame),
+                              ],
                             ],
                           ),
                         )
                       : Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            if (playGame != null) ...[
+                              playGame,
+                              const SizedBox(height: AppSizes.gap4),
+                            ],
                             tryAgain,
                             const SizedBox(height: AppSizes.gap4),
                             back,
@@ -194,88 +241,6 @@ class QuizResultsScreen extends StatelessWidget {
             );
           },
         ),
-      ),
-    );
-  }
-}
-
-/// Three big stars; earned ones are yellow, the rest light brown.
-class _StarRow extends StatelessWidget {
-  const _StarRow({required this.stars, required this.size});
-
-  final int stars;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: AppLocalizations.of(context).starsCount(stars),
-      excludeSemantics: true,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          for (var i = 0; i < 3; i++)
-            Padding(
-              // The middle star sits a little higher, like a podium.
-              padding: EdgeInsets.only(
-                left: size * 0.05,
-                right: size * 0.05,
-                bottom: i == 1 ? size * 0.25 : 0,
-              ),
-              child: _StickerStar(earned: i < stars, size: size),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// A star with a dark outline (a big dark star behind a smaller colored one).
-class _StickerStar extends StatelessWidget {
-  const _StickerStar({required this.earned, required this.size});
-
-  final bool earned;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Icon(Icons.star_rounded, size: size, color: AppColors.outline),
-        Icon(
-          Icons.star_rounded,
-          size: size * 0.78,
-          color: earned ? AppColors.star : AppColors.locked,
-        ),
-      ],
-    );
-  }
-}
-
-/// Small outlined pill, e.g. "New best!".
-class _Badge extends StatelessWidget {
-  const _Badge({required this.text, required this.color});
-
-  final String text;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSizes.gap12,
-        vertical: AppSizes.gap4,
-      ),
-      decoration: AppDecorations.card(
-        color: color,
-        radius: AppSizes.radiusLarge,
-        shadow: false,
-      ),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: AppTextStyles.bodyBold,
       ),
     );
   }

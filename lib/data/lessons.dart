@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../models/lesson.dart';
+import 'games/variables_game.dart';
 import 'lessons/variables_lesson.dart';
 import 'quizzes/variables_quiz.dart';
 
@@ -8,7 +9,8 @@ import 'quizzes/variables_quiz.dart';
 /// To add a lesson: add its title to both .arb files, then add an entry here.
 /// To fill in a lesson: write its cards in lib/data/lessons/ (see
 /// variables_lesson.dart) and pass them as `cards:`. Its quiz goes in
-/// lib/data/quizzes/ (see variables_quiz.dart), passed as `quiz:`.
+/// lib/data/quizzes/ (see variables_quiz.dart), passed as `quiz:`, and its
+/// game rounds in lib/data/games/ (see variables_game.dart), as `game:`.
 final List<Lesson> lessons = [
   Lesson(
     id: 'variables',
@@ -16,6 +18,7 @@ final List<Lesson> lessons = [
     title: (l10n) => l10n.lessonVariables,
     cards: variablesLessonCards,
     quiz: variablesQuiz,
+    game: variablesGame,
   ),
   Lesson(
     id: 'data_types',

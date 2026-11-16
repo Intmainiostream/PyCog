@@ -42,6 +42,8 @@ class AppColors {
   static const codeKeyword = Color(0xFFFF8F80); // True / False
   static const codeOperator = Color(0xFF8FE3C0); // =
   static const codeInline = Color(0xFF1B7A71); // `code` inside sentences
+  static const codeComment = Color(0xFFA8968A); // # comments (muted, italic)
+  static const codeNote = Color(0xFF6FD3C8); // ← arrow notes (light Cog teal)
 
   // Quiz feedback
   static const hintBackground = Color(0xFFFFDCD3); // soft coral: "try again"
@@ -113,6 +115,14 @@ class AppSizes {
   static const resultsStarMax = 80.0; // biggest star on the results screen
   static const resultsStarFraction = 0.2; // of the content width
 
+  // Game: "Label the Robot Box"
+  static const gameBoxMinHeight = 56.0; // drop area (well above 48)
+  static const gameCogSize = 64.0; // Cog beside the speech bubble
+  static const gameWideBoxColumns = 4; // boxes per row on wide screens
+  static const gameNarrowBoxColumns = 2; // boxes per row on phones
+  static const gameWideBoxMinWidth = 520.0; // area width needed for 4 columns
+  static const gameTrayMaxFraction = 0.45; // max share of height for the tray
+
   // Text sizes
   static const fontDisplay = 32.0;
   static const fontTitle = 22.0;
@@ -155,6 +165,15 @@ class AppTextStyles {
     color: AppColors.textMuted,
   );
   static final code = _style(AppFonts.code, AppSizes.fontBody, 500);
+
+  /// Arrow notes in code boxes: body font (not code font), smaller, italic,
+  /// so they never look like something to type.
+  static final codeNote = _style(
+    AppFonts.body,
+    AppSizes.fontSmall + 1,
+    700,
+    color: AppColors.codeNote,
+  ).copyWith(fontStyle: FontStyle.italic);
 }
 
 /// The outline and hard shadow that give everything the sticker look.

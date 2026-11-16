@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../l10n/generated/app_localizations.dart';
 import 'lesson_card.dart';
+import 'match_game.dart';
 import 'quiz.dart';
 
 /// Describes one Python lesson on the home screen's lesson path.
@@ -15,6 +16,7 @@ class Lesson {
     required this.title,
     this.cards = const [],
     this.quiz = const [],
+    this.game = const [],
   });
 
   /// A stable, language-independent name (useful later for saving progress).
@@ -32,6 +34,10 @@ class Lesson {
   /// The quiz at the end of the lesson. Empty = no quiz yet.
   final List<QuizQuestion> quiz;
 
+  /// The "Label the Robot Box" game rounds. Empty = no game yet.
+  final List<GameRound> game;
+
   bool get hasContent => cards.isNotEmpty;
   bool get hasQuiz => quiz.isNotEmpty;
+  bool get hasGame => game.isNotEmpty;
 }

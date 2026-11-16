@@ -1,39 +1,51 @@
 {
   "@@locale": "en",
-
   "appTitle": "PyCog",
-  "@appTitle": { "description": "The name of the app." },
-
+  "@appTitle": {
+    "description": "The name of the app."
+  },
   "cogGreeting": "Hi! I'm Cog. Let's learn Python together!",
-  "@cogGreeting": { "description": "Cog the robot's welcome message in the speech bubble on the home screen." },
-
+  "@cogGreeting": {
+    "description": "Cog the robot's welcome message in the speech bubble on the home screen."
+  },
   "lessonsHeader": "Lessons",
-  "@lessonsHeader": { "description": "Heading above the lesson path." },
-
+  "@lessonsHeader": {
+    "description": "Heading above the lesson path."
+  },
   "lessonNumber": "Lesson {number}",
   "@lessonNumber": {
     "description": "The lesson's position in the path. Also read aloud by screen readers.",
-    "placeholders": { "number": { "type": "int" } }
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
   },
-
   "startLabel": "Start",
-  "@startLabel": { "description": "Small tag above the lesson the student should do next." },
-
+  "@startLabel": {
+    "description": "Small tag above the lesson the student should do next."
+  },
   "comingSoon": "Coming soon!",
-  "@comingSoon": { "description": "Shown when an open lesson is tapped (lessons are not built yet)." },
-
+  "@comingSoon": {
+    "description": "Shown when an open lesson is tapped (lessons are not built yet)."
+  },
   "lessonLocked": "Finish the lesson before this to unlock it!",
-  "@lessonLocked": { "description": "Shown when a locked lesson is tapped." },
-
+  "@lessonLocked": {
+    "description": "Shown when a locked lesson is tapped."
+  },
   "starsCount": "{count, plural, =1{1 star} other{{count} stars}}",
   "@starsCount": {
     "description": "Screen-reader label for the star counter at the top of the home screen.",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "settingsTooltip": "Settings",
-  "@settingsTooltip": { "description": "Tooltip / screen-reader label for the gear button." },
-
+  "@settingsTooltip": {
+    "description": "Tooltip / screen-reader label for the gear button."
+  },
   "settingsTitle": "Settings",
   "settingsLanguage": "Language",
   "languageEnglish": "English",
@@ -45,34 +57,60 @@
   "textSizeMedium": "Medium",
   "textSizeLarge": "Large",
   "settingsDone": "Done",
-
   "lessonProgress": "Card {current} of {total}",
   "@lessonProgress": {
     "description": "Progress bar label (read by screen readers).",
-    "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } }
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "lessonBack": "Back",
   "lessonNext": "Next",
   "lessonClose": "Leave lesson",
-  "@lessonClose": { "description": "Screen-reader label for the X button on the lesson screen." },
+  "@lessonClose": {
+    "description": "Screen-reader label for the X button on the lesson screen."
+  },
   "lessonNextQuiz": "Next: Quiz",
-  "@lessonNextQuiz": { "description": "Button on the last explanation card." },
+  "@lessonNextQuiz": {
+    "description": "Button on the last explanation card."
+  },
   "quizComingSoon": "Quiz coming soon!",
   "tipLabel": "Cog's tip",
-  "@tipLabel": { "description": "Small heading above the tip under the code example." },
+  "@tipLabel": {
+    "description": "Small heading above the tip under the code example."
+  },
   "codeExampleLabel": "Code example",
-  "@codeExampleLabel": { "description": "Screen-reader label for a code box." },
+  "@codeExampleLabel": {
+    "description": "Screen-reader label for a code box."
+  },
   "codeGoodLabel": "Do this",
-  "@codeGoodLabel": { "description": "Screen-reader label for a code line with a green check." },
+  "@codeGoodLabel": {
+    "description": "Screen-reader label for a code line with a green check."
+  },
   "codeBadLabel": "Don't do this",
-  "@codeBadLabel": { "description": "Screen-reader label for a code line with a red X." },
-
+  "@codeBadLabel": {
+    "description": "Screen-reader label for a code line with a red X."
+  },
   "quizLabel": "Quiz",
-  "@quizLabel": { "description": "Small label above the question, after the lesson name." },
+  "@quizLabel": {
+    "description": "Small label above the question, after the lesson name."
+  },
   "quizProgress": "Question {current} of {total}",
   "@quizProgress": {
     "description": "Quiz progress bar label (read by screen readers).",
-    "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } }
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "quizClose": "Leave quiz",
   "quizCheck": "Check",
@@ -80,99 +118,258 @@
   "quizSeeResults": "See my stars",
   "quizTrue": "True",
   "quizFalse": "False",
-  "quizPickAnswer": "Tap an answer, then tap Check.",
-  "@quizPickAnswer": { "description": "Small hint under the answers before the student has picked one." },
+  "quizPickAnswer": "Tap an answer. Then tap Check.",
+  "@quizPickAnswer": {
+    "description": "Small hint under the answers before the student has picked one."
+  },
   "quizAnswerRight": "Right answer",
-  "@quizAnswerRight": { "description": "Screen-reader label added to an answer button that turned yellow-green." },
+  "@quizAnswerRight": {
+    "description": "Screen-reader label added to an answer button that turned yellow-green."
+  },
   "quizAnswerWrong": "Not this one",
-  "@quizAnswerWrong": { "description": "Screen-reader label added to an answer button that turned red. Must be kind, never shaming." },
+  "@quizAnswerWrong": {
+    "description": "Screen-reader label added to an answer button that turned red. Must be kind, never shaming."
+  },
   "quizTryAgain": "Try again!",
-  "@quizTryAgain": { "description": "Added after Cog's hint when a student gets a question wrong the first time." },
-  "quizReveal": "Let's look at it together. The right answer is: {answer}",
+  "@quizTryAgain": {
+    "description": "Added after Cog's hint when a student gets a question wrong the first time."
+  },
+  "quizReveal": "Let's look together. The right answer is: {answer}",
   "@quizReveal": {
     "description": "Shown after 2 wrong tries. {answer} is the answer button text (may contain `code`).",
-    "placeholders": { "answer": { "type": "String" } }
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
   },
   "quizCheer1": "Yes! You got it!",
   "quizCheer2": "Beep beep! That's right!",
   "quizCheer3": "Great job! My circuits are so happy!",
-  "@quizCheer3": { "description": "One of three cheers Cog says after a right answer." },
-
+  "@quizCheer3": {
+    "description": "One of three cheers Cog says after a right answer."
+  },
   "resultsTitle": "Quiz done!",
-  "results3Stars": "Perfect! No mistakes at all. You're a variable master!",
-  "results2Stars": "Great work! Just a few slips. You really get it!",
-  "results1Star": "You finished! Every try makes your brain stronger. Want to practice again?",
-  "@results1Star": { "description": "Cog's reaction to 1 star. Must stay encouraging." },
+  "results3Stars": "Perfect! No mistakes at all. You are a variable master!",
+  "results2Stars": "Great work! Only a few slips. You really get it!",
+  "results1Star": "You finished! Every try makes you smarter. Want to try again?",
+  "@results1Star": {
+    "description": "Cog's reaction to 1 star. Must stay encouraging."
+  },
   "resultsBest": "Your best: {stars, plural, =1{1 star} other{{stars} stars}}",
   "@resultsBest": {
     "description": "Best score ever saved for this lesson.",
-    "placeholders": { "stars": { "type": "int" } }
+    "placeholders": {
+      "stars": {
+        "type": "int"
+      }
+    }
   },
   "resultsNewBest": "New best!",
   "resultsUnlocked": "Lesson {number} is now open!",
   "@resultsUnlocked": {
     "description": "Shown on the results screen when this quiz opened the next lesson.",
-    "placeholders": { "number": { "type": "int" } }
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
   },
   "resultsTryAgain": "Try again",
   "resultsBackToLessons": "Back to lessons",
-
-  "@lesson1Card1Speech": { "description": "Lesson text. Words in `backticks` are code: keep them exactly as they are, in English." },
+  "resultsPlayGame": "Play the game",
+  "@resultsPlayGame": {
+    "description": "Button on the quiz results screen that opens the lesson's mini game."
+  },
+  "gameTitle": "Label the Robot Box",
+  "@gameTitle": {
+    "description": "Name of the drag-and-drop mini game."
+  },
+  "gameProgress": "Round {current} of {total}",
+  "@gameProgress": {
+    "description": "Game progress bar label (read by screen readers).",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "gameClose": "Leave game",
+  "gameInstructions": "Drag each value to its box. Or tap a value, then a box.",
+  "@gameInstructions": {
+    "description": "Hint above the value chips."
+  },
+  "gameTapValueFirst": "Tap a value first. Then tap a box.",
+  "@gameTapValueFirst": {
+    "description": "Shown when a box is tapped before any value is picked."
+  },
+  "gameChipLabel": "Value {value}",
+  "@gameChipLabel": {
+    "description": "Screen-reader label for a draggable value chip. {value} is code, e.g. 80.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "gameBoxEmpty": "Box {name}, empty",
+  "@gameBoxEmpty": {
+    "description": "Screen-reader label for an empty box. {name} is a variable name (code).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "gameBoxFilled": "Box {name} holds {value}",
+  "@gameBoxFilled": {
+    "description": "Screen-reader label for a filled box.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "gameBoxNeedsUpdate": "Box {name} holds {value}. It needs a new value.",
+  "@gameBoxNeedsUpdate": {
+    "description": "Screen-reader label for the round 3 box that starts with an old value.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "gameCheer1": "Snap! Perfect fit!",
+  "gameCheer2": "Beep! That box is happy now!",
+  "gameCheer3": "Nice match!",
+  "@gameCheer3": {
+    "description": "One of three short cheers after a correct drop."
+  },
+  "gameRoundDone": "Round done! All my boxes are full.",
+  "gameNextRound": "Next round",
+  "gameSeeResults": "See my bonus stars",
+  "gameResultsTitle": "Game complete!",
+  "gameResults3Stars": "Wow, no wrong drops! You are a box pro!",
+  "gameResults2Stars": "Nice! Only a few slips. My boxes look great!",
+  "gameResults1Star": "You did it! Every try helps you learn. Play again?",
+  "@gameResults1Star": {
+    "description": "Cog's reaction to 1 bonus star. Must stay encouraging."
+  },
+  "gameBonusStars": "{stars, plural, =1{1 bonus star} other{{stars} bonus stars}}",
+  "@gameBonusStars": {
+    "description": "Screen-reader label for the bonus stars on the game results screen.",
+    "placeholders": {
+      "stars": {
+        "type": "int"
+      }
+    }
+  },
+  "gameBestBonus": "Your best: {stars, plural, =1{1 bonus star} other{{stars} bonus stars}}",
+  "@gameBestBonus": {
+    "description": "Best bonus score ever saved for this lesson's game.",
+    "placeholders": {
+      "stars": {
+        "type": "int"
+      }
+    }
+  },
+  "gamePlayAgain": "Play again",
   "lesson1Card1Title": "What is a variable?",
-  "lesson1Card1Speech": "Beep boop! Every robot needs to remember things. Me too! I keep my battery level in a variable. A variable is like a box with a label on it. The label is its name. The thing inside the box is its value.",
-  "lesson1Card1Tip": "A variable is a labeled box that stores a value.",
-
-  "lesson1Card2Title": "Making a variable",
-  "lesson1Card2Speech": "Let's make one! First write the name. Then write `=`. Then write the value. The `=` sign means \"put this in the box.\" So this line puts 100 in a box called `battery`.",
-  "lesson1Card2Tip": "In Python, `=` does not mean \"equals\" like in math. It means \"store this value.\"",
-
-  "lesson1Card3Title": "Different kinds of values",
-  "lesson1Card3Speech": "A box can hold different kinds of values. It can hold a number, like `5`. It can hold words inside quotes, like `\"Cog\"`. It can also hold `True` or `False`, like a yes or no answer.",
-  "lesson1Card3Tip": "Words always need quotes. Numbers, `True` and `False` don't. `True` and `False` always start with a capital letter.",
-
-  "lesson1Card4Title": "Changing a variable",
-  "lesson1Card4Speech": "Oh no, I walked a lot and used some power! Let's change my battery. Python reads code from top to bottom. First the box gets 100. Then it gets 80. The old value is gone. Now the box holds 80.",
-  "lesson1Card4Tip": "A variable only keeps its newest value.",
-
-  "lesson1Card5Title": "Naming rules",
-  "lesson1Card5Speech": "Every box needs a good name. Here are my rules:\n• No spaces. Use an underscore `_` instead.\n• Don't start with a number.\n• Uppercase and lowercase are different. `speed` and `Speed` are two different boxes!\n• Pick a name that makes sense.",
-  "lesson1Card5Tip": "Good names make your code easy to read, for you and your friends!",
-
-  "@quiz1Q1Prompt": { "description": "Quiz text. Hints (…Why…) must be gentle, 1-2 short sentences, and must not reveal the right answer. Words in `backticks` are code: keep them in English." },
+  "@lesson1Card1Speech": {
+    "description": "Lesson text. Very simple English: 8-10 words per sentence, one idea each. Words in `backticks` are code: keep them in English."
+  },
+  "lesson1Card1Speech": "Beep boop! I am Cog. Robots need to remember things. I remember my battery in a variable. A variable is like a box. The box has a name on it. The thing inside is the value.",
+  "lesson1Card1Tip": "A variable is a box with a name. It holds a value.",
+  "lesson1Card2Title": "Notes in code",
+  "lesson1Card2Speech": "You can write notes in your code. A note starts with `#`. We call it a comment. A comment is a note for people. Python skips it completely. It does nothing to the code. It only helps people read the code.",
+  "lesson1Card2Tip": "Python skips everything after `#` on that line.",
+  "lesson1Card3Title": "Making a variable",
+  "lesson1Card3Speech": "Let's make a variable! First, write the name. Next, write `=`. Last, write the value. The `=` means \"put this in the box.\"",
+  "lesson1Card3Tip": "In Python, `=` does not mean \"equal.\" It means \"put this value in the box.\"",
+  "lesson1Card4Title": "Kinds of values",
+  "lesson1Card4Speech": "A box can hold different kinds of values. It can hold a number, like `5`. It can hold a word in quotes, like `\"Cog\"`. It can hold `True` or `False`. They mean yes or no.",
+  "lesson1Card4Tip": "Words need quotes. Numbers do not. `True` and `False` start with a big letter.",
+  "lesson1Card5Title": "Changing a variable",
+  "lesson1Card5Speech": "I walked a lot. My battery went down! Let's change it. Python reads code from top to bottom. First, the box gets 100. Then, the box gets 80. The 100 is gone. Now the box has 80.",
+  "lesson1Card5Tip": "A box keeps only its newest value.",
+  "lesson1Card6Title": "Naming rules",
+  "lesson1Card6Speech": "Every box needs a good name. Follow my rules:\n• No spaces. Use `_` instead.\n• Do not start with a number.\n• Big and small letters are different. `speed` and `Speed` are two boxes!\n• Pick a name that makes sense.",
+  "lesson1Card6Tip": "Good names help people read your code.",
+  "@lesson1NoteBattery100": {
+    "description": "Arrow note shown after a code line (\"← note\"). Plain, short words. Variable names like battery stay in English."
+  },
+  "lesson1NoteBattery100": "battery is now 100",
+  "lesson1NoteSpeed5": "speed is now the number 5",
+  "lesson1NoteRobotName": "robot_name is now the word Cog",
+  "lesson1NoteIsMoving": "is_moving is now True (yes)",
+  "lesson1NoteBattery80": "battery is now 80. The 100 is gone.",
+  "lesson1NoteGoodUnderscore": "Good! _ takes the place of the space",
+  "lesson1NoteBadSpace": "No spaces allowed",
+  "lesson1NoteGoodNumberEnd": "OK! The number is at the end",
+  "lesson1NoteBadNumberStart": "Can't start with a number",
+  "lesson1NoteSpeedSmall": "speed is one box",
+  "lesson1NoteSpeedBig": "Speed is a different box!",
+  "lesson1NoteGoodClear": "Clear name",
+  "lesson1NoteBadUnclear": "What is b? Not clear.",
+  "@quiz1Q1Prompt": {
+    "description": "Quiz text. Hints (…Why…) must be gentle, 1-2 short sentences, and must not reveal the right answer. Words in `backticks` are code: keep them in English."
+  },
   "quiz1Q1Prompt": "What is a variable?",
-  "quiz1Q1Right": "A labeled box that stores a value",
-  "quiz1Q1WrongRobot": "A type of robot",
-  "quiz1Q1WhyRobot": "Not quite! A variable isn't a robot. It's something a robot uses to remember things.",
-  "quiz1Q1WrongCommand": "A command that turns the robot on",
-  "quiz1Q1WhyCommand": "Good guess, but a variable doesn't do an action. It holds something.",
-  "quiz1Q1Explain": "A variable is like a labeled box. The label is the name, and the value goes inside.",
-
-  "quiz1Q2Prompt": "In this code, what does the `=` sign do?",
-  "quiz1Q2Right": "It puts the value `5` into the variable `speed`",
-  "quiz1Q2WrongCheck": "It checks if `speed` is equal to `5`",
-  "quiz1Q2WhyCheck": "That's what `=` means in math! But Python uses it in a different way.",
+  "quiz1Q1Right": "A box with a name that holds a value",
+  "quiz1Q1WrongRobot": "A kind of robot",
+  "quiz1Q1WhyRobot": "Not quite! A variable is not a robot. A robot uses it to remember.",
+  "quiz1Q1WrongCommand": "A command that turns on the robot",
+  "quiz1Q1WhyCommand": "Good guess! But a variable does not do things. It holds a value.",
+  "quiz1Q1Explain": "A variable is a box with a name. The value goes inside.",
+  "quiz1Q2Prompt": "In this code, what does `=` do?",
+  "quiz1Q2Right": "It puts `5` in the box `speed`",
+  "quiz1Q2WrongCheck": "It checks if `speed` equals `5`",
+  "quiz1Q2WhyCheck": "That is how `=` works in math. Python uses it in a different way.",
   "quiz1Q2WrongDelete": "It deletes `speed`",
   "quiz1Q2WhyDelete": "Nothing gets deleted here. Think about the box!",
-  "quiz1Q2Explain": "In Python, `=` means \"store this value.\" So `5` goes into the box called `speed`.",
-
+  "quiz1Q2Explain": "In Python, `=` means \"put this in the box.\" So `5` goes in `speed`.",
   "quiz1Q3Prompt": "What kind of value is this?",
-  "quiz1Q3Right": "Text (a word)",
+  "quiz1Q3Right": "A word (text)",
   "quiz1Q3WrongNumber": "A number",
-  "quiz1Q3WhyNumber": "Look closely at the quotes! Numbers don't need them.",
+  "quiz1Q3WhyNumber": "Look at the quotes! Numbers do not use quotes.",
   "quiz1Q3WrongBool": "True or False",
-  "quiz1Q3WhyBool": "`True` and `False` never have quotes. This value does.",
-  "quiz1Q3Explain": "Words inside quotes are text. So `\"Cog\"` is text.",
-
-  "quiz1Q4Prompt": "After this code runs, what is inside `battery`?",
-  "quiz1Q4Why100": "That was the first value. Python reads from top to bottom. What came next?",
-  "quiz1Q4Why180": "The values don't add up. Think about what happens to the old value.",
-  "quiz1Q4Explain": "The box held 100 first. Then 80 replaced it. So now `battery` is `80`.",
-
+  "quiz1Q3WhyBool": "`True` and `False` have no quotes. This value has quotes.",
+  "quiz1Q3Explain": "Words in quotes are text. So `\"Cog\"` is text.",
+  "quiz1Q4Prompt": "After this code runs, what is in `battery`?",
+  "quiz1Q4Why100": "That was the first value. What came next?",
+  "quiz1Q4Why180": "Values do not add up. Think about the old value.",
+  "quiz1Q4Explain": "First the box had 100. Then 80 took its place. Now `battery` is `80`.",
   "quiz1Q5Prompt": "Which one is a good variable name?",
-  "quiz1Q5WhyNumberStart": "Check the first letter. Remember the rule about numbers?",
-  "quiz1Q5WhySpace": "Look at the gap in the middle. Remember the rule about spaces?",
-  "quiz1Q5Explain": "`robot_name` has no spaces, doesn't start with a number, and makes sense.",
-
+  "quiz1Q5WhyNumberStart": "Look at the first letter. Remember the number rule?",
+  "quiz1Q5WhySpace": "Look at the space in the middle. Remember the space rule?",
+  "quiz1Q5Explain": "`robot_name` has no spaces. It does not start with a number. It makes sense.",
+  "@game1R1Intro": {
+    "description": "Game text. Intros give the story clues; hints are ONE gentle sentence and must not shame. Text in quotes like \"Cog\" or `code` is code: keep it in English."
+  },
+  "game1R1Intro": "Help me fill my boxes! Each value has one box.",
+  "game1R1HintCog": "\"Cog\" has quotes, so it is a word. Which box is for a name?",
+  "game1R1HintTeal": "\"teal\" is a color, not a name.",
+  "game1R1Hint80": "80 is a big number. Which box can be 80% full?",
+  "game1R1Hint4": "4 is a small number. How many wheels can a robot have?",
+  "game1R2Intro": "This is my friend Bolt! Bolt moves at speed 5. Bolt lives in Manila.",
+  "game1R2HintBolt": "\"Bolt\" is my friend's name.",
+  "game1R2Hint5": "5 is a number. Which box tells how fast?",
+  "game1R2HintTrue": "True means yes. Find the box that asks a yes-or-no question!",
+  "game1R2HintManila": "Manila is a place, not a robot name.",
+  "game1R3Intro": "Oops! I walked 250 steps. My battery went down to 60. I am not charging yet. Fix my boxes!",
+  "game1R3Hint60": "60 is my new battery. Put it in the box that needs a change.",
+  "game1R3HintCog": "\"Cog\" is my name. Find the name box!",
+  "game1R3HintFalse": "False means no. Find the box that asks yes or no.",
+  "game1R3Hint250": "250 is how many steps I walked.",
   "lessonVariables": "Variables",
   "lessonDataTypes": "Data Types",
   "lessonIfStatements": "If Statements",
