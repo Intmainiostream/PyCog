@@ -121,60 +121,31 @@ class _CodeLineView extends StatelessWidget {
     );
     final note = Text.rich(noteSpan);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final scaler = MediaQuery.textScalerOf(context);
-        double widthOf(InlineSpan span) => (TextPainter(
-          text: span,
-          textDirection: TextDirection.ltr,
-          textScaler: scaler,
-          maxLines: 1,
-        )..layout()).width;
-
-        final badgeWidth = hasMarks ? scaler.scale(22) + AppSizes.gap8 : 0.0;
-        final codeWidth = widthOf(
-          TextSpan(children: highlightPython(line.code), style: _codeStyle),
-        );
-        final noteWidth = widthOf(noteSpan);
-
-        // Fits on one line: code, gap, note (with a little safety margin so
-        // rounding never makes the note wrap inside the row).
-        const safety = 4.0;
-        if (badgeWidth + codeWidth + _noteGap + noteWidth + safety <=
-            constraints.maxWidth) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+    // A Wrap puts the note beside the code when it fits, and moves it to the
+    // start of the next line (under the code, not under the badge) when it
+    // doesn't. It uses the real laid-out sizes, so there's no width guessing
+    // that can disagree with what's drawn.
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...badge,
+        Expanded(
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: 2,
             children: [
-              ...badge,
-              code,
+              // Code never wraps; if it's wider than the box on its own, it
+              // scrolls sideways instead.
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: code,
+              ),
               const SizedBox(width: _noteGap),
-              Flexible(child: note),
+              note,
             ],
-          );
-        }
-
-        // Too narrow: note goes directly under its code line (and may wrap).
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                ...badge,
-                Flexible(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: code,
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: badgeWidth, top: 2),
-              child: note,
-            ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -217,8 +188,11 @@ class _MarkBadge extends StatelessWidget {
 /// that runs to the end of the line (muted and italic, like a real editor).
 List<TextSpan> highlightPython(String code) {
   // Numbers may have a decimal point (2.5 is one number, not "2" "." "5").
+  // Two-character comparisons (==, !=, >=, <=) come before single < > =
+  // so they're colored as one sign.
   final token = RegExp(
-    r'"[^"]*"|#.*|\b\d+(?:\.\d+)?\b|\b(?:True|False|None)\b|=',
+    r'"[^"]*"|#.*|\b\d+(?:\.\d+)?\b|\b(?:True|False|None)\b'
+    r'|\b(?:if|elif|else)\b|==|!=|>=|<=|<|>|=',
   );
   final spans = <TextSpan>[];
   var last = 0;
@@ -235,10 +209,22 @@ List<TextSpan> highlightPython(String code) {
       _ when text.startsWith('"') => const TextStyle(
         color: AppColors.codeString,
       ),
-      '=' => const TextStyle(color: AppColors.codeOperator),
+      '=' ||
+      '==' ||
+      '!=' ||
+      '>=' ||
+      '<=' ||
+      '<' ||
+      '>' => const TextStyle(color: AppColors.codeOperator),
       'True' ||
       'False' ||
       'None' => const TextStyle(color: AppColors.codeKeyword),
+      // if / elif / else: same color as True/False, bold so they stand out.
+      'if' || 'elif' || 'else' => const TextStyle(
+        color: AppColors.codeKeyword,
+        fontWeight: FontWeight.w800,
+        fontVariations: [FontVariation.weight(800)],
+      ),
       _ => const TextStyle(color: AppColors.codeNumber),
     };
     spans.add(TextSpan(text: text, style: style));

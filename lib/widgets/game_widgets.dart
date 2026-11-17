@@ -12,6 +12,7 @@ TextStyle _codeStyle({double size = AppSizes.fontSubtitle}) => TextStyle(
   fontSize: size,
   fontWeight: FontWeight.w700,
   fontVariations: const [FontVariation.weight(700)],
+  fontFeatures: AppTextStyles.codeFontFeatures, // no ≠ / ≥ ligatures
   decoration: TextDecoration.none,
 );
 

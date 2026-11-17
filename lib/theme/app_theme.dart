@@ -164,7 +164,19 @@ class AppTextStyles {
     700,
     color: AppColors.textMuted,
   );
-  static final code = _style(AppFonts.code, AppSizes.fontBody, 500);
+
+  /// Code font with ligatures OFF: JetBrains Mono would otherwise draw
+  /// `!=` as ≠ and `>=` as ≥, and students must see what they really type.
+  static final code = _style(
+    AppFonts.code,
+    AppSizes.fontBody,
+    500,
+  ).copyWith(fontFeatures: codeFontFeatures);
+
+  static const codeFontFeatures = [
+    FontFeature.disable('calt'),
+    FontFeature.disable('liga'),
+  ];
 
   /// Arrow notes in code boxes: body font (not code font), smaller, italic,
   /// so they never look like something to type.
