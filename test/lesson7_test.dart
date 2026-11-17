@@ -97,9 +97,20 @@ List<Text> outputRows(WidgetTester tester) => tester
     .skip(1) // the "Output" label
     .toList();
 
-/// The printed lines in the output box, one per row.
-List<String> printedLines(WidgetTester tester) =>
-    outputRows(tester).map((t) => t.data!).toList();
+/// The printed lines in the output box, with wrapped rows (which start with
+/// the wrap indent) joined back onto their line.
+List<String> printedLines(WidgetTester tester) {
+  final lines = <String>[];
+  final indent = ' ' * outputWrapIndent;
+  for (final row in outputRows(tester).map((t) => t.data!)) {
+    if (row.startsWith(indent) && lines.isNotEmpty) {
+      lines.last = '${lines.last} ${row.substring(outputWrapIndent)}';
+    } else {
+      lines.add(row);
+    }
+  }
+  return lines;
+}
 
 /// Python's + on two strings, done in Dart.
 String join(String a, String b) => a + b;
@@ -312,6 +323,93 @@ void main() {
     });
   });
 
+  group('Output box wrapping', () {
+    test('a line that fits stays the same', () {
+      expect(wrapOutputLine('Score: 10', 30), ['Score: 10']);
+      expect(wrapOutputLine('', 30), ['']);
+    });
+
+    test('a long line breaks at spaces; next rows are indented', () {
+      final rows = wrapOutputLine(typeError, 30);
+      expect(rows, [
+        'TypeError: can only',
+        '  concatenate str (not "int")',
+        '  to str',
+      ]);
+      for (final row in rows) {
+        expect(row.length, lessThanOrEqualTo(30));
+      }
+      // Joined back together, it is the exact message.
+      expect(rows.map((r) => r.trim()).join(' '), typeError);
+    });
+
+    test('one very long word is cut; a tiny box does not wrap', () {
+      expect(wrapOutputLine('=' * 30, 12), [
+        '=' * 12,
+        '  ${'=' * 10}',
+        '  ${'=' * 8}',
+      ]);
+      expect(wrapOutputLine(typeError, 8), [typeError]);
+    });
+  });
+
+  testWidgets('360px phone: the error wraps and every row fits the box', (
+    tester,
+  ) async {
+    await openLesson7(tester, size: const Size(360, 640));
+    for (var i = 0; i < 6; i++) {
+      await tapText(tester, en.lessonNext);
+    }
+    expect(find.text(titlesEn[6]), findsOneWidget); // card 7
+    final rows = outputRows(tester);
+    expect(rows.length, greaterThan(4)); // the error took more than 1 row
+    expect(printedLines(tester), strings.cards[6].output);
+    final box = tester.getRect(find.byType(OutputBox));
+    for (final row in rows) {
+      final rect = tester.getRect(find.byWidget(row));
+      expect(rect.right, lessThan(box.right), reason: row.data);
+    }
+  });
+
+  // With the biggest text, a long line in Lessons 1 to 6 may wrap instead of
+  // needing a swipe (agreed). At normal text size, nothing there changes.
+  testWidgets('Lessons 1 to 6: no printed line wraps at normal text size', (
+    tester,
+  ) async {
+    // Lesson 6 card 3 has the longest printed line before Lesson 7.
+    final longest = [
+      for (final l in lessons.take(lessons.indexOf(strings)))
+        for (final c in l.cards) ...c.output,
+    ].fold(0, (m, s) => math.max(m, s.length));
+    expect(lessons[5].cards[2].output.map((s) => s.length), contains(longest));
+
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    SharedPreferences.setMockInitialValues(passedBefore);
+    await tester.pumpWidget(
+      PyCogApp(
+        settings: await SettingsController.load(),
+        progress: await ProgressController.load(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await openTrail(tester);
+    final node = find.byKey(const ValueKey('lesson-node-math_operators'));
+    await tester.scrollUntilVisible(
+      node,
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(node);
+    await tester.pumpAndSettle();
+    await tapText(tester, en.lessonNext);
+    await tapText(tester, en.lessonNext); // Lesson 6 card 3
+    final rows = outputRows(tester).map((t) => t.data!).toList();
+    expect(rows, lessons[5].cards[2].output); // one row per line
+  });
+
   testWidgets('Lesson 7 is locked until Lesson 6 has a star', (tester) async {
     SharedPreferences.setMockInitialValues(
       {...passedBefore}..remove('progress.stars.math_operators'),
@@ -364,7 +462,7 @@ void main() {
       await tapText(tester, en.lessonNext);
     }
     expect(find.text(titlesEn[6]), findsOneWidget); // card 7
-    // Every printed line, in order (the error copied exactly).
+    // The long error may wrap onto more rows; put them back together.
     expect(printedLines(tester), strings.cards[6].output);
 
     settings.setLocale(SettingsController.tagalog);
