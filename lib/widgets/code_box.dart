@@ -204,7 +204,8 @@ List<TextSpan> highlightPython(String code) {
   // so they're colored as one sign.
   final token = RegExp(
     r'"[^"]*"|#.*|\b\d+(?:\.\d+)?\b|\b(?:True|False|None)\b'
-    r'|\b(?:if|elif|else|for|in|while|break)\b|==|!=|>=|<=|<|>|=',
+    r'|\b(?:if|elif|else|for|in|while|break|def|return)\b'
+    r'|==|!=|>=|<=|<|>|=',
   );
   final spans = <TextSpan>[];
   var last = 0;
@@ -231,15 +232,17 @@ List<TextSpan> highlightPython(String code) {
       'True' ||
       'False' ||
       'None' => const TextStyle(color: AppColors.codeKeyword),
-      // if / elif / else and loop words: same color as True/False, bold so
-      // they stand out.
+      // if / elif / else, loop words, def and return: same color as
+      // True/False, bold so they stand out.
       'if' ||
       'elif' ||
       'else' ||
       'for' ||
       'in' ||
       'while' ||
-      'break' => const TextStyle(
+      'break' ||
+      'def' ||
+      'return' => const TextStyle(
         color: AppColors.codeKeyword,
         fontWeight: FontWeight.w800,
         fontVariations: [FontVariation.weight(800)],

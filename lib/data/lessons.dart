@@ -5,10 +5,12 @@ import 'games/data_types_game.dart';
 import 'games/if_statements_game.dart';
 import 'games/variables_game.dart';
 import 'lessons/data_types_lesson.dart';
+import 'lessons/functions_lesson.dart';
 import 'lessons/if_statements_lesson.dart';
 import 'lessons/loops_lesson.dart';
 import 'lessons/variables_lesson.dart';
 import 'quizzes/data_types_quiz.dart';
+import 'quizzes/functions_quiz.dart';
 import 'quizzes/if_statements_quiz.dart';
 import 'quizzes/loops_quiz.dart';
 import 'quizzes/variables_quiz.dart';
@@ -58,5 +60,8 @@ final List<Lesson> lessons = [
     id: 'functions',
     icon: Icons.functions,
     title: (l10n) => l10n.lessonFunctions,
+    cards: functionsLessonCards,
+    quiz: functionsQuiz,
+    perfectQuizMessage: (l10n) => l10n.lesson5Perfect,
   ),
 ];
