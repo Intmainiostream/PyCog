@@ -200,12 +200,13 @@ class _MarkBadge extends StatelessWidget {
 /// that runs to the end of the line (muted and italic, like a real editor).
 List<TextSpan> highlightPython(String code) {
   // Numbers may have a decimal point (2.5 is one number, not "2" "." "5").
-  // Two-character comparisons (==, !=, >=, <=) come before single < > =
-  // so they're colored as one sign.
+  // Two-character signs (==, !=, >=, <=, and the short-way += and -=) come
+  // before single < > = so they're colored as one sign. Math signs on their
+  // own (+ - * / // % **) stay plain, as in every lesson.
   final token = RegExp(
     r'"[^"]*"|#.*|\b\d+(?:\.\d+)?\b|\b(?:True|False|None)\b'
     r'|\b(?:if|elif|else|for|in|while|break|def|return)\b'
-    r'|==|!=|>=|<=|<|>|=',
+    r'|==|!=|>=|<=|\+=|-=|<|>|=',
   );
   final spans = <TextSpan>[];
   var last = 0;
@@ -227,6 +228,8 @@ List<TextSpan> highlightPython(String code) {
       '!=' ||
       '>=' ||
       '<=' ||
+      '+=' ||
+      '-=' ||
       '<' ||
       '>' => const TextStyle(color: AppColors.codeOperator),
       'True' ||

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:pycog/data/lessons.dart';
 import 'package:pycog/data/progress_controller.dart';
 import 'package:pycog/data/settings_controller.dart';
 import 'package:pycog/main.dart';
@@ -31,7 +32,8 @@ void main() {
     expect(find.text('Variables'), findsOneWidget);
     expect(find.text('Functions'), findsOneWidget);
     expect(find.text('1'), findsOneWidget); // lesson 1 is open
-    expect(find.byIcon(Icons.lock_rounded), findsNWidgets(4)); // rest locked
+    // The rest are locked.
+    expect(find.byIcon(Icons.lock_rounded), findsNWidgets(lessons.length - 1));
     expect(find.byIcon(Icons.star_rounded), findsOneWidget);
   });
 

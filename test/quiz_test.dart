@@ -250,8 +250,11 @@ void main() {
       await tester.pumpAndSettle();
       await openTrail(tester); // app opens on the home screen
       expect(find.bySemanticsLabel(en.starsCount(3)), findsOneWidget);
-      // Lessons 1 and 2 open, 3 to 5 locked.
-      expect(find.byIcon(Icons.lock_rounded), findsNWidgets(3));
+      // Lessons 1 and 2 open, the rest locked.
+      expect(
+        find.byIcon(Icons.lock_rounded),
+        findsNWidgets(lessons.length - 2),
+      );
     });
 
     testWidgets('mistakes give fewer stars; a worse try keeps the best', (

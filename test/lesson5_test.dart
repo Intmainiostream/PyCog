@@ -306,7 +306,7 @@ void main() {
     );
   });
 
-  testWidgets('Perfect quiz: Lesson 5 message, 3 stars, nothing to unlock', (
+  testWidgets('Perfect quiz: Lesson 5 message, 3 stars, Lesson 6 opens', (
     tester,
   ) async {
     SharedPreferences.setMockInitialValues(passed1234);
@@ -345,9 +345,9 @@ void main() {
 
     expect(textHas(en.lesson5Perfect), findsOneWidget);
     expect(progress.bestStars('functions'), 3);
-    // Lesson 5 is the last lesson: no "Lesson 6 is now open!" badge.
-    expect(find.textContaining('is now open'), findsNothing);
-    expect(progress.unlockedCount(lessons), lessons.length);
+    // Lesson 5 is no longer the last lesson: Lesson 6 opens.
+    expect(find.text(en.resultsUnlocked(6)), findsOneWidget);
+    expect(progress.unlockedCount(lessons), 6);
     expect(find.text(en.resultsPlayGame), findsOneWidget); // game5_test.dart
   });
 
