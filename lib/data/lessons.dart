@@ -6,9 +6,11 @@ import 'games/if_statements_game.dart';
 import 'games/variables_game.dart';
 import 'lessons/data_types_lesson.dart';
 import 'lessons/if_statements_lesson.dart';
+import 'lessons/loops_lesson.dart';
 import 'lessons/variables_lesson.dart';
 import 'quizzes/data_types_quiz.dart';
 import 'quizzes/if_statements_quiz.dart';
+import 'quizzes/loops_quiz.dart';
 import 'quizzes/variables_quiz.dart';
 
 /// The list of lessons, in the order students should take them.
@@ -44,7 +46,14 @@ final List<Lesson> lessons = [
     game: ifStatementsGame,
     perfectQuizMessage: (l10n) => l10n.lesson3Perfect,
   ),
-  Lesson(id: 'loops', icon: Icons.loop, title: (l10n) => l10n.lessonLoops),
+  Lesson(
+    id: 'loops',
+    icon: Icons.loop,
+    title: (l10n) => l10n.lessonLoops,
+    cards: loopsLessonCards,
+    quiz: loopsQuiz,
+    perfectQuizMessage: (l10n) => l10n.lesson4Perfect,
+  ),
   Lesson(
     id: 'functions',
     icon: Icons.functions,

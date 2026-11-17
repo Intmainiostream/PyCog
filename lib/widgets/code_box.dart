@@ -121,26 +121,38 @@ class _CodeLineView extends StatelessWidget {
     );
     final note = Text.rich(noteSpan);
 
+    // The line's indent is drawn as its own fixed-width piece, so a note that
+    // moves to the next line starts right under the code text (under `if`,
+    // not under the indent), even for nested lines.
+    final indent = line.code.length - line.code.trimLeft().length;
+    final codeText = Text.rich(
+      TextSpan(children: highlightPython(line.code.substring(indent))),
+      softWrap: false,
+      style: _codeStyle,
+    );
+
     // A Wrap puts the note beside the code when it fits, and moves it to the
-    // start of the next line (under the code, not under the badge) when it
-    // doesn't. It uses the real laid-out sizes, so there's no width guessing
-    // that can disagree with what's drawn.
+    // start of the next line when it doesn't. It uses the real laid-out
+    // sizes, so there's no width guessing that can disagree with what's
+    // drawn. `spacing` only applies between items on the same line, so a
+    // moved note always starts exactly under the code.
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ...badge,
+        if (indent > 0) Text(' ' * indent, style: _codeStyle),
         Expanded(
           child: Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: _noteGap,
             runSpacing: 2,
             children: [
               // Code never wraps; if it's wider than the box on its own, it
               // scrolls sideways instead.
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: code,
+                child: codeText,
               ),
-              const SizedBox(width: _noteGap),
               note,
             ],
           ),
@@ -192,7 +204,7 @@ List<TextSpan> highlightPython(String code) {
   // so they're colored as one sign.
   final token = RegExp(
     r'"[^"]*"|#.*|\b\d+(?:\.\d+)?\b|\b(?:True|False|None)\b'
-    r'|\b(?:if|elif|else)\b|==|!=|>=|<=|<|>|=',
+    r'|\b(?:if|elif|else|for|in|while|break)\b|==|!=|>=|<=|<|>|=',
   );
   final spans = <TextSpan>[];
   var last = 0;
@@ -219,8 +231,15 @@ List<TextSpan> highlightPython(String code) {
       'True' ||
       'False' ||
       'None' => const TextStyle(color: AppColors.codeKeyword),
-      // if / elif / else: same color as True/False, bold so they stand out.
-      'if' || 'elif' || 'else' => const TextStyle(
+      // if / elif / else and loop words: same color as True/False, bold so
+      // they stand out.
+      'if' ||
+      'elif' ||
+      'else' ||
+      'for' ||
+      'in' ||
+      'while' ||
+      'break' => const TextStyle(
         color: AppColors.codeKeyword,
         fontWeight: FontWeight.w800,
         fontVariations: [FontVariation.weight(800)],

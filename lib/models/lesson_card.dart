@@ -15,6 +15,7 @@ class LessonCard {
     this.boxes = const [],
     this.code = const [],
     this.tip,
+    this.output = const [],
   });
 
   /// Heading at the top of the card.
@@ -32,6 +33,11 @@ class LessonCard {
 
   /// Optional short reminder shown under the code.
   final LocalizedText? tip;
+
+  /// Optional lines the code prints when it runs, shown in an "Output" box
+  /// under the code (one entry per printed line). Same in every language,
+  /// since it's what the program shows. Empty = no output box.
+  final List<String> output;
 }
 
 /// Whether a code line is a good or bad example (shown as a ✓ or ✗ badge).

@@ -13,6 +13,7 @@ import '../widgets/code_box.dart';
 import '../widgets/cog_placeholder.dart';
 import '../widgets/lesson_top_bar.dart';
 import '../widgets/lesson_text.dart';
+import '../widgets/output_box.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
 import '../widgets/variable_box.dart';
@@ -231,6 +232,11 @@ class _CardView extends StatelessWidget {
       if (card.code.isNotEmpty) ...[
         const SizedBox(height: AppSizes.gap16),
         CodeBox(lines: card.code),
+      ],
+      // Only cards that set `output` get this box (none before Lesson 4).
+      if (card.output.isNotEmpty) ...[
+        const SizedBox(height: AppSizes.gap12),
+        OutputBox(lines: card.output),
       ],
       if (card.tip != null) ...[
         const SizedBox(height: AppSizes.gap16),
