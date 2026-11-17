@@ -105,7 +105,7 @@ void main() {
         math6.quiz.every((q) => q.type == QuestionType.multipleChoice),
         isTrue,
       );
-      expect(lessons.last, same(math6)); // added after Lesson 5
+      expect(lessons.indexOf(math6), 5); // right after Lesson 5
       expect(lessons[4].id, 'functions');
     });
 
@@ -387,9 +387,15 @@ void main() {
 
     expect(textHas(en.lesson6Perfect), findsOneWidget);
     expect(progress.bestStars('math_operators'), 3);
-    // Lesson 6 is the last lesson for now: nothing new opens.
-    expect(find.textContaining('is now open'), findsNothing);
-    expect(progress.unlockedCount(lessons), lessons.length);
+    // The next lesson opens, if there is one (counted from the list).
+    final position = lessons.indexOf(math6) + 1; // Lesson 6
+    if (position < lessons.length) {
+      expect(find.text(en.resultsUnlocked(position + 1)), findsOneWidget);
+      expect(progress.unlockedCount(lessons), position + 1);
+    } else {
+      expect(find.textContaining('is now open'), findsNothing);
+      expect(progress.unlockedCount(lessons), lessons.length);
+    }
     expect(find.text(en.resultsPlayGame), findsNothing); // no game yet
   });
 

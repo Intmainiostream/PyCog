@@ -11,12 +11,14 @@ import 'lessons/functions_lesson.dart';
 import 'lessons/if_statements_lesson.dart';
 import 'lessons/loops_lesson.dart';
 import 'lessons/math_operators_lesson.dart';
+import 'lessons/strings_lesson.dart';
 import 'lessons/variables_lesson.dart';
 import 'quizzes/data_types_quiz.dart';
 import 'quizzes/functions_quiz.dart';
 import 'quizzes/if_statements_quiz.dart';
 import 'quizzes/loops_quiz.dart';
 import 'quizzes/math_operators_quiz.dart';
+import 'quizzes/strings_quiz.dart';
 import 'quizzes/variables_quiz.dart';
 
 /// The list of lessons, in the order students should take them.
@@ -78,5 +80,14 @@ final List<Lesson> lessons = [
     cards: mathOperatorsLessonCards,
     quiz: mathOperatorsQuiz,
     perfectQuizMessage: (l10n) => l10n.lesson6Perfect,
+  ),
+  // No game yet: the quiz results screen shows no "Play the game" button.
+  Lesson(
+    id: 'strings',
+    icon: Icons.text_fields,
+    title: (l10n) => l10n.lesson7Title,
+    cards: stringsLessonCards,
+    quiz: stringsQuiz,
+    perfectQuizMessage: (l10n) => l10n.lesson7Perfect,
   ),
 ];

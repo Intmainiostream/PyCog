@@ -199,12 +199,16 @@ class _MarkBadge extends StatelessWidget {
 /// knows what the early lessons use. A `#` outside quotes starts a comment
 /// that runs to the end of the line (muted and italic, like a real editor).
 List<TextSpan> highlightPython(String code) {
-  // Numbers may have a decimal point (2.5 is one number, not "2" "." "5").
+  // Strings use "double" or 'single' quotes (an unclosed quote, like the
+  // wrong example "Hi', stays plain). Numbers may have a decimal point
+  // (2.5 is one number, not "2" "." "5").
   // Two-character signs (==, !=, >=, <=, and the short-way += and -=) come
   // before single < > = so they're colored as one sign. Math signs on their
   // own (+ - * / // % **) stay plain, as in every lesson.
   final token = RegExp(
-    r'"[^"]*"|#.*|\b\d+(?:\.\d+)?\b|\b(?:True|False|None)\b'
+    r'"[^"]*"'
+    r"|'[^']*'"
+    r'|#.*|\b\d+(?:\.\d+)?\b|\b(?:True|False|None)\b'
     r'|\b(?:if|elif|else|for|in|while|break|def|return)\b'
     r'|==|!=|>=|<=|\+=|-=|<|>|=',
   );
@@ -220,7 +224,7 @@ List<TextSpan> highlightPython(String code) {
         color: AppColors.codeComment,
         fontStyle: FontStyle.italic,
       ),
-      _ when text.startsWith('"') => const TextStyle(
+      _ when text.startsWith('"') || text.startsWith("'") => const TextStyle(
         color: AppColors.codeString,
       ),
       '=' ||
