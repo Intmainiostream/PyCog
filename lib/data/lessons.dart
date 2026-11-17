@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../models/lesson.dart';
 import 'games/data_types_game.dart';
+import 'games/functions_game.dart';
 import 'games/if_statements_game.dart';
 import 'games/loops_game.dart';
 import 'games/variables_game.dart';
@@ -64,6 +65,7 @@ final List<Lesson> lessons = [
     title: (l10n) => l10n.lessonFunctions,
     cards: functionsLessonCards,
     quiz: functionsQuiz,
+    game: functionsGame,
     perfectQuizMessage: (l10n) => l10n.lesson5Perfect,
   ),
 ];

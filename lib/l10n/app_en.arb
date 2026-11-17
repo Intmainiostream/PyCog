@@ -755,6 +755,24 @@
   "quiz5Q6Why1": "Count the calls at the bottom.",
   "quiz5Q6Why3": "The def part does not show anything. Only calls do.",
   "quiz5Q6Explain": "There are 2 calls, so `Hi!` shows 2 times.",
+  "@game5R1Intro": {
+    "description": "Lesson 5 game text. Very simple English. Each hint is ONE short line from Cog. Function names (add, double, greet, shout), print, return and None are code: keep them in English."
+  },
+  "game5R1Intro": "Here is my add function. What does each call give back?",
+  "game5R1Hint1": "add gives back a + b. Look for two numbers that make 5.",
+  "game5R1Hint2": "add gives back a + b. Look for two numbers that make 2.",
+  "game5R1Hint3": "add gives back a + b. Adding 0 changes nothing!",
+  "game5R1Hint4": "add gives back a + b. Look for two numbers that make 10.",
+  "game5R2Intro": "This function doubles a number. What comes back?",
+  "game5R2Hint1": "double gives back n * 2. Which number times 2 is 6?",
+  "game5R2Hint2": "double gives back n * 2. Which number times 2 is 10?",
+  "game5R2Hint3": "Zero times 2 is still 0.",
+  "game5R2Hint4": "double gives back n * 2. Which number times 2 is 20?",
+  "game5R3Intro": "Last round! One function uses print, not return. Careful!",
+  "game5R3Hint1": "greet gives back \"Hi, \" and the name. Find the call with Ana.",
+  "game5R3Hint2": "greet gives back \"Hi, \" and the name. Find the call with Ben.",
+  "game5R3Hint3": "shout uses print, not return. print only shows on screen, so it gives back None.",
+  "game5R3Hint4": "shout only shows the words with print. Only greet gives them back.",
   "@game1R1Intro": {
     "description": "Game text. Intros give the story clues; hints are ONE gentle sentence and must not shame. Text in quotes like \"Cog\" or `code` is code: keep it in English."
   },

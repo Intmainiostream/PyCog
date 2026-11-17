@@ -81,11 +81,11 @@ String codeOf(QuizQuestion q) => q.code.map((l) => l.code).join('\n');
 
 void main() {
   group('Lesson 5 content', () {
-    test('9 cards, 6 multiple-choice questions, no game yet', () {
+    test('9 cards, 6 multiple-choice questions, and a game', () {
       expect(functions.id, 'functions');
       expect(functions.cards, hasLength(9));
       expect(functions.quiz, hasLength(6));
-      expect(functions.hasGame, isFalse);
+      expect(functions.hasGame, isTrue); // see game5_test.dart
       expect(
         functions.quiz.every((q) => q.type == QuestionType.multipleChoice),
         isTrue,
@@ -344,7 +344,7 @@ void main() {
     // Lesson 5 is the last lesson: no "Lesson 6 is now open!" badge.
     expect(find.textContaining('is now open'), findsNothing);
     expect(progress.unlockedCount(lessons), lessons.length);
-    expect(find.text(en.resultsPlayGame), findsNothing); // no game yet
+    expect(find.text(en.resultsPlayGame), findsOneWidget); // game5_test.dart
   });
 
   // All 9 cards on small phones with the biggest text, both languages.
