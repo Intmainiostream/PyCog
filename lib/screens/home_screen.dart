@@ -6,234 +6,192 @@ import '../data/lessons.dart';
 import '../data/progress_controller.dart';
 import '../data/settings_controller.dart';
 import '../l10n/generated/app_localizations.dart';
-import '../models/lesson.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_top_bar.dart';
 import '../widgets/chunky_button.dart';
-import 'lesson_screen.dart';
 import '../widgets/cog_placeholder.dart';
-import '../widgets/lesson_path.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
-import '../widgets/star_counter.dart';
+import 'coming_soon_screen.dart';
+import 'trail_screen.dart';
 
-/// The home screen.
+/// The first screen: Cog says hi, with three big buttons.
+///  * PLAY opens the lesson trail.
+///  * MINIGAME and CODING open "Coming soon" screens for now.
 ///
-/// Two layouts:
-///  * Narrow / portrait: one centered column (max width on tablets) with Cog,
-///    the speech bubble and the lesson path, all in one scrolling list.
-///  * Wide landscape: Cog + speech bubble on the left, the lesson path on the
-///    right; each side scrolls on its own.
+/// The star counter and gear are the same as on the trail, and the stars
+/// update live from saved progress.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.settings, required this.progress});
 
   final SettingsController settings;
   final ProgressController progress;
 
-  void _onLessonTap(BuildContext context, Lesson lesson, bool unlocked) {
-    // Open lessons that have content; everything else shows a message.
-    if (unlocked && lesson.hasContent) {
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => LessonScreen(
-            lesson: lesson,
-            lessonNumber: lessons.indexOf(lesson) + 1,
-            settings: settings,
-            progress: progress,
-          ),
-        ),
-      );
-      return;
-    }
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(unlocked ? l10n.comingSoon : l10n.lessonLocked)),
-      );
+  void _openTrail(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        // Named, so "Back to lessons" can return to the trail.
+        settings: const RouteSettings(name: TrailScreen.routeName),
+        builder: (_) => TrailScreen(settings: settings, progress: progress),
+      ),
+    );
+  }
+
+  void _openComingSoon(BuildContext context, ComingSoonKind kind) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ComingSoonScreen(kind: kind, settings: settings),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Redraw when saved progress changes (stars total, unlocked lessons).
       body: ListenableBuilder(
-        listenable: progress,
-        builder: (context, _) => _body(context),
-      ),
-    );
-  }
+        listenable: progress, // keeps the star counter up to date
+        builder: (context, _) => SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final wide =
+                  constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
+                  constraints.maxWidth > constraints.maxHeight;
+              final maxWidth = wide
+                  ? AppSizes.maxWideContentWidth
+                  : AppSizes.maxContentWidth;
+              final sidePadding = math.max(
+                AppSizes.screenPadding,
+                (constraints.maxWidth - maxWidth) / 2,
+              );
 
-  Widget _body(BuildContext context) {
-    return SafeArea(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final wide =
-              constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
-              constraints.maxWidth > constraints.maxHeight;
-          final maxWidth = wide
-              ? AppSizes.maxWideContentWidth
-              : AppSizes.maxContentWidth;
-          // Side padding that keeps content centered at [maxWidth] on big
-          // screens. Used as scroll padding (not a wrapper) so you can
-          // still scroll by dragging in the empty side margins.
-          final sidePadding = math.max(
-            AppSizes.screenPadding,
-            (constraints.maxWidth - maxWidth) / 2,
-          );
-
-          return Column(
-            children: [
-              _TopBar(
-                sidePadding: sidePadding,
-                stars: progress.totalStars(lessons),
-                onSettings: () => showSettingsSheet(context, settings),
-              ),
-              Expanded(
-                child: wide
-                    ? _wideBody(context, sidePadding)
-                    : _narrowBody(context, sidePadding),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _narrowBody(BuildContext context, double sidePadding) {
-    return ListView(
-      padding: EdgeInsets.fromLTRB(
-        sidePadding,
-        AppSizes.gap8,
-        sidePadding,
-        AppSizes.gap24,
-      ),
-      children: [
-        _cogWithBubble(context),
-        const SizedBox(height: AppSizes.gap24),
-        ..._lessons(context),
-      ],
-    );
-  }
-
-  Widget _wideBody(BuildContext context, double sidePadding) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          flex: 2,
-          child: Center(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                sidePadding,
-                AppSizes.gap8,
-                AppSizes.gap12,
-                AppSizes.gap24,
-              ),
-              child: _cogWithBubble(context),
-            ),
+              return Column(
+                children: [
+                  AppTopBar(
+                    sidePadding: sidePadding,
+                    stars: progress.totalStars(lessons),
+                    onSettings: () => showSettingsSheet(context, settings),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        sidePadding,
+                        AppSizes.gap8,
+                        sidePadding,
+                        AppSizes.gap24,
+                      ),
+                      child: wide
+                          ? Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(flex: 2, child: _cog(context)),
+                                const SizedBox(width: AppSizes.gap24),
+                                Expanded(flex: 3, child: _buttons(context)),
+                              ],
+                            )
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                _cog(context),
+                                const SizedBox(height: AppSizes.gap24),
+                                _buttons(context),
+                              ],
+                            ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
-        Expanded(
-          flex: 3,
-          child: ListView(
-            padding: EdgeInsets.fromLTRB(
-              AppSizes.gap12,
-              AppSizes.gap8,
-              sidePadding,
-              AppSizes.gap24,
-            ),
-            children: _lessons(context),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _cogWithBubble(BuildContext context) {
+  Widget _cog(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         CogPlaceholder(size: CogPlaceholder.sizeFor(context)),
-        SpeechBubble(text: AppLocalizations.of(context).cogGreeting),
+        SpeechBubble(text: AppLocalizations.of(context).homeGreeting),
       ],
     );
   }
 
-  List<Widget> _lessons(BuildContext context) {
-    return [
-      Text(
-        AppLocalizations.of(context).lessonsHeader,
-        textAlign: TextAlign.center,
-        style: AppTextStyles.display,
-      ),
-      const SizedBox(height: AppSizes.gap16),
-      LessonPath(
-        lessons: lessons,
-        unlockedCount: progress.unlockedCount(lessons),
-        onLessonTap: (lesson, unlocked) =>
-            _onLessonTap(context, lesson, unlocked),
-      ),
-    ];
+  Widget _buttons(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _HomeButton(
+          key: const ValueKey('home-play'),
+          label: l10n.homePlay,
+          icon: Icons.play_arrow_rounded,
+          color: AppColors.red,
+          onTap: () => _openTrail(context),
+        ),
+        const SizedBox(height: AppSizes.gap12),
+        _HomeButton(
+          key: const ValueKey('home-minigame'),
+          label: l10n.homeMinigame,
+          icon: Icons.extension_rounded,
+          color: AppColors.teal,
+          onTap: () => _openComingSoon(context, ComingSoonKind.minigame),
+        ),
+        const SizedBox(height: AppSizes.gap12),
+        _HomeButton(
+          key: const ValueKey('home-coding'),
+          label: l10n.homeCoding,
+          icon: Icons.code_rounded,
+          color: AppColors.success,
+          onTap: () => _openComingSoon(context, ComingSoonKind.coding),
+        ),
+      ],
+    );
   }
 }
 
-/// Stars on the left, app name in the middle, gear on the right.
-class _TopBar extends StatelessWidget {
-  const _TopBar({
-    required this.sidePadding,
-    required this.stars,
-    required this.onSettings,
+/// One big chunky home button: icon + label.
+class _HomeButton extends StatelessWidget {
+  const _HomeButton({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onTap,
   });
 
-  final double sidePadding;
-  final int stars;
-  final VoidCallback onSettings;
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        sidePadding,
-        AppSizes.gap12,
-        sidePadding,
-        AppSizes.gap8,
+    return ChunkyButton(
+      color: color,
+      radius: AppSizes.radiusLarge,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.gap24,
+        vertical: AppSizes.homeButtonPadding,
       ),
-      // Two equal side slots keep the title exactly centered. The star counter
-      // may shrink a little on tiny screens with huge text instead of
-      // overflowing.
+      onTap: onTap,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: StarCounter(stars: stars),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSizes.gap8),
+          Icon(icon, size: AppSizes.homeButtonIconSize),
+          const SizedBox(width: AppSizes.gap12),
+          Flexible(
             child: Text(
-              l10n.appTitle,
-              style: AppTextStyles.title.copyWith(color: AppColors.tealDark),
-            ),
-          ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: ChunkyButton(
-                circle: true,
-                width: AppSizes.minTouchTarget,
-                height: AppSizes.minTouchTarget,
-                padding: EdgeInsets.zero,
-                color: AppColors.surface,
-                semanticLabel: l10n.settingsTooltip,
-                onTap: onSettings,
-                child: const Icon(Icons.settings_rounded, size: 28),
+              label,
+              textAlign: TextAlign.center,
+              // No color here: the label takes the button's text color
+              // (white on red/teal, dark on yellow-green).
+              style: const TextStyle(
+                fontFamily: AppFonts.title,
+                fontSize: AppSizes.fontTitle + 4,
+                fontWeight: FontWeight.w700,
+                fontVariations: [FontVariation.weight(700)],
+                height: 1.2,
               ),
             ),
           ),

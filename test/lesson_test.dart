@@ -12,6 +12,8 @@ import 'package:pycog/screens/quiz_screen.dart';
 import 'package:pycog/widgets/code_box.dart';
 import 'package:pycog/widgets/lesson_top_bar.dart';
 
+import 'test_helpers.dart';
+
 final variables = lessons.first;
 final en = lookupAppLocalizations(const Locale('en'));
 final tl = lookupAppLocalizations(const Locale('tl'));
@@ -45,6 +47,7 @@ Future<SettingsController> openLesson(
     PyCogApp(settings: settings, progress: await ProgressController.load()),
   );
   await tester.pumpAndSettle();
+  await openTrail(tester); // app opens on the home screen
   // Lists only build what's near the screen, so scroll down to the trail.
   final node = find.byKey(const ValueKey('lesson-node-variables'));
   await tester.scrollUntilVisible(

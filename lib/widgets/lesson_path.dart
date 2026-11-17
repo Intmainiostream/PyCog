@@ -20,11 +20,16 @@ class LessonPath extends StatelessWidget {
     required this.lessons,
     required this.unlockedCount,
     required this.onLessonTap,
+    this.showTail = false,
   });
 
   final List<Lesson> lessons;
   final int unlockedCount;
   final void Function(Lesson lesson, bool unlocked) onLessonTap;
+
+  /// Draws the path on past the last lesson, ending at the bottom center
+  /// (where the trail's cloud area begins).
+  final bool showTail;
 
   static const _labelMaxLines = 3;
   static const _labelPadding = EdgeInsets.symmetric(
@@ -59,6 +64,7 @@ class LessonPath extends StatelessWidget {
                   painter: _TrailPainter(
                     layout.nodes.map((n) => n.center).toList(),
                     unlockedCount,
+                    tail: showTail && lessons.isNotEmpty,
                   ),
                 ),
               ),
@@ -151,7 +157,9 @@ class LessonPath extends StatelessWidget {
     return _PathLayout(
       nodes: nodes,
       labelWidth: labelWidth,
-      height: math.max(0, y - AppSizes.lessonRowGap + AppSizes.gap8),
+      height:
+          math.max(0, y - AppSizes.lessonRowGap + AppSizes.gap8) +
+          (showTail && lessons.isNotEmpty ? AppSizes.trailTailHeight : 0),
     );
   }
 
@@ -293,10 +301,14 @@ class _StartTag extends StatelessWidget {
 
 /// Draws the thick winding trail that connects the nodes.
 class _TrailPainter extends CustomPainter {
-  _TrailPainter(this.centers, this.unlockedCount);
+  _TrailPainter(this.centers, this.unlockedCount, {this.tail = false});
 
   final List<Offset> centers;
   final int unlockedCount;
+
+  /// Also draw a locked-color stretch from the last node down to the
+  /// bottom center (into the clouds below).
+  final bool tail;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -329,11 +341,38 @@ class _TrailPainter extends CustomPainter {
           ..strokeWidth = AppSizes.pathWidth,
       );
     }
+
+    if (tail && centers.isNotEmpty) {
+      final a = centers.last;
+      final b = Offset(size.width / 2, size.height);
+      final midY = (a.dy + b.dy) / 2;
+      final segment = Path()
+        ..moveTo(a.dx, a.dy)
+        ..cubicTo(a.dx, midY, b.dx, midY, b.dx, b.dy);
+      canvas.drawPath(
+        segment,
+        Paint()
+          ..color = AppColors.outline
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = AppSizes.pathWidth + AppSizes.outlineWidth * 2,
+      );
+      canvas.drawPath(
+        segment,
+        Paint()
+          ..color = AppColors.locked
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = AppSizes.pathWidth,
+      );
+    }
   }
 
   @override
   bool shouldRepaint(_TrailPainter old) =>
-      old.unlockedCount != unlockedCount || !_sameOffsets(old.centers, centers);
+      old.tail != tail ||
+      old.unlockedCount != unlockedCount ||
+      !_sameOffsets(old.centers, centers);
 
   static bool _sameOffsets(List<Offset> a, List<Offset> b) {
     if (a.length != b.length) return false;

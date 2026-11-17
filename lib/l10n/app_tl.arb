@@ -551,5 +551,15 @@
   "lessonDataTypes": "Mga Uri ng Data",
   "lessonIfStatements": "Mga If Statement",
   "lessonLoops": "Mga Loop",
-  "lessonFunctions": "Mga Function"
+  "lessonFunctions": "Mga Function",
+  "homeGreeting": "Kumusta! Ano ang gusto mong gawin ngayon?",
+  "homePlay": "LARO",
+  "homeMinigame": "MINIGAME",
+  "homeCoding": "CODING",
+  "homeComingSoonTitle": "Malapit na!",
+  "homeMinigameSoon": "May mga bagong mini game na darating. Balikan mo ito!",
+  "homeCodingSoon": "Malapit mo nang maisulat dito ang sarili mong Python code!",
+  "homeBackToHome": "Bumalik sa home",
+  "cloudsMoreLessons": "May darating pang bagong aralin",
+  "cloudsKeepPracticing": "Mag-practice muna kasama si Cog!"
 }

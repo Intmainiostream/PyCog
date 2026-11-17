@@ -6,6 +6,8 @@ import 'package:pycog/data/progress_controller.dart';
 import 'package:pycog/data/settings_controller.dart';
 import 'package:pycog/main.dart';
 
+import 'test_helpers.dart';
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
@@ -15,6 +17,7 @@ void main() {
       PyCogApp(settings: settings, progress: await ProgressController.load()),
     );
     await tester.pumpAndSettle();
+    await openTrail(tester); // app opens on the home screen
     return settings;
   }
 

@@ -12,6 +12,8 @@ import 'package:pycog/main.dart';
 import 'package:pycog/screens/game_screen.dart';
 import 'package:pycog/theme/app_theme.dart';
 
+import 'test_helpers.dart';
+
 final variables = lessons.first;
 final en = lookupAppLocalizations(const Locale('en'));
 final tl = lookupAppLocalizations(const Locale('tl'));
@@ -235,6 +237,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await openTrail(tester); // app opens on the home screen
       expect(find.bySemanticsLabel(en.starsCount(5)), findsOneWidget);
     });
   });

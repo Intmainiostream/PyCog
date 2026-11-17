@@ -795,5 +795,27 @@
   "lessonDataTypes": "Data Types",
   "lessonIfStatements": "If Statements",
   "lessonLoops": "Loops",
-  "lessonFunctions": "Functions"
+  "lessonFunctions": "Functions",
+  "@homeGreeting": {
+    "description": "Home screen (first screen). Cog's greeting above the PLAY / MINIGAME / CODING buttons."
+  },
+  "homeGreeting": "Hi! What do you want to do today?",
+  "@homePlay": {
+    "description": "Big home button that opens the lesson trail. All caps."
+  },
+  "homePlay": "PLAY",
+  "homeMinigame": "MINIGAME",
+  "homeCoding": "CODING",
+  "homeComingSoonTitle": "Coming soon!",
+  "homeMinigameSoon": "New mini games are on the way. Check back soon!",
+  "homeCodingSoon": "Soon you can write your own Python code here!",
+  "@homeBackToHome": {
+    "description": "Screen-reader label for the back arrow on the lesson trail."
+  },
+  "homeBackToHome": "Back to home",
+  "@cloudsMoreLessons": {
+    "description": "Text in the clouds at the end of the lesson trail, after the last lesson."
+  },
+  "cloudsMoreLessons": "More lessons coming soon",
+  "cloudsKeepPracticing": "Keep practicing with Cog!"
 }

@@ -12,6 +12,7 @@ import '../widgets/cog_placeholder.dart';
 import '../widgets/result_widgets.dart';
 import '../widgets/speech_bubble.dart';
 import 'game_screen.dart';
+import 'trail_screen.dart';
 
 /// End of the game: 1 to 3 bonus stars, Cog's reaction, "Play again" and
 /// "Back to lessons". (The bonus stars are already saved before this opens.)
@@ -79,8 +80,7 @@ class GameResultsScreen extends StatelessWidget {
             );
             final back = ChunkyButton(
               color: AppColors.surface,
-              onTap: () =>
-                  Navigator.of(context).popUntil((route) => route.isFirst),
+              onTap: () => popToTrail(context),
               child: Text(
                 l10n.resultsBackToLessons,
                 textAlign: TextAlign.center,

@@ -15,6 +15,8 @@ import 'package:pycog/screens/quiz_screen.dart';
 import 'package:pycog/theme/app_theme.dart';
 import 'package:pycog/widgets/code_box.dart';
 
+import 'test_helpers.dart';
+
 final dataTypes = lessons[1];
 final en = lookupAppLocalizations(const Locale('en'));
 final tl = lookupAppLocalizations(const Locale('tl'));
@@ -53,6 +55,7 @@ Future<SettingsController> openLesson2(
     PyCogApp(settings: settings, progress: await ProgressController.load()),
   );
   await tester.pumpAndSettle();
+  await openTrail(tester); // app opens on the home screen
   final node = find.byKey(const ValueKey('lesson-node-data_types'));
   await tester.scrollUntilVisible(
     node,
@@ -131,6 +134,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await openTrail(tester); // app opens on the home screen
     await tester.tap(find.byKey(const ValueKey('lesson-node-data_types')));
     await tester.pumpAndSettle();
     expect(find.byType(LessonScreen), findsNothing);

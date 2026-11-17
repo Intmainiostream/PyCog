@@ -47,6 +47,12 @@ class AppColors {
 
   // Quiz feedback
   static const hintBackground = Color(0xFFFFDCD3); // soft coral: "try again"
+
+  // Clouds at the end of the lesson trail (back to front)
+  static const cloudBack = Color(0xFFD6F4E6); // pale mint
+  static const cloudMiddle = Color(0xFFFFF8E8); // warm cream
+  static const cloudFront = Color(0xFFFFFFFF); // white
+  static const cloudEdge = Color(0x333B2416); // soft outline (outline at 20%)
 }
 
 /// Font family names. They match the `family:` names in pubspec.yaml.
@@ -114,6 +120,15 @@ class AppSizes {
   static const feedbackCogSize = 52.0; // mini Cog in the feedback card
   static const resultsStarMax = 80.0; // biggest star on the results screen
   static const resultsStarFraction = 0.2; // of the content width
+
+  // Home screen (PLAY / MINIGAME / CODING)
+  static const homeButtonIconSize = 34.0;
+  static const homeButtonPadding = 20.0; // vertical padding inside each button
+
+  // End of the lesson trail
+  static const trailTailHeight = 70.0; // path past the last lesson
+  static const cloudFooterMinHeight = 230.0;
+  static const cloudOverlap = 40.0; // clouds cover the end of the path
 
   // Game: "Label the Robot Box"
   static const gameBoxMinHeight = 56.0; // drop area (well above 48)

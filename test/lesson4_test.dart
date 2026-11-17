@@ -17,6 +17,8 @@ import 'package:pycog/theme/app_theme.dart';
 import 'package:pycog/widgets/code_box.dart';
 import 'package:pycog/widgets/output_box.dart';
 
+import 'test_helpers.dart';
+
 final loops = lessons[3];
 final en = lookupAppLocalizations(const Locale('en'));
 final tl = lookupAppLocalizations(const Locale('tl'));
@@ -59,6 +61,7 @@ Future<SettingsController> openLesson4(
     PyCogApp(settings: settings, progress: await ProgressController.load()),
   );
   await tester.pumpAndSettle();
+  await openTrail(tester); // app opens on the home screen
   final node = find.byKey(const ValueKey('lesson-node-loops'));
   await tester.scrollUntilVisible(
     node,
@@ -233,6 +236,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await openTrail(tester); // app opens on the home screen
     final node = find.byKey(const ValueKey('lesson-node-loops'));
     await tester.scrollUntilVisible(
       node,

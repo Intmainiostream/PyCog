@@ -16,6 +16,8 @@ import 'package:pycog/screens/quiz_screen.dart';
 import 'package:pycog/theme/app_theme.dart';
 import 'package:pycog/widgets/code_box.dart';
 
+import 'test_helpers.dart';
+
 final ifs = lessons[2];
 final en = lookupAppLocalizations(const Locale('en'));
 final tl = lookupAppLocalizations(const Locale('tl'));
@@ -57,6 +59,7 @@ Future<SettingsController> openLesson3(
     PyCogApp(settings: settings, progress: await ProgressController.load()),
   );
   await tester.pumpAndSettle();
+  await openTrail(tester); // app opens on the home screen
   final node = find.byKey(const ValueKey('lesson-node-if_statements'));
   await tester.scrollUntilVisible(
     node,
@@ -193,6 +196,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await openTrail(tester); // app opens on the home screen
     final node = find.byKey(const ValueKey('lesson-node-if_statements'));
     await tester.scrollUntilVisible(
       node,

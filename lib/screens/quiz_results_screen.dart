@@ -13,6 +13,7 @@ import '../widgets/result_widgets.dart';
 import '../widgets/speech_bubble.dart';
 import 'game_screen.dart';
 import 'quiz_screen.dart';
+import 'trail_screen.dart';
 
 /// End of a quiz: 1 to 3 stars, Cog's reaction, "Try again" and
 /// "Back to lessons". (The stars are already saved before this opens.)
@@ -66,7 +67,7 @@ class QuizResultsScreen extends StatelessWidget {
   }
 
   void _backToLessons(BuildContext context) {
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    popToTrail(context);
   }
 
   @override

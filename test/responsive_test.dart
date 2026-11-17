@@ -14,6 +14,8 @@ import 'package:pycog/main.dart';
 import 'package:pycog/widgets/chunky_button.dart';
 import 'package:pycog/widgets/sticker_switch.dart';
 
+import 'test_helpers.dart';
+
 const screens = {
   'small phone 360x640': Size(360, 640),
   'phone 412x915': Size(412, 915),
@@ -70,6 +72,7 @@ void main() {
               ),
             );
             await tester.pumpAndSettle();
+            await openTrail(tester); // app opens on the home screen
 
             await expectTouchTargets(tester);
             // Flutter's built-in check as well. It only runs here, before any
