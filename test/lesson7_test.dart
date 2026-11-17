@@ -89,29 +89,6 @@ String codeOf(QuizQuestion q) => q.code.map((l) => l.code).join('\n');
 
 String rightAnswer(QuizQuestion q) => q.answers[q.correctIndex].label(en);
 
-/// The rows shown in the output box, as Text widgets, top to bottom.
-List<Text> outputRows(WidgetTester tester) => tester
-    .widgetList<Text>(
-      find.descendant(of: find.byType(OutputBox), matching: find.byType(Text)),
-    )
-    .skip(1) // the "Output" label
-    .toList();
-
-/// The printed lines in the output box, with wrapped rows (which start with
-/// the wrap indent) joined back onto their line.
-List<String> printedLines(WidgetTester tester) {
-  final lines = <String>[];
-  final indent = ' ' * outputWrapIndent;
-  for (final row in outputRows(tester).map((t) => t.data!)) {
-    if (row.startsWith(indent) && lines.isNotEmpty) {
-      lines.last = '${lines.last} ${row.substring(outputWrapIndent)}';
-    } else {
-      lines.add(row);
-    }
-  }
-  return lines;
-}
-
 /// Python's + on two strings, done in Dart.
 String join(String a, String b) => a + b;
 
