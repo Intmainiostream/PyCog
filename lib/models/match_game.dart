@@ -38,9 +38,17 @@ class GameRound {
     required this.intro,
     required this.boxes,
     required this.chips,
+    this.setup = const [],
   });
 
   final LocalizedText intro;
   final List<GameBox> boxes;
+
+  /// Usually one chip per box. A box may have several chips (e.g. a True
+  /// box with two conditions); it accepts drops until all of its chips are in.
   final List<GameChip> chips;
+
+  /// Optional code shown above the boxes (e.g. `battery = 10`), for rounds
+  /// whose chips depend on some values. Empty = nothing shown.
+  final List<CodeLine> setup;
 }

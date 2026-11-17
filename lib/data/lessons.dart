@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../models/lesson.dart';
 import 'games/data_types_game.dart';
+import 'games/if_statements_game.dart';
 import 'games/variables_game.dart';
 import 'lessons/data_types_lesson.dart';
 import 'lessons/if_statements_lesson.dart';
@@ -40,6 +41,7 @@ final List<Lesson> lessons = [
     title: (l10n) => l10n.lessonIfStatements,
     cards: ifStatementsLessonCards,
     quiz: ifStatementsQuiz,
+    game: ifStatementsGame,
     perfectQuizMessage: (l10n) => l10n.lesson3Perfect,
   ),
   Lesson(id: 'loops', icon: Icons.loop, title: (l10n) => l10n.lessonLoops),

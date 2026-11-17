@@ -127,16 +127,18 @@ class _Shake extends StatelessWidget {
   }
 }
 
-/// A labeled variable box that values can be dropped into (or tapped into).
+/// A labeled box that values can be dropped into (or tapped into).
 ///
-/// Shows `?` when empty, the value in yellow-green with a ✓ once matched, and
-/// for the "changing it" twist, the old value crossed out above the new one.
+/// Shows `?` when empty, matched values in yellow-green with a ✓, and for
+/// the "changing it" twist, the old value crossed out above the new one.
+/// Usually a box holds one value; a True/False box can hold several.
 class GameBoxView extends StatelessWidget {
   const GameBoxView({
     super.key,
     required this.name,
     required this.startValue,
-    required this.placedValue,
+    required this.placedValues,
+    required this.full,
     required this.semanticLabel,
     required this.onTap,
     required this.onDrop,
@@ -144,28 +146,34 @@ class GameBoxView extends StatelessWidget {
 
   final String name;
   final String? startValue;
-  final String? placedValue;
+
+  /// Values matched into this box so far (in order).
+  final List<String> placedValues;
+
+  /// True once every value that belongs here is in: the box stops taking
+  /// drops and taps.
+  final bool full;
   final String semanticLabel;
   final VoidCallback onTap;
   final ValueChanged<String> onDrop;
 
   @override
   Widget build(BuildContext context) {
-    final filled = placedValue != null;
+    final filled = placedValues.isNotEmpty;
 
     return DragTarget<String>(
-      // Only empty (or not-yet-updated) boxes take drops.
-      onWillAcceptWithDetails: (_) => !filled,
+      // Full boxes don't take any more drops.
+      onWillAcceptWithDetails: (_) => !full,
       onAcceptWithDetails: (details) => onDrop(details.data),
       builder: (context, candidates, rejected) {
         final hovering = candidates.isNotEmpty;
         return Semantics(
-          button: !filled,
+          button: !full,
           label: semanticLabel,
           excludeSemantics: true,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: filled ? null : onTap,
+            onTap: full ? null : onTap,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -231,8 +239,7 @@ class GameBoxView extends StatelessWidget {
   }
 
   Widget _contents() {
-    final value = placedValue;
-    if (value != null) {
+    if (placedValues.isNotEmpty) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -246,19 +253,24 @@ class GameBoxView extends StatelessWidget {
                 decorationThickness: 3,
               ),
             ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(value, style: _codeStyle()),
+          // One row per matched value (one row for one-value boxes).
+          for (final value in placedValues)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(value, style: _codeStyle()),
+                  ),
                 ),
-              ),
-              const SizedBox(width: AppSizes.gap4),
-              const Icon(Icons.check_circle_rounded, color: AppColors.outline),
-            ],
-          ),
+                const SizedBox(width: AppSizes.gap4),
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.outline,
+                ),
+              ],
+            ),
         ],
       );
     }

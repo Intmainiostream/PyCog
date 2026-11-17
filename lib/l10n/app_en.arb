@@ -526,6 +526,24 @@
   "quiz3Q6WhyGold": "Is 75 bigger than or equal to 90?",
   "quiz3Q6WhyTryAgain": "else runs only if every question is False. Check the elif.",
   "quiz3Q6Explain": "75 >= 90 is False. 75 >= 70 is True. So `Silver!` shows.",
+  "@game3R1Intro": {
+    "description": "Lesson 3 game text. Very simple English. Each hint is ONE short line explaining why the check is True or False. True, False, ==, !=, >=, <= and variable names are code: keep them in English."
+  },
+  "game3R1Intro": "Here are my values. Is each check True or False?",
+  "game3R1Hint1": "battery is 10. 10 is less than 20, so it is True.",
+  "game3R1Hint2": "lives is 3. 3 is not bigger than 5, so it is False.",
+  "game3R1Hint3": "battery is 10. 10 is not bigger than 50, so it is False.",
+  "game3R1Hint4": "lives is 3. 3 is less than 4, so it is True.",
+  "game3R2Intro": "Now check for equal and not equal!",
+  "game3R2Hint1": "lives is 3, and `==` asks if it is 3. Yes, so it is True.",
+  "game3R2Hint2": "score is 50, not 40. So it is False.",
+  "game3R2Hint3": "`!=` asks if lives is NOT 3. But lives is 3, so it is False.",
+  "game3R2Hint4": "score is 50, and 50 is not 0. So it is True.",
+  "game3R3Intro": "Last round! Be careful when the numbers are the same.",
+  "game3R3Hint1": "`>=` means bigger OR equal. 3 is equal to 3, so it is True.",
+  "game3R3Hint2": "`<=` means smaller OR equal. 100 is equal to 100, so it is True.",
+  "game3R3Hint3": "lives is 3. 3 is bigger than 2, so it is False.",
+  "game3R3Hint4": "Look closely! score is 100, not 10. So it is False.",
   "@game1R1Intro": {
     "description": "Game text. Intros give the story clues; hints are ONE gentle sentence and must not shame. Text in quotes like \"Cog\" or `code` is code: keep it in English."
   },

@@ -10,6 +10,7 @@ import '../models/match_game.dart';
 import '../models/quiz.dart';
 import '../theme/app_theme.dart';
 import '../widgets/chunky_button.dart';
+import '../widgets/code_box.dart';
 import '../widgets/cog_feedback_card.dart';
 import '../widgets/cog_placeholder.dart';
 import '../widgets/game_widgets.dart';
@@ -83,13 +84,17 @@ class _GameScreenState extends State<GameScreen> {
   GameChip _chip(String value) =>
       _round.chips.firstWhere((chip) => chip.value == value);
 
-  /// The value now in a box, if it's been matched.
-  String? _valueIn(String boxName) {
-    for (final MapEntry(key: value, value: box) in _placed.entries) {
-      if (box == boxName) return value;
-    }
-    return null;
-  }
+  /// The values matched into a box so far, in the order they were placed.
+  List<String> _valuesIn(String boxName) => [
+    for (final MapEntry(key: value, value: box) in _placed.entries)
+      if (box == boxName) value,
+  ];
+
+  /// A box is full once every chip that belongs in it has been placed.
+  /// (Usually one chip per box; a True/False box can take several.)
+  bool _isFull(String boxName) =>
+      _valuesIn(boxName).length >=
+      _round.chips.where((chip) => chip.box == boxName).length;
 
   void _tapChip(String value) {
     setState(() {
@@ -109,7 +114,7 @@ class _GameScreenState extends State<GameScreen> {
 
   /// A chip was dropped (or tap-placed) on a box.
   void _place(String value, String boxName) {
-    if (_placed.containsKey(value) || _valueIn(boxName) != null) return;
+    if (_placed.containsKey(value) || _isFull(boxName)) return;
     setState(() {
       _selected = null;
       if (_chip(value).box == boxName) {
@@ -232,6 +237,7 @@ class _GameScreenState extends State<GameScreen> {
                 _heading(l10n),
                 const SizedBox(height: AppSizes.gap8),
                 _cogIntro(l10n),
+                ..._setup(),
                 const SizedBox(height: AppSizes.gap16),
                 _boxes(l10n),
               ],
@@ -288,6 +294,7 @@ class _GameScreenState extends State<GameScreen> {
                 _heading(l10n),
                 const SizedBox(height: AppSizes.gap8),
                 _cogIntro(l10n),
+                ..._setup(),
                 const SizedBox(height: AppSizes.gap8),
                 _tray(l10n),
               ],
@@ -320,6 +327,15 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  /// The round's optional setup code (e.g. `battery = 10`) in a code box.
+  /// Returns nothing for rounds without setup, so those look unchanged.
+  List<Widget> _setup() => [
+    if (_round.setup.isNotEmpty) ...[
+      const SizedBox(height: AppSizes.gap12),
+      CodeBox(lines: _round.setup),
+    ],
+  ];
+
   /// Small Cog beside the speech bubble with the round's story.
   Widget _cogIntro(AppLocalizations l10n) {
     return Row(
@@ -346,11 +362,15 @@ class _GameScreenState extends State<GameScreen> {
   Widget _boxes(AppLocalizations l10n, {int? columns}) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final cols =
-            columns ??
-            (constraints.maxWidth >= AppSizes.gameWideBoxMinWidth
-                ? AppSizes.gameWideBoxColumns
-                : AppSizes.gameNarrowBoxColumns);
+        // Never more columns than boxes (2 boxes shouldn't sit in a 4-wide
+        // grid). With 4 boxes this changes nothing.
+        final cols = math.min(
+          columns ??
+              (constraints.maxWidth >= AppSizes.gameWideBoxMinWidth
+                  ? AppSizes.gameWideBoxColumns
+                  : AppSizes.gameNarrowBoxColumns),
+          _round.boxes.length,
+        );
         const gap = AppSizes.gap12;
         final itemWidth = (constraints.maxWidth - gap * (cols - 1)) / cols;
 
@@ -365,7 +385,8 @@ class _GameScreenState extends State<GameScreen> {
                   key: ValueKey('game-box-$_r-${box.name}'),
                   name: box.name,
                   startValue: box.startValue,
-                  placedValue: _valueIn(box.name),
+                  placedValues: _valuesIn(box.name),
+                  full: _isFull(box.name),
                   semanticLabel: _boxLabel(l10n, box),
                   onTap: () => _tapBox(box.name),
                   onDrop: (value) => _place(value, box.name),
@@ -378,8 +399,10 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   String _boxLabel(AppLocalizations l10n, GameBox box) {
-    final value = _valueIn(box.name);
-    if (value != null) return l10n.gameBoxFilled(box.name, value);
+    final values = _valuesIn(box.name);
+    if (values.isNotEmpty) {
+      return l10n.gameBoxFilled(box.name, values.join(', '));
+    }
     if (box.startValue != null) {
       return l10n.gameBoxNeedsUpdate(box.name, box.startValue!);
     }
