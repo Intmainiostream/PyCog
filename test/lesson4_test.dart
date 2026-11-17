@@ -80,11 +80,11 @@ String codeOf(QuizQuestion q) => q.code.map((l) => l.code).join('\n');
 
 void main() {
   group('Lesson 4 content', () {
-    test('9 cards, 6 multiple-choice questions, no game yet', () {
+    test('9 cards, 6 multiple-choice questions, and a game', () {
       expect(loops.id, 'loops');
       expect(loops.cards, hasLength(9));
       expect(loops.quiz, hasLength(6));
-      expect(loops.hasGame, isFalse);
+      expect(loops.hasGame, isTrue); // see game4_test.dart
       expect(
         loops.quiz.every((q) => q.type == QuestionType.multipleChoice),
         isTrue,
@@ -335,7 +335,7 @@ void main() {
     expect(textHas(en.lesson4Perfect), findsOneWidget);
     expect(progress.bestStars('loops'), 3);
     expect(find.text(en.resultsUnlocked(5)), findsOneWidget);
-    expect(find.text(en.resultsPlayGame), findsNothing); // no game yet
+    expect(find.text(en.resultsPlayGame), findsOneWidget); // game4_test.dart
   });
 
   // All 9 cards on small phones with the biggest text, both languages.

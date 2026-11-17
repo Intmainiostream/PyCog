@@ -642,6 +642,24 @@
   "quiz4Q6WrongCopy": "No loop. Write the line 10 times.",
   "quiz4Q6WhyCopy": "That works, but a loop is shorter and easier.",
   "quiz4Q6Explain": "When you know how many times, use `for` with `range`.",
+  "@game4R1Intro": {
+    "description": "Lesson 4 game text. Very simple English. Each hint is ONE short line: where the list starts/ends, and that range stops BEFORE its last number. Never name the right box. range is code: keep it in English."
+  },
+  "game4R1Intro": "Each box is a range. Which numbers does it give?",
+  "game4R1Hint1": "It ends at 2. range stops just BEFORE its number.",
+  "game4R1Hint2": "It ends at 4. range stops just BEFORE its number.",
+  "game4R1Hint3": "It ends at 1. range stops just BEFORE its number.",
+  "game4R1Hint4": "It ends at 3. range stops just BEFORE its number.",
+  "game4R2Intro": "Now range has two numbers: where to start, and where to stop.",
+  "game4R2Hint1": "It starts at 1 and ends at 3. range stops just BEFORE the second number.",
+  "game4R2Hint2": "It starts at 2 and ends at 4. range stops just BEFORE the second number.",
+  "game4R2Hint3": "It starts at 3 and ends at 5. range stops just BEFORE the second number.",
+  "game4R2Hint4": "It starts at 1 and ends at 2. range stops just BEFORE the second number.",
+  "game4R3Intro": "Last round! Some lists look alike. Check the first number!",
+  "game4R3Hint1": "It starts at 0, so look for a range with just one number.",
+  "game4R3Hint2": "It starts at 1, not 0. Look for a range that starts at 1.",
+  "game4R3Hint3": "It starts at 0 and ends at 3. range stops just BEFORE its number.",
+  "game4R3Hint4": "It starts at 2 and ends at 3. range stops just BEFORE the second number.",
   "lesson5Card1Title": "What is a function?",
   "@lesson5Card1Speech": {
     "description": "Lesson 5 text. Very simple English: short sentences, one idea each. def, return, print, parameter, function and `backticks` are code: keep them in English."
