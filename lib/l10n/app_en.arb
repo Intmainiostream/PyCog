@@ -1295,5 +1295,23 @@
   "quiz10Q6WhyTrue": "Brackets first: `True or False` is `True`. Then, what is `True and False`?",
   "quiz10Q6WrongError": "An error",
   "quiz10Q6WhyError": "Brackets are fine in Python, like in Lesson 6.",
-  "quiz10Q6Explain": "Brackets go first: `True or False` is `True`. Then `True and False` is `False`."
+  "quiz10Q6Explain": "Brackets go first: `True or False` is `True`. Then `True and False` is `False`.",
+  "@game6R1Intro": {
+    "description": "Lesson 6 game (drop each answer on its math box). Hints never name the right box. Code and numbers stay as they are."
+  },
+  "game6R1Intro": "Do the math! Drop each answer into its box.",
+  "game6R1Hint1": "5 comes from adding. Which two numbers add up to 5?",
+  "game6R1Hint2": "Look for the minus sign. What gives 6?",
+  "game6R1Hint3": "12 comes from multiplying. Look for the `*`.",
+  "game6R1Hint4": "7 comes from adding, not multiplying.",
+  "game6R2Intro": "Now divide! Careful: 5 and 5.0 are not the same.",
+  "game6R2Hint1": "`/` always gives a decimal number, like 5.0.",
+  "game6R2Hint2": "`//` gives a whole number, with no .0.",
+  "game6R2Hint3": "3 is the number of full teams. Look for `//`.",
+  "game6R2Hint4": "1 is what is left over. Look for `%`.",
+  "game6R3Intro": "Last round! Watch the order, and the brackets.",
+  "game6R3Hint1": "`*` goes first, then `+`.",
+  "game6R3Hint2": "Brackets go first, then `*`.",
+  "game6R3Hint3": "8 is 2 * 2 * 2. Look for `**`.",
+  "game6R3Hint4": "9 is 3 * 3. `**` is power, not times."
 }

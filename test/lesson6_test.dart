@@ -95,12 +95,12 @@ String py(num value) => value is double
 
 void main() {
   group('Lesson 6 content', () {
-    test('8 cards, 6 multiple-choice questions, no game yet', () {
+    test('8 cards, 6 multiple-choice questions, and a game', () {
       expect(math6.id, 'math_operators');
       expect(math6.title(en), 'Math Operators');
       expect(math6.cards, hasLength(8));
       expect(math6.quiz, hasLength(6));
-      expect(math6.hasGame, isFalse);
+      expect(math6.hasGame, isTrue); // see game6_test.dart
       expect(
         math6.quiz.every((q) => q.type == QuestionType.multipleChoice),
         isTrue,
@@ -348,7 +348,7 @@ void main() {
     );
   });
 
-  testWidgets('Perfect quiz: math master, 3 stars, no game button', (
+  testWidgets('Perfect quiz: math master, 3 stars, game button', (
     tester,
   ) async {
     SharedPreferences.setMockInitialValues(passed12345);
@@ -396,7 +396,7 @@ void main() {
       expect(find.textContaining('is now open'), findsNothing);
       expect(progress.unlockedCount(lessons), lessons.length);
     }
-    expect(find.text(en.resultsPlayGame), findsNothing); // no game yet
+    expect(find.text(en.resultsPlayGame), findsOneWidget); // game6_test
   });
 
   // All 8 cards on small phones with the biggest text, both languages.

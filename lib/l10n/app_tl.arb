@@ -1006,5 +1006,20 @@
   "quiz10Q6WhyTrue": "Una ang brackets: `True` ang `True or False`. Tapos, ano ang `True and False`?",
   "quiz10Q6WrongError": "Error",
   "quiz10Q6WhyError": "Ayos ang brackets sa Python, gaya sa Aralin 6.",
-  "quiz10Q6Explain": "Nauuna ang brackets: `True` ang `True or False`. Tapos, `False` ang `True and False`."
+  "quiz10Q6Explain": "Nauuna ang brackets: `True` ang `True or False`. Tapos, `False` ang `True and False`.",
+  "game6R1Intro": "Mag-math tayo! Ilagay ang bawat sagot sa kahon nito.",
+  "game6R1Hint1": "Galing sa pagdagdag ang 5. Aling dalawang number ang 5 kapag pinagsama?",
+  "game6R1Hint2": "Hanapin ang minus sign. Ano ang nagbibigay ng 6?",
+  "game6R1Hint3": "Galing sa pag-multiply ang 12. Hanapin ang `*`.",
+  "game6R1Hint4": "Galing sa pagdagdag ang 7, hindi sa pag-multiply.",
+  "game6R2Intro": "Ngayon, divide naman! Ingat: hindi pareho ang 5 at 5.0.",
+  "game6R2Hint1": "Laging may decimal ang sagot ng `/`, gaya ng 5.0.",
+  "game6R2Hint2": "Buong number ang sagot ng `//`, walang .0.",
+  "game6R2Hint3": "3 ang bilang ng buong team. Hanapin ang `//`.",
+  "game6R2Hint4": "1 ang natira. Hanapin ang `%`.",
+  "game6R3Intro": "Huling round! Bantayan ang pagkakasunod, at ang brackets.",
+  "game6R3Hint1": "Nauuna ang `*`, saka ang `+`.",
+  "game6R3Hint2": "Nauuna ang brackets, saka ang `*`.",
+  "game6R3Hint3": "Ang 8 ay 2 * 2 * 2. Hanapin ang `**`.",
+  "game6R3Hint4": "Ang 9 ay 3 * 3. Power ang `**`, hindi multiply."
 }
