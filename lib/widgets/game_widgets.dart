@@ -258,12 +258,7 @@ class GameBoxView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Flexible(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(value, style: _codeStyle()),
-                  ),
-                ),
+                Flexible(child: _PlacedValue(value: value)),
                 const SizedBox(width: AppSizes.gap4),
                 const Icon(
                   Icons.check_circle_rounded,
@@ -290,6 +285,50 @@ class GameBoxView extends StatelessWidget {
       textAlign: TextAlign.center,
       style: _codeStyle(size: AppSizes.fontTitle)
           .copyWith(color: AppColors.lockedDark),
+    );
+  }
+}
+
+/// A value placed in a box shrinks to fit, down to [_minShrink] of its
+/// size. A value that would have to shrink more (a long check like
+/// `battery > 20 and has_key`) wraps onto more rows instead, at
+/// [_wrapScale] of its size, so it stays readable. The short values of the
+/// Lesson 1 to 5 games never shrink that far (the smallest is about half
+/// size, on a 360px phone with the biggest text), so they look the same.
+const _minShrink = 0.45;
+const _wrapScale = 0.6;
+
+class _PlacedValue extends StatelessWidget {
+  const _PlacedValue({required this.value});
+
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = _codeStyle();
+    final scaler = MediaQuery.textScalerOf(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final painter = TextPainter(
+          text: TextSpan(text: value, style: style),
+          textDirection: TextDirection.ltr,
+          textScaler: scaler,
+          maxLines: 1,
+        )..layout();
+        final natural = painter.width;
+        painter.dispose();
+        if (natural * _minShrink <= constraints.maxWidth) {
+          return FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(value, style: style),
+          );
+        }
+        return Text(
+          value,
+          textAlign: TextAlign.center,
+          style: _codeStyle(size: AppSizes.fontSubtitle * _wrapScale),
+        );
+      },
     );
   }
 }
