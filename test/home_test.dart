@@ -7,6 +7,7 @@ import 'package:pycog/data/progress_controller.dart';
 import 'package:pycog/data/settings_controller.dart';
 import 'package:pycog/l10n/generated/app_localizations.dart';
 import 'package:pycog/main.dart';
+import 'package:pycog/screens/coding_screen.dart';
 import 'package:pycog/screens/coming_soon_screen.dart';
 import 'package:pycog/screens/game_results_screen.dart';
 import 'package:pycog/screens/home_screen.dart';
@@ -125,12 +126,14 @@ void main() {
       expect(find.byType(HomeScreen), findsOneWidget);
     });
 
-    testWidgets('CODING opens "Coming soon"; the back arrow returns', (
+    testWidgets('CODING opens the playground; the back arrow returns', (
       tester,
     ) async {
       await startApp(tester);
       await tapAndSettle(tester, coding);
-      expect(find.text(en.homeCodingSoon), findsOneWidget);
+      expect(find.byType(CodingScreen), findsOneWidget);
+      expect(find.byType(ComingSoonScreen), findsNothing);
+      expect(find.text(en.codingTitle), findsOneWidget);
 
       await tapAndSettle(tester, find.byIcon(Icons.arrow_back_rounded).first);
       expect(find.byType(HomeScreen), findsOneWidget);
@@ -260,7 +263,7 @@ void main() {
 
         for (final button in [minigame, coding]) {
           await tapAndSettle(tester, button);
-          expectBigEnough(tester); // coming soon
+          expectBigEnough(tester); // coming soon, or the playground
           await tester.drag(
             find.byType(SingleChildScrollView).first,
             const Offset(0, -2000),
