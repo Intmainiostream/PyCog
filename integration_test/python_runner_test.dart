@@ -6,6 +6,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'package:pycog/playground/coding_examples.dart';
+import 'package:pycog/playground/coding_output.dart';
 import 'package:pycog/playground/python_checks.dart';
 import 'package:pycog/playground/python_runner.dart';
 
@@ -52,5 +54,38 @@ void main() {
     );
     expect(after.stdout, 'still works\n');
     expect(failures, isEmpty, reason: 'failed checks: $failures');
+  });
+
+  testWidgets('CODING playground examples run in real Python', (tester) async {
+    const expected = [
+      'Hi, I am Cog!\n',
+      '100\n80\n',
+      'Low battery!\n',
+      'Step 0\nStep 1\nStep 2\n',
+      '5\n',
+      'Your name? Ana\nAge? 12\nHi, Ana\nNext year: 13\n',
+    ];
+    for (final (i, example) in codingExamples.indexed) {
+      final r = await runPython(example.code, inputs: example.answers);
+      // ignore: avoid_print
+      print(
+        'EXAMPLE $i | ${r.elapsed.inMilliseconds} ms | '
+        'stdout=${r.stdout.replaceAll('\n', r'\n')} | error=${r.error} | '
+        'typed=${[for (final t in r.typed) '${t.offset}:${t.text}']}',
+      );
+      expect(r.error, isNull, reason: 'example $i');
+      expect(r.stdout, expected[i], reason: 'example $i');
+    }
+    // Typed answers: where real Python put them, they split into rows.
+    final input = await runPython(
+      codingExamples.last.code,
+      inputs: codingExamples.last.answers,
+    );
+    final (rows, typed) = splitOutput(input.stdout, input.typed);
+    expect(rows, ['Your name? ', 'Age? ', 'Hi, Ana', 'Next year: 13']);
+    expect(typed, {0: 'Ana', 1: '12'});
+    // Too few answers: the error the screen turns into a friendly message.
+    final short = await runPython(codingExamples.last.code, inputs: ['Ana']);
+    expect(short.error, 'EOFError: EOF when reading a line');
   });
 }
