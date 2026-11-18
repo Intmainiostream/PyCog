@@ -16,6 +16,7 @@ import '../widgets/lesson_text.dart';
 import '../widgets/output_box.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
+import '../widgets/truth_table.dart';
 import '../widgets/variable_box.dart';
 import 'quiz_screen.dart';
 
@@ -228,6 +229,10 @@ class _CardView extends StatelessWidget {
           runSpacing: AppSizes.gap16,
           children: [for (final box in card.boxes) VariableBox(data: box)],
         ),
+      ],
+      if (card.table case final table?) ...[
+        const SizedBox(height: AppSizes.gap16),
+        TruthTable(data: table),
       ],
       if (card.code.isNotEmpty) ...[
         const SizedBox(height: AppSizes.gap16),

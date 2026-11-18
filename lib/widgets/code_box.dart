@@ -209,7 +209,7 @@ List<TextSpan> highlightPython(String code) {
     r'"[^"]*"'
     r"|'[^']*'"
     r'|#.*|\b\d+(?:\.\d+)?\b|\b(?:True|False|None)\b'
-    r'|\b(?:if|elif|else|for|in|while|break|def|return)\b'
+    r'|\b(?:if|elif|else|for|in|while|break|def|return|and|or|not)\b'
     r'|==|!=|>=|<=|\+=|-=|<|>|=',
   );
   final spans = <TextSpan>[];
@@ -239,7 +239,8 @@ List<TextSpan> highlightPython(String code) {
       'True' ||
       'False' ||
       'None' => const TextStyle(color: AppColors.codeKeyword),
-      // if / elif / else, loop words, def and return: same color as
+      // if / elif / else, loop words, def, return and the logic words
+      // (and, or, not): same color as
       // True/False, bold so they stand out.
       'if' ||
       'elif' ||
@@ -249,7 +250,10 @@ List<TextSpan> highlightPython(String code) {
       'while' ||
       'break' ||
       'def' ||
-      'return' => const TextStyle(
+      'return' ||
+      'and' ||
+      'or' ||
+      'not' => const TextStyle(
         color: AppColors.codeKeyword,
         fontWeight: FontWeight.w800,
         fontVariations: [FontVariation.weight(800)],

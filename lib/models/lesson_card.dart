@@ -17,6 +17,7 @@ class LessonCard {
     this.tip,
     this.output = const [],
     this.typed = const {},
+    this.table,
   });
 
   /// Heading at the top of the card.
@@ -47,6 +48,22 @@ class LessonCard {
   /// nothing typed (every lesson before Lesson 9).
   final Map<int, String> typed;
 
+  /// Optional True/False table, shown above the code (Lesson 10 on).
+  /// Null = no table (every lesson before Lesson 10).
+  final TruthTableData? table;
+}
+
+/// A small True/False table, e.g. for `and`: every combination of the
+/// inputs and the result. The headings are code (the same in every
+/// language); the last column is the result.
+class TruthTableData {
+  const TruthTableData({required this.headings, required this.rows});
+
+  /// Column headings, e.g. `['a', 'b', 'a and b']`.
+  final List<String> headings;
+
+  /// One list of values per row, one value per heading.
+  final List<List<bool>> rows;
 }
 
 /// Whether a code line is a good or bad example (shown as a ✓ or ✗ badge).
