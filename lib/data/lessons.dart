@@ -9,6 +9,7 @@ import 'games/variables_game.dart';
 import 'lessons/data_types_lesson.dart';
 import 'lessons/functions_lesson.dart';
 import 'lessons/if_statements_lesson.dart';
+import 'lessons/input_output_lesson.dart';
 import 'lessons/lists_lesson.dart';
 import 'lessons/loops_lesson.dart';
 import 'lessons/math_operators_lesson.dart';
@@ -17,6 +18,7 @@ import 'lessons/variables_lesson.dart';
 import 'quizzes/data_types_quiz.dart';
 import 'quizzes/functions_quiz.dart';
 import 'quizzes/if_statements_quiz.dart';
+import 'quizzes/input_output_quiz.dart';
 import 'quizzes/lists_quiz.dart';
 import 'quizzes/loops_quiz.dart';
 import 'quizzes/math_operators_quiz.dart';
@@ -100,5 +102,14 @@ final List<Lesson> lessons = [
     cards: listsLessonCards,
     quiz: listsQuiz,
     perfectQuizMessage: (l10n) => l10n.lesson8Perfect,
+  ),
+  // No game yet: the quiz results screen shows no "Play the game" button.
+  Lesson(
+    id: 'input_output',
+    icon: Icons.keyboard_outlined,
+    title: (l10n) => l10n.lesson9Title,
+    cards: inputOutputLessonCards,
+    quiz: inputOutputQuiz,
+    perfectQuizMessage: (l10n) => l10n.lesson9Perfect,
   ),
 ];
