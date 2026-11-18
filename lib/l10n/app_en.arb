@@ -1385,5 +1385,53 @@
   "game9R3Hint1": "`input()` always gives text. Text + a number is a TypeError.",
   "game9R3Hint2": "`age` is text, so `+` joins \"12\" and \"12\".",
   "game9R3Hint3": "`int()` turns the text into a number first, so the math works.",
-  "game9R3Hint4": "Both are text, so `+` joins them with no space."
+  "game9R3Hint4": "Both are text, so `+` joins them with no space.",
+  "@codingTitle": {
+    "description": "CODING playground screen (opened by the CODING button on the home screen). Code words stay in English."
+  },
+  "codingTitle": "Code playground",
+  "codingIntro": "Write any Python you like, then tap Run!",
+  "codingCodeLabel": "Your Python code",
+  "codingCodeHint": "Type your Python code here",
+  "codingRun": "Run",
+  "codingClear": "Clear",
+  "codingCleared": "Code cleared.",
+  "codingUndo": "Undo",
+  "codingExamples": "Examples",
+  "codingExampleHello": "Say hello",
+  "codingExampleVariables": "Variables",
+  "codingExampleIf": "If and else",
+  "codingExampleFor": "A for loop",
+  "codingExampleFunction": "A function",
+  "codingExampleInput": "input() and int()",
+  "codingAnswersLabel": "Typed answers",
+  "codingAnswersHint": "One answer per line, for input()",
+  "codingStarting": "Starting Python...",
+  "codingRunning": "Running...",
+  "codingNothingPrinted": "Your program did not print anything.",
+  "codingTimeout": "Your code ran too long. Does a loop never stop?",
+  "codingNeedMoreAnswers": "Your program asked for more answers than you typed. Add another line in Typed answers.",
+  "codingStartError": "Python could not start. Close the app and try again.",
+  "codingTipSyntax": "Check your colons, brackets and quotes.",
+  "codingTipIndent": "Check the spaces at the start of each line: 4 per level.",
+  "codingTipName": "Check the spelling. Make a variable before you use it.",
+  "codingTipType": "Text and numbers do not mix. Try int() or str().",
+  "codingTipValue": "That value does not fit. int() needs digits, like \"42\".",
+  "codingTipZero": "You cannot divide by 0.",
+  "codingTipIndex": "That place is not in the list. Counting starts at 0.",
+  "codingTipBlocked": "Files, the internet and some modules are turned off here.",
+  "codingTipOther": "Read the last line: it says what went wrong. You can fix it!",
+  "codingAbout": "Python runs on your phone, even offline. Made with Pyodide (MPL-2.0) and CPython (PSF License).",
+  "codingLicenses": "See licenses",
+  "codingInsertTab": "Add 4 spaces",
+  "@codingInsert": {
+    "description": "Screen reader label of a helper button that types a symbol into the code box.",
+    "placeholders": {
+      "symbol": {
+        "type": "String",
+        "example": ":"
+      }
+    }
+  },
+  "codingInsert": "Add {symbol}"
 }

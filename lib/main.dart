@@ -11,6 +11,7 @@ import 'theme/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   _registerFontLicenses();
+  _registerPythonLicenses();
   // Load saved settings (language, sound, music, text size) before starting.
   final settings = await SettingsController.load();
   final progress = await ProgressController.load();
@@ -72,5 +73,23 @@ void _registerFontLicenses() {
         name,
       ], await rootBundle.loadString(path));
     }
+  });
+}
+
+/// Shows the licenses of the offline Python (the CODING playground) on the
+/// app's "Licenses" page: Pyodide (MPL-2.0) and CPython (PSF License).
+void _registerPythonLicenses() {
+  LicenseRegistry.addLicense(() async* {
+    final pyodide = await rootBundle.loadString(
+      'assets/pyodide/LICENSE-pyodide.txt',
+    );
+    yield LicenseEntryWithLineBreaks(
+      ['Pyodide'],
+      'Pyodide 314.0.8, included unmodified. Source code: '
+      'https://github.com/pyodide/pyodide\n\n$pyodide',
+    );
+    yield LicenseEntryWithLineBreaks([
+      'CPython (Python)',
+    ], await rootBundle.loadString('assets/pyodide/LICENSE-cpython.txt'));
   });
 }
