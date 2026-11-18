@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'data/minigame_progress.dart';
 import 'data/progress_controller.dart';
 import 'data/settings_controller.dart';
 import 'l10n/generated/app_localizations.dart';
@@ -15,14 +16,23 @@ Future<void> main() async {
   // Load saved settings (language, sound, music, text size) before starting.
   final settings = await SettingsController.load();
   final progress = await ProgressController.load();
-  runApp(PyCogApp(settings: settings, progress: progress));
+  final minigame = await MinigameProgress.load();
+  runApp(PyCogApp(settings: settings, progress: progress, minigame: minigame));
 }
 
 class PyCogApp extends StatelessWidget {
-  const PyCogApp({super.key, required this.settings, required this.progress});
+  const PyCogApp({
+    super.key,
+    required this.settings,
+    required this.progress,
+    this.minigame,
+  });
 
   final SettingsController settings;
   final ProgressController progress;
+
+  /// MINIGAME stars (the home screen loads them itself if not given).
+  final MinigameProgress? minigame;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +64,11 @@ class PyCogApp extends StatelessWidget {
             child: child!,
           );
         },
-        home: HomeScreen(settings: settings, progress: progress),
+        home: HomeScreen(
+          settings: settings,
+          progress: progress,
+          minigame: minigame,
+        ),
       ),
     );
   }

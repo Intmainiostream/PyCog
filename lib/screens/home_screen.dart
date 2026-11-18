@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 
 import '../data/lessons.dart';
+import '../data/minigame_progress.dart';
 import '../data/progress_controller.dart';
 import '../data/settings_controller.dart';
 import '../l10n/generated/app_localizations.dart';
@@ -14,12 +15,12 @@ import '../widgets/cog_placeholder.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
 import 'coding_screen.dart';
-import 'coming_soon_screen.dart';
+import 'minigame_map_screen.dart';
 import 'trail_screen.dart';
 
 /// The first screen: Cog says hi, with three big buttons.
 ///  * PLAY opens the lesson trail.
-///  * MINIGAME opens a "Coming soon" screen for now.
+///  * MINIGAME opens the challenge map ([MinigameMapScreen]).
 ///  * CODING opens the Python playground ([CodingScreen]).
 ///
 /// When it opens, Python starts quietly in the background, so the first Run
@@ -28,10 +29,18 @@ import 'trail_screen.dart';
 /// The star counter and gear are the same as on the trail, and the stars
 /// update live from saved progress.
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.settings, required this.progress});
+  const HomeScreen({
+    super.key,
+    required this.settings,
+    required this.progress,
+    this.minigame,
+  });
 
   final SettingsController settings;
   final ProgressController progress;
+
+  /// MINIGAME stars. Loaded when MINIGAME is tapped if not given.
+  final MinigameProgress? minigame;
 
   void _openTrail(BuildContext context) {
     Navigator.of(context).push(
@@ -49,10 +58,12 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  void _openComingSoon(BuildContext context, ComingSoonKind kind) {
-    Navigator.of(context).push(
+  Future<void> _openMinigame(BuildContext context) async {
+    final navigator = Navigator.of(context);
+    final saved = minigame ?? await MinigameProgress.load();
+    navigator.push(
       MaterialPageRoute<void>(
-        builder: (_) => ComingSoonScreen(kind: kind, settings: settings),
+        builder: (_) => MinigameMapScreen(settings: settings, progress: saved),
       ),
     );
   }
@@ -151,7 +162,7 @@ class HomeScreen extends StatelessWidget {
           label: l10n.homeMinigame,
           icon: Icons.extension_rounded,
           color: AppColors.teal,
-          onTap: () => _openComingSoon(context, ComingSoonKind.minigame),
+          onTap: () => _openMinigame(context),
         ),
         const SizedBox(height: AppSizes.gap12),
         _HomeButton(

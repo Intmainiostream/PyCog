@@ -11,6 +11,7 @@ import 'package:pycog/screens/coding_screen.dart';
 import 'package:pycog/screens/coming_soon_screen.dart';
 import 'package:pycog/screens/game_results_screen.dart';
 import 'package:pycog/screens/home_screen.dart';
+import 'package:pycog/screens/minigame_map_screen.dart';
 import 'package:pycog/screens/quiz_results_screen.dart';
 import 'package:pycog/screens/trail_screen.dart';
 import 'package:pycog/widgets/chunky_button.dart';
@@ -112,17 +113,19 @@ void main() {
       expect(find.byType(HomeScreen), findsOneWidget);
     });
 
-    testWidgets('MINIGAME opens "Coming soon"; the big Back returns', (
+    testWidgets('MINIGAME opens the level map; the back arrow returns', (
       tester,
     ) async {
-      await startApp(tester);
+      await startApp(tester, saved: {'minigame.stars.mgL1C1': 3});
       await tapAndSettle(tester, minigame);
-      expect(find.byType(ComingSoonScreen), findsOneWidget);
-      expect(find.text(en.homeComingSoonTitle), findsOneWidget);
-      expect(find.text(en.homeMinigameSoon), findsOneWidget);
-
-      await tapAndSettle(tester, find.text(en.lessonBack));
+      expect(find.byType(MinigameMapScreen), findsOneWidget);
       expect(find.byType(ComingSoonScreen), findsNothing);
+      expect(find.text(en.mgMapTitle), findsOneWidget);
+      // Saved MINIGAME stars show on Level 1.
+      expect(find.text('3/9'), findsOneWidget);
+
+      await tapAndSettle(tester, find.bySemanticsLabel(en.homeBackToHome));
+      expect(find.byType(MinigameMapScreen), findsNothing);
       expect(find.byType(HomeScreen), findsOneWidget);
     });
 
@@ -263,9 +266,9 @@ void main() {
 
         for (final button in [minigame, coding]) {
           await tapAndSettle(tester, button);
-          expectBigEnough(tester); // coming soon, or the playground
+          expectBigEnough(tester); // the level map, or the playground
           await tester.drag(
-            find.byType(SingleChildScrollView).first,
+            find.byType(Scrollable).first,
             const Offset(0, -2000),
           );
           await tester.pumpAndSettle();
