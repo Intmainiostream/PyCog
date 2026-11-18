@@ -1331,5 +1331,23 @@
   "game7R3Hint1": "`.upper()` makes every letter big.",
   "game7R3Hint2": "`.lower()` makes every letter small.",
   "game7R3Hint3": "55 is text: `+` joins two strings side by side.",
-  "game7R3Hint4": "10 is a number: `+` adds two numbers."
+  "game7R3Hint4": "10 is a number: `+` adds two numbers.",
+  "@game8R1Intro": {
+    "description": "Lesson 8 game (drop each list result on its box). Results are shown as print() shows them. Hints never name the right box. Code stays in English."
+  },
+  "game8R1Intro": "Here is my backpack. Which item is in each place? Count from 0!",
+  "game8R1Hint1": "sword is the first item. Counting starts at 0.",
+  "game8R1Hint2": "shield is the second item: 0, 1.",
+  "game8R1Hint3": "potion is the third item: 0, 1, 2.",
+  "game8R1Hint4": "`len()` counts the items in the list.",
+  "game8R2Intro": "How many items? Is it in the list? Drop each answer in its box.",
+  "game8R2Hint1": "`len()` counts items. How many are in the list?",
+  "game8R2Hint2": "`in` asks: is it in the list? sword is there.",
+  "game8R2Hint3": "Look at the list again. Is there a map?",
+  "game8R2Hint4": "With a string, `len()` counts characters: s, w, o, r, d.",
+  "game8R3Intro": "I changed my backpack! Look at the last two lines first.",
+  "game8R3Hint1": "`append` added one more item, so there are 4 now.",
+  "game8R3Hint2": "`append` adds to the end, so map sits at the last index now.",
+  "game8R3Hint3": "The change put axe in place 0. The sword is gone.",
+  "game8R3Hint4": "axe took the place of sword, so sword is not in the list anymore."
 }

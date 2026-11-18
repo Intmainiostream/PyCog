@@ -1036,5 +1036,20 @@
   "game7R3Hint1": "Ginagawang malaki ng `.upper()` ang bawat letra.",
   "game7R3Hint2": "Ginagawang maliit ng `.lower()` ang bawat letra.",
   "game7R3Hint3": "Text ang 55: pinagdudugtong ng `+` ang dalawang string.",
-  "game7R3Hint4": "Number ang 10: pinagsasama ng `+` ang dalawang number."
+  "game7R3Hint4": "Number ang 10: pinagsasama ng `+` ang dalawang number.",
+  "game8R1Intro": "Ito ang backpack ko. Aling item ang nasa bawat puwesto? Magbilang mula 0!",
+  "game8R1Hint1": "sword ang unang item. Nagsisimula sa 0 ang bilang.",
+  "game8R1Hint2": "shield ang pangalawang item: 0, 1.",
+  "game8R1Hint3": "potion ang pangatlong item: 0, 1, 2.",
+  "game8R1Hint4": "Binibilang ng `len()` ang mga item sa list.",
+  "game8R2Intro": "Ilan ang item? Nasa list ba ito? Ilagay ang bawat sagot sa kahon nito.",
+  "game8R2Hint1": "Binibilang ng `len()` ang mga item. Ilan ang nasa list?",
+  "game8R2Hint2": "Nagtatanong ang `in`: nasa list ba ito? Nandiyan ang sword.",
+  "game8R2Hint3": "Tingnan ulit ang list. May map ba?",
+  "game8R2Hint4": "Sa string, mga character ang binibilang ng `len()`: s, w, o, r, d.",
+  "game8R3Intro": "Binago ko ang backpack ko! Tingnan muna ang huling dalawang linya.",
+  "game8R3Hint1": "Nagdagdag ng isa pang item ang `append`, kaya 4 na sila ngayon.",
+  "game8R3Hint2": "Sa dulo nagdadagdag ang `append`, kaya nasa huling index na ang map.",
+  "game8R3Hint3": "Inilagay ng pagbabago ang axe sa puwesto 0. Wala na ang sword.",
+  "game8R3Hint4": "Pinalitan ng axe ang sword, kaya wala na ang sword sa list."
 }
