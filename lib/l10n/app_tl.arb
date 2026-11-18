@@ -1021,5 +1021,20 @@
   "game6R3Hint1": "Nauuna ang `*`, saka ang `+`.",
   "game6R3Hint2": "Nauuna ang brackets, saka ang `*`.",
   "game6R3Hint3": "Ang 8 ay 2 * 2 * 2. Hanapin ang `**`.",
-  "game6R3Hint4": "Ang 9 ay 3 * 3. Power ang `**`, hindi multiply."
+  "game6R3Hint4": "Ang 9 ay 3 * 3. Power ang `**`, hindi multiply.",
+  "game7R1Intro": "Dugtong at ulit! Ilagay ang bawat sagot sa kahon nito. Bantayan ang mga space.",
+  "game7R1Hint1": "Nasa loob ng unang quotes ang space, kaya nananatili ito.",
+  "game7R1Hint2": "Walang space sa quotes, kaya magkadikit ang mga salita.",
+  "game7R1Hint3": "Inuulit ng `*` ang text. Ilang beses mo nakikita ang Ha?",
+  "game7R1Hint4": "Inuulit ng `*` ang text. 2 beses lumabas ang Go.",
+  "game7R2Intro": "Bilang at pili! Tandaan: nagsisimula sa 0 ang bilang.",
+  "game7R2Hint1": "Binibilang ng `len()` ang mga character. Aling text ang may 3?",
+  "game7R2Hint2": "Kasama ang space! Aling text ang may 6 na character?",
+  "game7R2Hint3": "C ang unang character. Nagsisimula sa 0 ang bilang.",
+  "game7R2Hint4": "g ang pangatlong character: 0, 1, 2.",
+  "game7R3Intro": "Huling round! Malalaking letra, maliliit na letra, at text laban sa number.",
+  "game7R3Hint1": "Ginagawang malaki ng `.upper()` ang bawat letra.",
+  "game7R3Hint2": "Ginagawang maliit ng `.lower()` ang bawat letra.",
+  "game7R3Hint3": "Text ang 55: pinagdudugtong ng `+` ang dalawang string.",
+  "game7R3Hint4": "Number ang 10: pinagsasama ng `+` ang dalawang number."
 }

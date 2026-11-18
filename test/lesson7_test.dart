@@ -96,11 +96,11 @@ List<String> codeLines(LessonCard card) => [for (final l in card.code) l.code];
 
 void main() {
   group('Lesson 7 content', () {
-    test('9 cards, 6 multiple-choice questions, no game yet', () {
+    test('9 cards, 6 multiple-choice questions, and a game', () {
       expect(strings.title(en), 'Strings');
       expect(strings.cards, hasLength(9));
       expect(strings.quiz, hasLength(6));
-      expect(strings.hasGame, isFalse);
+      expect(strings.hasGame, isTrue); // see game7_test.dart
       expect(
         strings.quiz.every((q) => q.type == QuestionType.multipleChoice),
         isTrue,
@@ -459,7 +459,7 @@ void main() {
     );
   });
 
-  testWidgets('Perfect quiz: string master, 3 stars, no game button', (
+  testWidgets('Perfect quiz: string master, 3 stars, game button', (
     tester,
   ) async {
     SharedPreferences.setMockInitialValues(passedBefore);
@@ -507,7 +507,7 @@ void main() {
       expect(find.textContaining('is now open'), findsNothing);
       expect(progress.unlockedCount(lessons), lessons.length);
     }
-    expect(find.text(en.resultsPlayGame), findsNothing); // no game yet
+    expect(find.text(en.resultsPlayGame), findsOneWidget); // game7_test
   });
 
   // All 9 cards on small phones with the biggest text, both languages.

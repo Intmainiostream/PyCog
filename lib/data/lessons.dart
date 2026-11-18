@@ -6,6 +6,7 @@ import 'games/functions_game.dart';
 import 'games/if_statements_game.dart';
 import 'games/loops_game.dart';
 import 'games/math_operators_game.dart';
+import 'games/strings_game.dart';
 import 'games/variables_game.dart';
 import 'lessons/data_types_lesson.dart';
 import 'lessons/functions_lesson.dart';
@@ -88,13 +89,13 @@ final List<Lesson> lessons = [
     game: mathOperatorsGame,
     perfectQuizMessage: (l10n) => l10n.lesson6Perfect,
   ),
-  // No game yet: the quiz results screen shows no "Play the game" button.
   Lesson(
     id: 'strings',
     icon: Icons.text_fields,
     title: (l10n) => l10n.lesson7Title,
     cards: stringsLessonCards,
     quiz: stringsQuiz,
+    game: stringsGame,
     perfectQuizMessage: (l10n) => l10n.lesson7Perfect,
   ),
   // No game yet: the quiz results screen shows no "Play the game" button.

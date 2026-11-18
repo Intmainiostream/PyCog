@@ -1313,5 +1313,23 @@
   "game6R3Hint1": "`*` goes first, then `+`.",
   "game6R3Hint2": "Brackets go first, then `*`.",
   "game6R3Hint3": "8 is 2 * 2 * 2. Look for `**`.",
-  "game6R3Hint4": "9 is 3 * 3. `**` is power, not times."
+  "game6R3Hint4": "9 is 3 * 3. `**` is power, not times.",
+  "@game7R1Intro": {
+    "description": "Lesson 7 game (drop each string result on its box). Results are shown as print() shows them. Hints never name the right box. Code stays in English."
+  },
+  "game7R1Intro": "Join and repeat! Drop each answer into its box. Watch the spaces.",
+  "game7R1Hint1": "The space is inside the first quotes, so it stays.",
+  "game7R1Hint2": "No space in the quotes, so the words touch.",
+  "game7R1Hint3": "`*` repeats text. How many times do you see Ha?",
+  "game7R1Hint4": "`*` repeats text. Go shows 2 times.",
+  "game7R2Intro": "Count and pick! Remember: counting starts at 0.",
+  "game7R2Hint1": "`len()` counts characters. Which text has 3?",
+  "game7R2Hint2": "The space counts too! Which text has 6 characters?",
+  "game7R2Hint3": "C is the first character. Counting starts at 0.",
+  "game7R2Hint4": "g is the third character: 0, 1, 2.",
+  "game7R3Intro": "Last round! Big letters, small letters, and text vs numbers.",
+  "game7R3Hint1": "`.upper()` makes every letter big.",
+  "game7R3Hint2": "`.lower()` makes every letter small.",
+  "game7R3Hint3": "55 is text: `+` joins two strings side by side.",
+  "game7R3Hint4": "10 is a number: `+` adds two numbers."
 }
