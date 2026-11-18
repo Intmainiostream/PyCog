@@ -9,9 +9,11 @@ import '../playground/coding_output.dart';
 import '../playground/python_runner.dart';
 import '../theme/app_theme.dart';
 import '../widgets/chunky_button.dart';
+import '../widgets/code_helper_bar.dart';
 import '../widgets/cog_feedback_card.dart';
 import '../widgets/output_box.dart';
 import '../widgets/settings_sheet.dart';
+import '../widgets/title_top_bar.dart';
 
 /// What the student typed in the playground. Kept while the app is open,
 /// so leaving the screen and coming back keeps the code.
@@ -131,20 +133,8 @@ class _CodingScreenState extends State<CodingScreen> {
     });
   }
 
-  /// Types [text] where the cursor is (replacing any selection), then puts
-  /// the cursor [back] characters before the end of it (inside brackets).
-  void _insert(String text, {int back = 0}) {
-    final value = _code.value;
-    final selection = value.selection.isValid
-        ? value.selection
-        : TextSelection.collapsed(offset: value.text.length);
-    _code.value = TextEditingValue(
-      text: value.text.replaceRange(selection.start, selection.end, text),
-      selection: TextSelection.collapsed(
-        offset: selection.start + text.length - back,
-      ),
-    );
-  }
+  void _insert(String text, {int back = 0}) =>
+      insertCode(_code, text, back: back);
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +149,7 @@ class _CodingScreenState extends State<CodingScreen> {
             );
             return Column(
               children: [
-                _TopBar(
+                TitleTopBar(
                   padding: side,
                   title: l10n.codingTitle,
                   backLabel: l10n.lessonBack,
@@ -182,7 +172,7 @@ class _CodingScreenState extends State<CodingScreen> {
                 ),
                 // Hard-to-type symbols, right above the keyboard.
                 if (_codeFocus.hasFocus)
-                  _HelperBar(l10n: l10n, padding: side, onInsert: _insert),
+                  CodeHelperBar(l10n: l10n, padding: side, onInsert: _insert),
               ],
             );
           },
@@ -359,69 +349,6 @@ class _CodingScreenState extends State<CodingScreen> {
   }
 }
 
-/// Back arrow, title and gear, like the other screens.
-class _TopBar extends StatelessWidget {
-  const _TopBar({
-    required this.padding,
-    required this.title,
-    required this.backLabel,
-    required this.settingsLabel,
-    required this.onSettings,
-  });
-
-  final double padding;
-  final String title;
-  final String backLabel;
-  final String settingsLabel;
-  final VoidCallback onSettings;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        padding,
-        AppSizes.gap12,
-        padding,
-        AppSizes.gap8,
-      ),
-      child: Row(
-        children: [
-          ChunkyButton(
-            circle: true,
-            width: AppSizes.minTouchTarget,
-            height: AppSizes.minTouchTarget,
-            padding: EdgeInsets.zero,
-            color: AppColors.surface,
-            semanticLabel: backLabel,
-            onTap: () => Navigator.of(context).maybePop(),
-            child: const Icon(Icons.arrow_back_rounded, size: 28),
-          ),
-          Expanded(
-            child: Semantics(
-              header: true,
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.title,
-              ),
-            ),
-          ),
-          ChunkyButton(
-            circle: true,
-            width: AppSizes.minTouchTarget,
-            height: AppSizes.minTouchTarget,
-            padding: EdgeInsets.zero,
-            color: AppColors.surface,
-            semanticLabel: settingsLabel,
-            onTap: onSettings,
-            child: const Icon(Icons.settings_rounded, size: 28),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// "Examples": a small menu of starter programs from the lessons.
 class _ExamplesButton extends StatelessWidget {
   const _ExamplesButton({required this.label, required this.onPick});
@@ -466,104 +393,6 @@ class _ExamplesButton extends StatelessWidget {
               Icons.arrow_drop_down_rounded,
               color: AppColors.tealDark,
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Small buttons for symbols that are hard to type on a phone keyboard.
-/// It counts as part of the code box (TextFieldTapRegion), so tapping a
-/// button keeps the keyboard open.
-class _HelperBar extends StatelessWidget {
-  const _HelperBar({
-    required this.l10n,
-    required this.padding,
-    required this.onInsert,
-  });
-
-  final AppLocalizations l10n;
-  final double padding;
-  final void Function(String text, {int back}) onInsert;
-
-  @override
-  Widget build(BuildContext context) {
-    // (label on the button, text typed, characters to step back)
-    const keys = [
-      ('Tab', '    ', 0),
-      (':', ':', 0),
-      ('( )', '()', 1),
-      ('[ ]', '[]', 1),
-      ('" "', '""', 1),
-      ('=', '=', 0),
-      ('+', '+', 0),
-      ('-', '-', 0),
-      ('*', '*', 0),
-      ('/', '/', 0),
-      ('#', '#', 0),
-    ];
-    return TextFieldTapRegion(
-      child: Container(
-        key: const ValueKey('coding-helpers'),
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          border: Border(
-            top: BorderSide(
-              color: AppColors.outline,
-              width: AppSizes.outlineWidth,
-            ),
-          ),
-        ),
-        height: AppSizes.minTouchTarget + AppSizes.gap12,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.symmetric(
-            horizontal: padding,
-            vertical: AppSizes.gap4,
-          ),
-          children: [
-            for (final (label, text, back) in keys)
-              Padding(
-                padding: const EdgeInsets.only(right: AppSizes.gap4),
-                child: Semantics(
-                  button: true,
-                  label: label == 'Tab'
-                      ? l10n.codingInsertTab
-                      : l10n.codingInsert(label),
-                  excludeSemantics: true,
-                  child: Material(
-                    color: AppColors.codeBackground,
-                    borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
-                    child: InkWell(
-                      key: ValueKey('coding-key-$label'),
-                      canRequestFocus: false,
-                      borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
-                      onTap: () => onInsert(text, back: back),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          minWidth: AppSizes.minTouchTarget,
-                          minHeight: AppSizes.minTouchTarget,
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSizes.gap8,
-                            ),
-                            child: Text(
-                              label,
-                              style: AppTextStyles.code.copyWith(
-                                color: AppColors.codeText,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
           ],
         ),
       ),
