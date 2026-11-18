@@ -12,6 +12,7 @@ class PythonResult {
     this.error,
     this.timedOut = false,
     this.runTime = Duration.zero,
+    this.typed = const [],
   });
 
   /// Everything the program printed (questions from input() and the typed
@@ -33,12 +34,28 @@ class PythonResult {
   /// Time the program itself ran.
   final Duration runTime;
 
+  /// Where each typed answer (from input()) appears in [stdout], so a
+  /// screen can show it in the "typed by the person" style.
+  final List<TypedAnswer> typed;
+
   bool get ok => error == null && !timedOut;
+}
+
+/// One answer the program read with input(): it starts at [offset] in the
+/// output and is followed by a new line.
+class TypedAnswer {
+  const TypedAnswer(this.offset, this.text);
+
+  final int offset;
+  final String text;
 }
 
 /// Runs Python code. The CODING playground and the MINIGAME checker both
 /// use this, so either can be tested with a fake engine.
 abstract interface class PythonEngine {
+  /// True once Python is loaded and a run will start right away.
+  ValueListenable<bool> get isReady;
+
   Future<PythonResult> run(
     String code, {
     List<String> inputs,
@@ -87,6 +104,11 @@ class PyodideEngine implements PythonEngine {
   /// How long Python took to start the first time (null until started).
   Duration? lastLoadTime;
 
+  final _ready = ValueNotifier<bool>(false);
+
+  @override
+  ValueListenable<bool> get isReady => _ready;
+
   /// Starts Python now (optional), so the first run is faster.
   Future<void> warmUp() => _start();
 
@@ -94,7 +116,27 @@ class PyodideEngine implements PythonEngine {
     final existing = _pageLoaded;
     if (existing != null) return existing.future;
     final loaded = _pageLoaded = Completer<void>();
-    _webView = HeadlessInAppWebView(
+    try {
+      _webView = _createWebView(loaded);
+    } catch (e) {
+      // No WebView here (e.g. in widget tests): report it, try again later.
+      _pageLoaded = null;
+      loaded.future.ignore();
+      loaded.completeError(e);
+      return loaded.future;
+    }
+    // If the WebView cannot start, report it now (don't wait for the
+    // start limit), and allow a later run to try again.
+    _webView!.run().catchError((Object e) {
+      if (!loaded.isCompleted) loaded.completeError(e);
+      _pageLoaded = null;
+      _webView = null;
+    });
+    return loaded.future;
+  }
+
+  HeadlessInAppWebView _createWebView(Completer<void> loaded) {
+    return HeadlessInAppWebView(
       initialUrlRequest: URLRequest(url: WebUri(_page)),
       initialSettings: InAppWebViewSettings(
         javaScriptEnabled: true,
@@ -130,25 +172,24 @@ class PyodideEngine implements PythonEngine {
         debugPrint('[python] ${message.message}');
       },
     );
-    // If the WebView cannot start, report it now (don't wait for the
-    // start limit), and allow a later run to try again.
-    _webView!.run().catchError((Object e) {
-      if (!loaded.isCompleted) loaded.completeError(e);
-      _pageLoaded = null;
-      _webView = null;
-    });
-    return loaded.future;
   }
 
   void _onMessage(String json) {
     final m = jsonDecode(json) as Map<String, dynamic>;
     if (m['type'] == 'status') {
       lastLoadTime = Duration(milliseconds: (m['loadMs'] as num).toInt());
+      _ready.value = true;
       return;
     }
+    // After a timeout a fresh Python is loading again.
+    if (m['timedOut'] == true) _ready.value = false;
     final done = _pending.remove(m['id'] as String);
     done?.complete(
       PythonResult(
+        typed: [
+          for (final t in (m['typed'] as List<dynamic>? ?? const []))
+            TypedAnswer((t[0] as num).toInt(), t[1] as String),
+        ],
         stdout: m['stdout'] as String? ?? '',
         error: m['error'] as String?,
         timedOut: m['timedOut'] as bool? ?? false,
@@ -191,6 +232,7 @@ class PyodideEngine implements PythonEngine {
       error: result.error,
       timedOut: result.timedOut,
       runTime: result.runTime,
+      typed: result.typed,
       elapsed: watch.elapsed,
     );
   }
@@ -198,6 +240,7 @@ class PyodideEngine implements PythonEngine {
   /// Closes the hidden WebView (Python starts again on the next run).
   Future<void> dispose() async {
     await _webView?.dispose();
+    _ready.value = false;
     _webView = null;
     _controller = null;
     _pageLoaded = null;

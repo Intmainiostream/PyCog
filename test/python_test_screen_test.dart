@@ -10,6 +10,9 @@ import 'package:pycog/theme/app_theme.dart';
 /// thing is tested on a device by integration_test/python_runner_test.dart).
 class FakeEngine implements PythonEngine {
   final calls = <(String, List<String>)>[];
+
+  @override
+  final ValueNotifier<bool> isReady = ValueNotifier(true);
   PythonResult Function(String code, List<String> inputs) answer = (c, i) =>
       const PythonResult(stdout: '5\n', elapsed: Duration(milliseconds: 7));
 

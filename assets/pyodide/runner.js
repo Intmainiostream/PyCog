@@ -57,7 +57,7 @@ function onWorkerMessage(event) {
   } else if (m.type === 'out') {
     current.live += m.chunk;
   } else if (m.type === 'done') {
-    finish({ stdout: m.stdout, error: m.error, timedOut: false });
+    finish({ stdout: m.stdout, error: m.error, typed: m.typed, timedOut: false });
   }
 }
 

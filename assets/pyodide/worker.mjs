@@ -118,12 +118,14 @@ def _last_error_line(exc):
 def _pycog_run(code, inputs, limit, emit):
     out = _Output(emit, limit)
     answers = [str(a) for a in inputs]
+    typed = []  # [where in the output the answer starts, the answer]
 
     def fake_input(prompt=''):
         out.write(str(prompt))
         if not answers:
             raise EOFError('EOF when reading a line')
         answer = answers.pop(0)
+        typed.append([out.size, answer])
         out.write(answer + '\n')  # shown like a terminal: question, answer
         return answer
 
@@ -144,7 +146,7 @@ def _pycog_run(code, inputs, limit, emit):
     finally:
         _active[0] = False
         sys.stdout, sys.stderr = old_out, old_err
-    return json.dumps({'stdout': out.text(), 'error': error})
+    return json.dumps({'stdout': out.text(), 'error': error, 'typed': typed})
 `;
 
 let pyodide = null;
@@ -185,5 +187,11 @@ self.onmessage = async (event) => {
     pyInputs.destroy();
     run.destroy();
   }
-  postMessage({ type: 'done', id, stdout: result.stdout, error: result.error });
+  postMessage({
+    type: 'done',
+    id,
+    stdout: result.stdout,
+    error: result.error,
+    typed: result.typed || [],
+  });
 };
