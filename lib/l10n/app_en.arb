@@ -1349,5 +1349,23 @@
   "game8R3Hint1": "`append` added one more item, so there are 4 now.",
   "game8R3Hint2": "`append` adds to the end, so map sits at the last index now.",
   "game8R3Hint3": "The change put axe in place 0. The sword is gone.",
-  "game8R3Hint4": "axe took the place of sword, so sword is not in the list anymore."
+  "game8R3Hint4": "axe took the place of sword, so sword is not in the list anymore.",
+  "@game9R1Intro": {
+    "description": "Lesson 9 game (drop what each line shows on its box; the person typed Ana and 12). Results are shown as the program prints them. Hints never name the right box. Code stays in English."
+  },
+  "game9R1Intro": "The person typed Ana and 12. What does each line show?",
+  "game9R1Hint1": "A comma in `print()` adds a space between the things.",
+  "game9R1Hint2": "`+` joins text. `name` holds Ana, what the person typed.",
+  "game9R1Hint3": "`name` is Ana and `age` is 12. The comma adds a space.",
+  "game9R1Hint4": "`+` adds no space. `age` is the text \"12\".",
+  "game9R2Intro": "Now turn text into numbers with `int()`!",
+  "game9R2Hint1": "`int()` turns \"5\" into 5. Then add 1.",
+  "game9R2Hint2": "The person typed 12. `int()` makes it a number, then add 1.",
+  "game9R2Hint3": "`float()` makes a number with a decimal point.",
+  "game9R2Hint4": "`int()` makes 12 a number, then `*` doubles it.",
+  "game9R3Intro": "Last round! One line does not work. Find it!",
+  "game9R3Hint1": "`input()` always gives text. Text + a number is a TypeError.",
+  "game9R3Hint2": "`age` is text, so `+` joins \"12\" and \"12\".",
+  "game9R3Hint3": "`int()` turns the text into a number first, so the math works.",
+  "game9R3Hint4": "Both are text, so `+` joins them with no space."
 }

@@ -1051,5 +1051,20 @@
   "game8R3Hint1": "Nagdagdag ng isa pang item ang `append`, kaya 4 na sila ngayon.",
   "game8R3Hint2": "Sa dulo nagdadagdag ang `append`, kaya nasa huling index na ang map.",
   "game8R3Hint3": "Inilagay ng pagbabago ang axe sa puwesto 0. Wala na ang sword.",
-  "game8R3Hint4": "Pinalitan ng axe ang sword, kaya wala na ang sword sa list."
+  "game8R3Hint4": "Pinalitan ng axe ang sword, kaya wala na ang sword sa list.",
+  "game9R1Intro": "Ana at 12 ang tinype ng tao. Ano ang ipinapakita ng bawat linya?",
+  "game9R1Hint1": "Nagdadagdag ng space ang comma sa `print()` sa pagitan ng mga bagay.",
+  "game9R1Hint2": "Pinagdudugtong ng `+` ang text. Ana ang laman ng `name`, ang tinype ng tao.",
+  "game9R1Hint3": "Ana ang `name` at 12 ang `age`. May space na idinadagdag ang comma.",
+  "game9R1Hint4": "Walang space na idinadagdag ang `+`. Text na \"12\" ang `age`.",
+  "game9R2Intro": "Ngayon, gawing number ang text gamit ang `int()`!",
+  "game9R2Hint1": "Ginagawang 5 ng `int()` ang \"5\". Tapos, dagdagan ng 1.",
+  "game9R2Hint2": "12 ang tinype ng tao. Ginagawa itong number ng `int()`, tapos dagdagan ng 1.",
+  "game9R2Hint3": "Gumagawa ang `float()` ng number na may decimal point.",
+  "game9R2Hint4": "Ginagawang number ng `int()` ang 12, tapos dinodoble ito ng `*`.",
+  "game9R3Intro": "Huling round! May isang linyang hindi gumagana. Hanapin ito!",
+  "game9R3Hint1": "Laging text ang galing sa `input()`. TypeError ang text + number.",
+  "game9R3Hint2": "Text ang `age`, kaya pinagdudugtong ng `+` ang \"12\" at \"12\".",
+  "game9R3Hint3": "Ginagawang number muna ng `int()` ang text, kaya gumagana ang math.",
+  "game9R3Hint4": "Parehong text, kaya pinagdudugtong sila ng `+` nang walang space."
 }
