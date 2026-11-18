@@ -143,11 +143,11 @@ List<String> codeLines(LessonCard card) => [for (final l in card.code) l.code];
 
 void main() {
   group('Lesson 10 content', () {
-    test('9 cards, 6 multiple-choice questions, no game yet', () {
+    test('9 cards, 6 multiple-choice questions, and a game', () {
       expect(logic.title(en), 'Logic');
       expect(logic.cards, hasLength(9));
       expect(logic.quiz, hasLength(6));
-      expect(logic.hasGame, isFalse);
+      expect(logic.hasGame, isTrue); // see game10_test.dart
       expect(
         logic.quiz.every((q) => q.type == QuestionType.multipleChoice),
         isTrue,
@@ -500,7 +500,7 @@ void main() {
     );
   });
 
-  testWidgets('Perfect quiz: logic master, 3 stars, no game button', (
+  testWidgets('Perfect quiz: logic master, 3 stars, game button', (
     tester,
   ) async {
     final progress = await perfectQuiz(tester, logic);
@@ -515,7 +515,7 @@ void main() {
       expect(find.textContaining('is now open'), findsNothing);
       expect(progress.unlockedCount(lessons), lessons.length);
     }
-    expect(find.text(en.resultsPlayGame), findsNothing); // no game yet
+    expect(find.text(en.resultsPlayGame), findsOneWidget); // game10_test
   });
 
   // Whatever lesson is last on the trail (now Lesson 10) has no lesson

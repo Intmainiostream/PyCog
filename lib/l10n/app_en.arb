@@ -1296,6 +1296,24 @@
   "quiz10Q6WrongError": "An error",
   "quiz10Q6WhyError": "Brackets are fine in Python, like in Lesson 6.",
   "quiz10Q6Explain": "Brackets go first: `True or False` is `True`. Then `True and False` is `False`.",
+  "@game10R1Intro": {
+    "description": "Lesson 10 game (True / False boxes for and, or, not). Hints never name the right box. Code words and True / False stay in English."
+  },
+  "game10R1Intro": "Here are my values. Drop each check into True or False!",
+  "game10R1Hint1": "`and` needs BOTH sides. `battery` is 50. Look at `has_key` too.",
+  "game10R1Hint2": "`or` needs only ONE side. Look at `has_key`.",
+  "game10R1Hint3": "`has_key` is True. `not` flips it.",
+  "game10R1Hint4": "`battery` is 50, but `or` needs only one side. Look at `has_key`.",
+  "game10R2Intro": "Same checks, new values! Does the answer change?",
+  "game10R2Hint1": "`battery` is 30, so that side is fine. Now look at `has_key`.",
+  "game10R2Hint2": "`has_key` is False now. What about `lives > 0`?",
+  "game10R2Hint3": "`has_key` is False. `not` flips it.",
+  "game10R2Hint4": "`battery` is 30, not more than 80. Look at `has_key` too.",
+  "game10R3Intro": "Last round! Two operators in one check. Remember: `not`, then `and`, then `or`.",
+  "game10R3Hint1": "`and` goes first: `gem and hp > 0` is checked before `or`.",
+  "game10R3Hint2": "Brackets go first. Then `and` needs `hp > 0` too.",
+  "game10R3Hint3": "`not` goes first: `not gem`, then `and key`.",
+  "game10R3Hint4": "`key` is True, so `not key` is the opposite. Is `hp` more than 0?",
   "@game6R1Intro": {
     "description": "Lesson 6 game (drop each answer on its math box). Hints never name the right box. Code and numbers stay as they are."
   },
