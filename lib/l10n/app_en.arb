@@ -1433,5 +1433,148 @@
       }
     }
   },
-  "codingInsert": "Add {symbol}"
+  "codingInsert": "Add {symbol}",
+  "mgMapTitle": "Mini games",
+  "mgMapIntro": "Solve Python challenges with Cog!",
+  "mgUnlockRule": "Get at least 1 star on 7 challenges to open the next level.",
+  "@mgLevel": {
+    "description": "A level on the MINIGAME map.",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "mgLevel": "Level {number}",
+  "@mgLevelLocked": {
+    "description": "Shown when a locked level is tapped. number = the level before it.",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "mgLevelLocked": "Get 1 star on 7 challenges in Level {number} to open this!",
+  "mgLevelSoon": "Challenges coming soon",
+  "@mgLevelStars": {
+    "description": "Screen reader text for the stars earned in a level.",
+    "placeholders": {
+      "stars": {
+        "type": "int",
+        "example": "2"
+      },
+      "total": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "mgLevelStars": "{stars} of {total} stars",
+  "@mgSolved": {
+    "description": "How many challenges in a level have at least 1 star.",
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "example": "2"
+      },
+      "total": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "mgSolved": "{done} of {total} done",
+  "@mgChallenge": {
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "mgChallenge": "Challenge {number}",
+  "@mgChallengeProgress": {
+    "description": "Screen reader text for the progress bar on a challenge.",
+    "placeholders": {
+      "current": {
+        "type": "int",
+        "example": "2"
+      },
+      "total": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "mgChallengeProgress": "Challenge {current} of {total}",
+  "mgClose": "Leave challenge",
+  "mgTypeQuiz": "Quiz",
+  "mgTypeFillBlank": "Fill the blank",
+  "mgTypeFixBug": "Fix the bug",
+  "mgTypeWriteCode": "Write it yourself",
+  "mgRunCheck": "Run and check",
+  "mgChecking": "Checking your code...",
+  "mgHintButton": "Hint (costs 1 star)",
+  "@mgHintLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "mgHintLabel": "Hint {number}",
+  "mgStarsLeft": "You can still earn:",
+  "@mgPassed": {
+    "description": "Shown when a challenge is solved.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "mgPassed": "{count, plural, =1{You did it! You earned 1 star.} other{You did it! You earned {count} stars.}}",
+  "@mgUnlocked": {
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "mgUnlocked": "Level {number} is now open!",
+  "@mgFailed": {
+    "description": "number = which hidden test failed first.",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "mgFailed": "Test {number} did not match. Compare the outputs and try again!",
+  "mgYourOutput": "Your output",
+  "mgExpected": "Expected output",
+  "mgExample": "Example",
+  "mgTooManyInputs": "Your code asks input() more times than this test types.",
+  "mgTryAgain": "Not this one. Try again!",
+  "mgNext": "Next challenge",
+  "mgBackToLevel": "Back to the level",
+  "mgReset": "Start over",
+  "mgBlankLabel": "Your answer for the blank",
+  "mgPickBlank": "Pick what goes in the blank:",
+  "mgL1C1Title": "What prints?",
+  "mgL1C1Prompt": "What does this code print?",
+  "mgL1C2Title": "Print the name",
+  "mgL1C2Prompt": "Fill the blank so the code prints `Cog`.",
+  "mgL1C2Hint1": "The variable `name` holds the text.",
+  "mgL1C2Hint2": "Use the variable name with no quotes.",
+  "mgL1C3Title": "Next year's age",
+  "mgL1C3Prompt": "Ask for an age with `input(\"Age? \")`. Then print the age plus 1.",
+  "mgL1C3Hint1": "`input()` gives text. Use `int()` to make it a number.",
+  "mgL1C3Hint2": "Try `age = int(input(\"Age? \"))`, then `print(age + 1)`.",
+  "mgLocked": "Locked"
 }
