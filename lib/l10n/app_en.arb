@@ -1102,5 +1102,9 @@
   "quiz8Q6Prompt": "What does this code show?",
   "quiz8Q6WhyFalse": "Look at the list again. Is `\"sword\"` there?",
   "quiz8Q6WhySword": "`in` asks a question. The answer is `True` or `False`.",
-  "quiz8Q6Explain": "`\"sword\"` is in the list, so `in` gives `True`."
+  "quiz8Q6Explain": "`\"sword\"` is in the list, so `in` gives `True`.",
+  "@lesson9TypedLabel": {
+    "description": "Output box key under rows with a typed answer: the keyboard chip shows what the person typed (not what the program printed)."
+  },
+  "lesson9TypedLabel": "Typed by the person"
 }

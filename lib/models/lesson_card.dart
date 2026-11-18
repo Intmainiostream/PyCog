@@ -16,6 +16,7 @@ class LessonCard {
     this.code = const [],
     this.tip,
     this.output = const [],
+    this.typed = const {},
   });
 
   /// Heading at the top of the card.
@@ -38,6 +39,14 @@ class LessonCard {
   /// under the code (one entry per printed line). Same in every language,
   /// since it's what the program shows. Empty = no output box.
   final List<String> output;
+
+  /// Optional, for code that uses `input()`: what the person types. Maps an
+  /// [output] row (by number, from 0) to the answer typed at the end of that
+  /// row, right after the question the program printed, e.g.
+  /// `{0: 'Ana'}`. The output box shows it in a different style. Empty =
+  /// nothing typed (every lesson before Lesson 9).
+  final Map<int, String> typed;
+
 }
 
 /// Whether a code line is a good or bad example (shown as a ✓ or ✗ badge).

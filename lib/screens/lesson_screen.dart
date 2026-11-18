@@ -236,7 +236,7 @@ class _CardView extends StatelessWidget {
       // Only cards that set `output` get this box (none before Lesson 4).
       if (card.output.isNotEmpty) ...[
         const SizedBox(height: AppSizes.gap12),
-        OutputBox(lines: card.output),
+        OutputBox(lines: card.output, typed: card.typed),
       ],
       if (card.tip != null) ...[
         const SizedBox(height: AppSizes.gap16),

@@ -8,19 +8,33 @@ import '../theme/app_theme.dart';
 ///
 /// It looks different from the code box on purpose (light, not dark), so
 /// students can tell "the code" from "what appears on the screen".
+///
+/// For code that uses `input()`, [typed] adds what the person types at the
+/// end of a row, in a small mint chip with a keyboard icon, and a one-line
+/// key under the rows. Without [typed], nothing changes.
 class OutputBox extends StatelessWidget {
-  const OutputBox({super.key, required this.lines});
+  const OutputBox({super.key, required this.lines, this.typed = const {}});
 
   final List<String> lines;
 
+  /// What the person types: output row number -> typed answer.
+  final Map<int, String> typed;
+
   @override
   Widget build(BuildContext context) {
-    final label = AppLocalizations.of(context).lessonOutputLabel;
+    final l10n = AppLocalizations.of(context);
+    final label = l10n.lessonOutputLabel;
     final media = MediaQuery.of(context);
+    final spoken = [
+      for (final (i, line) in lines.indexed)
+        typed[i] == null
+            ? line
+            : '$line${typed[i]} (${l10n.lesson9TypedLabel})',
+    ];
 
     return Semantics(
       container: true,
-      label: '$label: ${lines.join(', ')}',
+      label: '$label: ${spoken.join(', ')}',
       excludeSemantics: true,
       child: Container(
         width: double.infinity,
@@ -55,8 +69,30 @@ class OutputBox extends StatelessWidget {
                   maxScaleFactor: AppSizes.maxCodeTextScale,
                 ),
               ),
-              child: _OutputLines(lines: lines),
+              child: _OutputLines(lines: lines, typed: typed),
             ),
+            if (typed.isNotEmpty) ...[
+              const SizedBox(height: AppSizes.gap8),
+              // The key: the keyboard icon means "the person typed this".
+              Row(
+                children: [
+                  Icon(
+                    Icons.keyboard_rounded,
+                    size: media.textScaler.scale(18),
+                    color: AppColors.tealDark,
+                  ),
+                  const SizedBox(width: AppSizes.gap8),
+                  Expanded(
+                    child: Text(
+                      l10n.lesson9TypedLabel,
+                      style: AppTextStyles.small.copyWith(
+                        color: AppColors.tealDark,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -70,9 +106,10 @@ class OutputBox extends StatelessWidget {
 /// fit" is the box width divided by one letter's width.) If that guess is
 /// ever a little off, the rows can still be scrolled sideways.
 class _OutputLines extends StatelessWidget {
-  const _OutputLines({required this.lines});
+  const _OutputLines({required this.lines, required this.typed});
 
   final List<String> lines;
+  final Map<int, String> typed;
 
   static final _style = AppTextStyles.code.copyWith(
     fontWeight: FontWeight.w700,
@@ -100,17 +137,72 @@ class _OutputLines extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (final line in lines)
-                for (final (i, row) in wrapOutputLine(line, columns).indexed)
+              for (final (n, line) in lines.indexed)
+                if (typed[n] case final answer?)
+                  // A question, then what the person typed (never wrapped:
+                  // input questions are short).
                   Padding(
-                    // Rows of one wrapped line sit closer together.
-                    padding: EdgeInsets.only(top: i == 0 ? 1 : 0, bottom: 1),
-                    child: Text(row, softWrap: false, style: _style),
-                  ),
+                    padding: const EdgeInsets.symmetric(vertical: 1),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(line, softWrap: false, style: _style),
+                        _TypedAnswer(
+                          key: ValueKey('typed-$n'),
+                          text: answer,
+                          style: _style,
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  for (final (i, row) in wrapOutputLine(line, columns).indexed)
+                    Padding(
+                      // Rows of one wrapped line sit closer together.
+                      padding: EdgeInsets.only(top: i == 0 ? 1 : 0, bottom: 1),
+                      child: Text(row, softWrap: false, style: _style),
+                    ),
             ],
           ),
         );
       },
+    );
+  }
+}
+
+/// What the person typed: a small mint chip with a keyboard icon, so it
+/// can't be mistaken for something the program printed.
+class _TypedAnswer extends StatelessWidget {
+  const _TypedAnswer({super.key, required this.text, required this.style});
+
+  final String text;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      decoration: BoxDecoration(
+        color: AppColors.mint,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: AppColors.tealDark, width: 1.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.keyboard_rounded,
+            size: MediaQuery.textScalerOf(context).scale(16),
+            color: AppColors.tealDark,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            softWrap: false,
+            style: style.copyWith(color: AppColors.tealDark),
+          ),
+        ],
+      ),
     );
   }
 }

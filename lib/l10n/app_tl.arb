@@ -828,5 +828,6 @@
   "quiz8Q6Prompt": "Ano ang lalabas sa code na ito?",
   "quiz8Q6WhyFalse": "Tingnan ulit ang list. Nandiyan ba ang `\"sword\"`?",
   "quiz8Q6WhySword": "Nagtatanong ang `in`. `True` o `False` ang sagot.",
-  "quiz8Q6Explain": "Nasa list ang `\"sword\"`, kaya `True` ang sagot ng `in`."
+  "quiz8Q6Explain": "Nasa list ang `\"sword\"`, kaya `True` ang sagot ng `in`.",
+  "lesson9TypedLabel": "Tinype ng tao"
 }
