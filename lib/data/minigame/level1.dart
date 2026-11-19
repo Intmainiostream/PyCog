@@ -6,8 +6,9 @@ import '../../models/quiz.dart';
 /// changing it, the three kinds of values (numbers, words in quotes,
 /// `True` / `False`), `#` comments and the naming rules. The one extra is
 /// `print()`, which the challenges explain ("shows what is inside a box");
-/// there is no input(), so each challenge has one hidden test, and the
-/// write-it challenges list required code so `print(5)` alone can't pass.
+/// there is no input(), so each challenge has one hidden test, and every
+/// fix and write challenge lists required code so `print(5)` alone can't
+/// pass.
 ///
 /// Every answer, solution, starting code and expected output was run in
 /// real Python; integration_test/minigame_solutions_test.dart runs them
@@ -93,6 +94,7 @@ final level1 = MinigameLevel(
       hints: [(l10n) => l10n.mgL1C6Hint1, (l10n) => l10n.mgL1C6Hint2],
       starter: 'robot name = "Cog"\nprint(robot name)',
       solution: 'robot_name = "Cog"\nprint(robot_name)',
+      requiredCode: const ['robot_name =', 'print(robot_name)'],
       tests: const [
         TestCase(output: ['Cog']),
       ],
@@ -123,6 +125,7 @@ final level1 = MinigameLevel(
       hints: [(l10n) => l10n.mgL1C8Hint1, (l10n) => l10n.mgL1C8Hint2],
       starter: 'speed = 5\nprint(Speed)',
       solution: 'speed = 5\nprint(speed)',
+      requiredCode: const ['speed =', 'print(speed)'],
       tests: const [
         TestCase(output: ['5']),
       ],

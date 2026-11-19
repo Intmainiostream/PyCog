@@ -84,8 +84,25 @@ void main() {
         report(c.id, 'solution passes', solution.passed, shown(solution));
 
         if (c.type == ChallengeType.fixBug) {
+          // Fails in real Python even without the "must use" check.
           final start = await checkProgram(engine, c.starter, c.tests);
           report(c.id, 'starting code fails', !start.passed);
+        }
+        if (c.requiredCode.isNotEmpty) {
+          // e.g. print(5) for "5", print("Cog") for "Cog".
+          final fixedAnswer = [
+            for (final line in c.tests.first.output)
+              int.tryParse(line) != null || line == 'True' || line == 'False'
+                  ? 'print($line)'
+                  : 'print("$line")',
+          ].join('\n');
+          final printed = await checkProgram(
+            engine,
+            fixedAnswer,
+            c.tests,
+            required: c.requiredCode,
+          );
+          report(c.id, 'printing the answer fails', !printed.passed);
         }
         if (c.type == ChallengeType.fillBlank) {
           for (final wrong in [

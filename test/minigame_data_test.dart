@@ -159,23 +159,32 @@ void main() {
     }
   });
 
-  test('from Level 2 on, fix and write challenges without input() have '
-      'required code', () {
-    for (final level in minigameLevels.skip(1)) {
-      for (final c in level.challenges.where(
-        (c) =>
-            (c.type == ChallengeType.fixBug ||
-                c.type == ChallengeType.writeCode) &&
-            !c.solutionProgram.contains('input('),
-      )) {
-        expect(c.requiredCode, isNotEmpty, reason: c.id);
-      }
+  test('every fix and write challenge without input() has required code', () {
+    for (final c in allChallenges.where(
+      (c) =>
+          (c.type == ChallengeType.fixBug ||
+              c.type == ChallengeType.writeCode) &&
+          !c.solutionProgram.contains('input('),
+    )) {
+      expect(c.requiredCode, isNotEmpty, reason: c.id);
     }
-    // Level 1 (written before this rule): its write-it challenges have it.
-    final level1Writes = minigameLevels.first.challenges.where(
-      (c) => c.type == ChallengeType.writeCode,
-    );
-    expect(level1Writes.every((c) => c.requiredCode.isNotEmpty), isTrue);
+  });
+
+  test('Level 1 fix the bug: printing the fixed answer does not pass', () {
+    final level1 = {for (final c in minigameLevels.first.challenges) c.id: c};
+    expect(missingCode('print("Cog")', level1['mgL1C6']!.requiredCode), [
+      'robot_name =',
+      'print(robot_name)',
+    ]);
+    expect(missingCode('print(5)', level1['mgL1C8']!.requiredCode), [
+      'speed =',
+      'print(speed)',
+    ]);
+    // The starting code is still missing a piece, so it never passes.
+    for (final id in ['mgL1C6', 'mgL1C8']) {
+      final c = level1[id]!;
+      expect(missingCode(c.starter, c.requiredCode), isNotEmpty, reason: id);
+    }
   });
 
   test('required code: printing the answer does not pass', () {
