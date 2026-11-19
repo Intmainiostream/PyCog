@@ -26,6 +26,10 @@ Future<void> main() async {
   // Sound effects: loaded in the background, so the app starts right away.
   Sounds.player = SequencedSoundPlayer(AudioplayersClips());
   unawaited(Sounds.player.preload());
+  // Background music: quiet, looped, paused while the app is away.
+  Sounds.music = FadingMusicPlayer(AudioplayersTracks());
+  unawaited(Sounds.music.preload());
+  Sounds.followAppLifecycle();
   runApp(PyCogApp(settings: settings, progress: progress, minigame: minigame));
 }
 

@@ -76,3 +76,56 @@ class AudioplayersClips implements SoundClips {
     }
   }
 }
+
+/// The real background music, played with the audioplayers package.
+///
+/// Each song has its own player, on a loop, so it keeps its place while
+/// the other one plays. Music uses normal media audio focus on Android:
+/// a phone call pauses it and it continues afterwards; if another app
+/// takes the audio for good, it continues when the student comes back to
+/// PyCog. (Sound effects take no focus at all.) On iOS it uses the same
+/// "ambient" session as the sound effects, so it mixes with other apps.
+class AudioplayersTracks implements MusicTracks {
+  final _players = <Song, AudioPlayer>{};
+
+  static final _context = AudioContext(
+    android: const AudioContextAndroid(
+      isSpeakerphoneOn: false,
+      stayAwake: false,
+      contentType: AndroidContentType.music,
+      usageType: AndroidUsageType.media,
+      audioFocus: AndroidAudioFocus.gain,
+    ),
+    iOS: AudioContextIOS(category: AVAudioSessionCategory.ambient),
+  );
+
+  @override
+  Future<void> preload() async {
+    for (final song in Song.values) {
+      await AudioplayersClips._try(song.name, () async {
+        final player = AudioPlayer(playerId: 'music-${song.name}');
+        await player.setAudioContext(_context);
+        await player.setReleaseMode(ReleaseMode.loop);
+        await player.setVolume(0);
+        await player.setSource(AssetSource('music/${song.file}'));
+        _players[song] = player;
+      });
+    }
+  }
+
+  @override
+  void play(Song song) => _do(song, (p) => p.resume());
+
+  @override
+  void pause(Song song) => _do(song, (p) => p.pause());
+
+  @override
+  void setVolume(Song song, double volume) =>
+      _do(song, (p) => p.setVolume(volume));
+
+  void _do(Song song, Future<void> Function(AudioPlayer) action) {
+    final player = _players[song];
+    if (player == null) return; // missing or broken file: stay quiet
+    unawaited(AudioplayersClips._try(song.name, () => action(player)));
+  }
+}
