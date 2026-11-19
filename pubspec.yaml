@@ -53,6 +53,25 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   integration_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.4
+
+# App icon. Run `dart run flutter_launcher_icons` after changing the pictures.
+#  - pycog_icon_full.png: the logo as a full square (no rounded corners of
+#    its own), so iOS, the web and older Android phones round it only once.
+#  - Android 8+ (adaptive): a brown background with a red disc, and Cog on
+#    top, kept inside the safe circle so no mask cuts him off.
+flutter_launcher_icons:
+  image_path: "assets/branding/icon/pycog_icon_full.png"
+  android: true
+  adaptive_icon_background: "assets/branding/icon/pycog_icon_background.png"
+  adaptive_icon_foreground: "assets/branding/icon/pycog_icon_foreground.png"
+  # The foreground picture already has the safe margin built in.
+  adaptive_icon_foreground_inset: 0
+  ios: true
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/branding/icon/pycog_icon_full.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
