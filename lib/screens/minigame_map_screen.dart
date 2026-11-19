@@ -16,6 +16,8 @@ import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
 import '../widgets/title_top_bar.dart';
 import 'challenge_screen.dart';
+import '../sound/sounds.dart';
+import '../sound/sound_on_show.dart';
 
 /// The MINIGAME map (opened by MINIGAME on the home screen): 10 levels of
 /// challenges, with the stars earned on each. Level 1 is open; each next
@@ -336,10 +338,14 @@ class MinigameLevelScreen extends StatelessWidget {
                       ),
                       children: [
                         if (allDone) ...[
-                          CogFeedbackCard(
-                            key: const ValueKey('mg-all-done'),
-                            text: l10n.mgAllDone(gameTotal),
-                            mood: CogMood.happy,
+                          // The big ending: the victory sound.
+                          SoundOnShow(
+                            play: () => Sounds.play(Sfx.victory),
+                            child: CogFeedbackCard(
+                              key: const ValueKey('mg-all-done'),
+                              text: l10n.mgAllDone(gameTotal),
+                              mood: CogMood.happy,
+                            ),
                           ),
                           const SizedBox(height: AppSizes.gap12),
                         ],

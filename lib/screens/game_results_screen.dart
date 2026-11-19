@@ -14,6 +14,8 @@ import '../widgets/result_widgets.dart';
 import '../widgets/speech_bubble.dart';
 import 'game_screen.dart';
 import 'trail_screen.dart';
+import '../sound/sounds.dart';
+import '../sound/sound_on_show.dart';
 
 /// End of the game: 1 to 3 bonus stars, Cog's reaction, "Play again" and
 /// "Back to lessons". (The bonus stars are already saved before this opens.)
@@ -110,10 +112,14 @@ class GameResultsScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: AppSizes.gap16),
-                        StickerStarRow(
-                          stars: stars,
-                          size: starSize,
-                          label: l10n.gameBonusStars(stars),
+                        // Stars appear: one star sound per star.
+                        SoundOnShow(
+                          play: () => Sounds.stars(stars),
+                          child: StickerStarRow(
+                            stars: stars,
+                            size: starSize,
+                            label: l10n.gameBonusStars(stars),
+                          ),
                         ),
                         const SizedBox(height: AppSizes.gap16),
                         Center(

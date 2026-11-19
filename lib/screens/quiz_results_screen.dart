@@ -15,6 +15,8 @@ import '../widgets/speech_bubble.dart';
 import 'game_screen.dart';
 import 'quiz_screen.dart';
 import 'trail_screen.dart';
+import '../sound/sounds.dart';
+import '../sound/sound_on_show.dart';
 
 /// End of a quiz: 1 to 3 stars, Cog's reaction, "Try again" and
 /// "Back to lessons". (The stars are already saved before this opens.)
@@ -153,10 +155,14 @@ class QuizResultsScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: AppSizes.gap16),
-                        StickerStarRow(
-                          stars: stars,
-                          size: starSize,
-                          label: l10n.starsCount(stars),
+                        // Stars appear: one star sound per star.
+                        SoundOnShow(
+                          play: () => Sounds.stars(stars, first: Sfx.finish),
+                          child: StickerStarRow(
+                            stars: stars,
+                            size: starSize,
+                            label: l10n.starsCount(stars),
+                          ),
                         ),
                         const SizedBox(height: AppSizes.gap16),
                         Center(

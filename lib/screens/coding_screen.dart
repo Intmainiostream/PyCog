@@ -15,6 +15,7 @@ import '../widgets/output_box.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/title_top_bar.dart';
 import 'about_screen.dart';
+import '../sound/sounds.dart';
 
 /// What the student typed in the playground. Kept while the app is open,
 /// so leaving the screen and coming back keeps the code.
@@ -88,6 +89,7 @@ class _CodingScreenState extends State<CodingScreen> {
   }
 
   Future<void> _run() async {
+    Sounds.play(Sfx.run);
     _codeFocus.unfocus();
     setState(() {
       _running = true;
@@ -99,6 +101,7 @@ class _CodingScreenState extends State<CodingScreen> {
       _running = false;
       _result = result;
     });
+    if (result.error == null && !result.timedOut) Sounds.play(Sfx.output);
   }
 
   void _clear() {
@@ -117,10 +120,12 @@ class _CodingScreenState extends State<CodingScreen> {
           content: Text(l10n.codingCleared),
           action: SnackBarAction(
             label: l10n.codingUndo,
-            onPressed: () => setState(() {
-              _code.text = oldCode;
-              _answers.text = oldAnswers;
-            }),
+            onPressed: Sounds.tapThen(
+              () => setState(() {
+                _code.text = oldCode;
+                _answers.text = oldAnswers;
+              }),
+            )!,
           ),
         ),
       );
@@ -312,9 +317,11 @@ class _CodingScreenState extends State<CodingScreen> {
         alignment: AlignmentDirectional.centerStart,
         child: TextButton(
           key: const ValueKey('coding-about'),
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => AboutScreen(settings: widget.settings),
+          onPressed: Sounds.tapThen(
+            () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => AboutScreen(settings: widget.settings),
+              ),
             ),
           ),
           child: Text(l10n.aboutTitle),
@@ -367,7 +374,11 @@ class _ExamplesButton extends StatelessWidget {
     return PopupMenuButton<CodingExample>(
       key: const ValueKey('coding-examples'),
       tooltip: label,
-      onSelected: onPick,
+      onOpened: () => Sounds.play(Sfx.tap),
+      onSelected: (example) {
+        Sounds.play(Sfx.tap);
+        onPick(example);
+      },
       itemBuilder: (context) => [
         for (final example in codingExamples)
           PopupMenuItem(value: example, child: Text(example.title(l10n))),

@@ -19,6 +19,7 @@ import '../widgets/lesson_top_bar.dart';
 import '../widgets/output_box.dart';
 import '../widgets/settings_sheet.dart';
 import 'minigame_map_screen.dart';
+import '../sound/sounds.dart';
 
 /// One MINIGAME challenge: a quiz, fill the blank, fix the bug, or write it
 /// yourself.
@@ -127,6 +128,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
   void _useHint() {
     if (_hintsUsed >= _challenge.hints.length || _solved) return;
+    Sounds.play(Sfx.hint);
     setState(() => _hintsUsed++);
     widget.progress.saveHintsUsed(_challenge.id, _hintsUsed);
   }
@@ -138,6 +140,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
       _pass();
       return;
     }
+    Sounds.play(Sfx.wrong);
     setState(() {
       _wrongPicked.add(picked);
       _lastWrong = picked;
@@ -166,6 +169,9 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
       await _pass();
       return;
     }
+    // A wrong answer (not when Python itself could not start).
+    final error = result.got?.error;
+    if (error == null || !isStartError(error)) Sounds.play(Sfx.wrong);
     setState(() {
       _running = false;
       _check = result;
@@ -181,6 +187,13 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     await widget.progress.clearAttempt(_challenge.id);
     final after = widget.progress.unlockedCount(widget.levels);
     if (!mounted) return;
+    // Right quiz pick: correct. Code challenge done, or a new level
+    // opened: finish. Then one star sound per earned star.
+    final opened = after > before;
+    Sounds.stars(
+      stars,
+      first: _challenge.runsCode || opened ? Sfx.finish : Sfx.correct,
+    );
     setState(() {
       _solved = true;
       _earned = stars;
@@ -462,7 +475,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
           alignment: AlignmentDirectional.centerEnd,
           child: TextButton.icon(
             key: const ValueKey('mg-reset'),
-            onPressed: _running ? null : _resetCode,
+            onPressed: _running ? null : Sounds.tapThen(_resetCode),
             icon: const Icon(Icons.restart_alt_rounded),
             label: Text(l10n.mgReset),
           ),

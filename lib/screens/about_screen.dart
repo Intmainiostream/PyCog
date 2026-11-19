@@ -11,6 +11,7 @@ import '../widgets/cog_art.dart';
 import '../widgets/cog_placeholder.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
+import '../sound/sounds.dart';
 
 /// About PyCog: what the app is and who made it, the version number, and
 /// (very small, at the bottom) a link to the open-source notices.
@@ -143,8 +144,9 @@ class _NoticesLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       key: const ValueKey('about-notices'),
-      onPressed: () =>
-          showLicensePage(context: context, applicationName: 'PyCog'),
+      onPressed: Sounds.tapThen(
+        () => showLicensePage(context: context, applicationName: 'PyCog'),
+      ),
       style: TextButton.styleFrom(
         foregroundColor: AppColors.textFaint,
         minimumSize: const Size(

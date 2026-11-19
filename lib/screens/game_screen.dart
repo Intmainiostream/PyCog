@@ -18,6 +18,7 @@ import '../widgets/lesson_top_bar.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
 import 'game_results_screen.dart';
+import '../sound/sounds.dart';
 
 /// What Cog is saying under the boxes right now.
 enum _Say { nothing, cheer, hint, tapValueFirst, roundDone }
@@ -118,10 +119,12 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {
       _selected = null;
       if (_chip(value).box == boxName) {
+        Sounds.play(Sfx.correct);
         _placed[value] = boxName; // snaps in
         _cheers++;
         _say = _roundDone ? _Say.roundDone : _Say.cheer;
       } else {
+        Sounds.play(Sfx.wrong);
         _wrong++; // bounces back
         _shakes[value] = (_shakes[value] ?? 0) + 1;
         _hintChip = value;

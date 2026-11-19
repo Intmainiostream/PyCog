@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../theme/app_theme.dart';
 import 'chunky_button.dart';
+import '../sound/sounds.dart';
 
 /// The code-font text style used on chips and in boxes. It sets no color,
 /// so it picks up the button's own text color (white on teal, brown on cream).
@@ -173,7 +174,7 @@ class GameBoxView extends StatelessWidget {
           excludeSemantics: true,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: full ? null : onTap,
+            onTap: full ? null : Sounds.tapThen(onTap),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

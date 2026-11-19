@@ -19,6 +19,7 @@ import '../widgets/lesson_top_bar.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
 import 'quiz_results_screen.dart';
+import '../sound/sounds.dart';
 
 /// Where the student is within one question.
 enum _Phase {
@@ -94,8 +95,10 @@ class _QuizScreenState extends State<QuizScreen> {
     if (picked == null) return;
     setState(() {
       if (_question.answers[picked].correct) {
+        Sounds.play(Sfx.correct);
         _phase = _Phase.correct;
       } else {
+        Sounds.play(Sfx.wrong);
         _mistakes++;
         _wrongPicked.add(picked);
         _lastWrong = picked;

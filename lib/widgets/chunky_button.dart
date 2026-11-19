@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../theme/app_theme.dart';
+import '../sound/sounds.dart';
 
 /// The basic "sticker" button: thick outline, hard shadow underneath, and it
 /// sinks down onto its shadow while pressed.
@@ -65,7 +66,7 @@ class _ChunkyButtonState extends State<ChunkyButton> {
         onTapDown: (_) => _setPressed(true),
         onTapUp: (_) => _setPressed(false),
         onTapCancel: () => _setPressed(false),
-        onTap: widget.onTap,
+        onTap: Sounds.tapThen(widget.onTap),
         // The bottom padding reserves room for the shadow so the layout
         // doesn't jump when the button moves down.
         child: Padding(
