@@ -20,6 +20,7 @@ import '../widgets/output_box.dart';
 import '../widgets/settings_sheet.dart';
 import 'minigame_map_screen.dart';
 import '../sound/sounds.dart';
+import '../sound/music_zone.dart';
 
 /// One MINIGAME challenge: a quiz, fill the blank, fix the bug, or write it
 /// yourself.
@@ -242,53 +243,57 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final total = widget.level.challenges.length;
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final side = math.max(
-              AppSizes.screenPadding,
-              (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
-            );
-            return Column(
-              children: [
-                LessonTopBar(
-                  sidePadding: side,
-                  current: widget.index + 1,
-                  total: total,
-                  progressLabel: l10n.mgChallengeProgress(
-                    widget.index + 1,
-                    total,
-                  ),
-                  closeLabel: l10n.mgClose,
-                  onClose: () => Navigator.of(context).pop(),
-                  onSettings: () => showSettingsSheet(context, widget.settings),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      side,
-                      AppSizes.gap8,
-                      side,
-                      AppSizes.gap24,
+    return MusicZone(
+      song: Song.game,
+      child: Scaffold(
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final side = math.max(
+                AppSizes.screenPadding,
+                (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
+              );
+              return Column(
+                children: [
+                  LessonTopBar(
+                    sidePadding: side,
+                    current: widget.index + 1,
+                    total: total,
+                    progressLabel: l10n.mgChallengeProgress(
+                      widget.index + 1,
+                      total,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: _content(l10n),
+                    closeLabel: l10n.mgClose,
+                    onClose: () => Navigator.of(context).pop(),
+                    onSettings: () =>
+                        showSettingsSheet(context, widget.settings),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        side,
+                        AppSizes.gap8,
+                        side,
+                        AppSizes.gap24,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: _content(l10n),
+                      ),
                     ),
                   ),
-                ),
-                if (_codeFocus.hasFocus)
-                  CodeHelperBar(
-                    l10n: l10n,
-                    padding: side,
-                    keyPrefix: 'mg',
-                    onInsert: (text, {back = 0}) =>
-                        insertCode(_code, text, back: back),
-                  ),
-              ],
-            );
-          },
+                  if (_codeFocus.hasFocus)
+                    CodeHelperBar(
+                      l10n: l10n,
+                      padding: side,
+                      keyPrefix: 'mg',
+                      onInsert: (text, {back = 0}) =>
+                          insertCode(_code, text, back: back),
+                    ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

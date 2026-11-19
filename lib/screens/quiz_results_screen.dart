@@ -17,6 +17,7 @@ import 'quiz_screen.dart';
 import 'trail_screen.dart';
 import '../sound/sounds.dart';
 import '../sound/sound_on_show.dart';
+import '../sound/music_zone.dart';
 
 /// End of a quiz: 1 to 3 stars, Cog's reaction, "Try again" and
 /// "Back to lessons". (The stars are already saved before this opens.)
@@ -82,173 +83,176 @@ class QuizResultsScreen extends StatelessWidget {
       _ => l10n.results1Star,
     };
 
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final wide =
-                constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
-                constraints.maxWidth > constraints.maxHeight;
-            final sidePadding = math.max(
-              AppSizes.screenPadding,
-              (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
-            );
-            final contentWidth = constraints.maxWidth - sidePadding * 2;
-            final starSize = math.min(
-              AppSizes.resultsStarMax,
-              contentWidth * AppSizes.resultsStarFraction,
-            );
+    return MusicZone(
+      song: Song.game,
+      child: Scaffold(
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final wide =
+                  constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
+                  constraints.maxWidth > constraints.maxHeight;
+              final sidePadding = math.max(
+                AppSizes.screenPadding,
+                (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
+              );
+              final contentWidth = constraints.maxWidth - sidePadding * 2;
+              final starSize = math.min(
+                AppSizes.resultsStarMax,
+                contentWidth * AppSizes.resultsStarFraction,
+              );
 
-            final tryAgain = ChunkyButton(
-              color: AppColors.red,
-              onTap: () => _tryAgain(context),
-              child: Text(l10n.resultsTryAgain, textAlign: TextAlign.center),
-            );
-            final back = ChunkyButton(
-              color: AppColors.surface,
-              onTap: () => _backToLessons(context),
-              child: Text(
-                l10n.resultsBackToLessons,
-                textAlign: TextAlign.center,
-              ),
-            );
-            // Only lessons that have a game get this button.
-            final playGame = lesson.hasGame
-                ? ChunkyButton(
-                    color: AppColors.success,
-                    onTap: () => _playGame(context),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.extension_rounded),
-                        const SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            l10n.resultsPlayGame,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : null;
-
-            return Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      sidePadding,
-                      AppSizes.gap24,
-                      sidePadding,
-                      AppSizes.gap16,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Semantics(
-                          header: true,
-                          child: Text(
-                            l10n.resultsTitle,
-                            textAlign: TextAlign.center,
-                            style: AppTextStyles.display,
-                          ),
-                        ),
-                        const SizedBox(height: AppSizes.gap16),
-                        // Stars appear: one star sound per star.
-                        SoundOnShow(
-                          play: () => Sounds.stars(stars, first: Sfx.finish),
-                          child: StickerStarRow(
-                            stars: stars,
-                            size: starSize,
-                            label: l10n.starsCount(stars),
-                          ),
-                        ),
-                        const SizedBox(height: AppSizes.gap16),
-                        Center(
-                          child: CogArt(
-                            pose: CogPose.cheering,
-                            size: CogPlaceholder.lessonSizeFor(context),
-                          ),
-                        ),
-                        SpeechBubble(text: reaction),
-                        const SizedBox(height: AppSizes.gap16),
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: AppSizes.gap8,
-                          runSpacing: AppSizes.gap8,
-                          children: [
-                            if (isNewBest)
-                              StickerBadge(
-                                text: l10n.resultsNewBest,
-                                color: AppColors.star,
-                              ),
-                            if (unlockedLessonNumber != null)
-                              StickerBadge(
-                                text: l10n.resultsUnlocked(
-                                  unlockedLessonNumber!,
-                                ),
-                                color: AppColors.success,
-                              ),
-                            StickerBadge(
-                              text: l10n.resultsBest(
-                                progress.bestStars(lesson.id),
-                              ),
-                              color: AppColors.surface,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+              final tryAgain = ChunkyButton(
+                color: AppColors.red,
+                onTap: () => _tryAgain(context),
+                child: Text(l10n.resultsTryAgain, textAlign: TextAlign.center),
+              );
+              final back = ChunkyButton(
+                color: AppColors.surface,
+                onTap: () => _backToLessons(context),
+                child: Text(
+                  l10n.resultsBackToLessons,
+                  textAlign: TextAlign.center,
                 ),
-                // Buttons stay on screen; side by side when there's room.
-                Container(
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        color: AppColors.outline,
-                        width: AppSizes.outlineWidth,
+              );
+              // Only lessons that have a game get this button.
+              final playGame = lesson.hasGame
+                  ? ChunkyButton(
+                      color: AppColors.success,
+                      onTap: () => _playGame(context),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.extension_rounded),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              l10n.resultsPlayGame,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : null;
+
+              return Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        sidePadding,
+                        AppSizes.gap24,
+                        sidePadding,
+                        AppSizes.gap16,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Semantics(
+                            header: true,
+                            child: Text(
+                              l10n.resultsTitle,
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.display,
+                            ),
+                          ),
+                          const SizedBox(height: AppSizes.gap16),
+                          // Stars appear: one star sound per star.
+                          SoundOnShow(
+                            play: () => Sounds.stars(stars, first: Sfx.finish),
+                            child: StickerStarRow(
+                              stars: stars,
+                              size: starSize,
+                              label: l10n.starsCount(stars),
+                            ),
+                          ),
+                          const SizedBox(height: AppSizes.gap16),
+                          Center(
+                            child: CogArt(
+                              pose: CogPose.cheering,
+                              size: CogPlaceholder.lessonSizeFor(context),
+                            ),
+                          ),
+                          SpeechBubble(text: reaction),
+                          const SizedBox(height: AppSizes.gap16),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: AppSizes.gap8,
+                            runSpacing: AppSizes.gap8,
+                            children: [
+                              if (isNewBest)
+                                StickerBadge(
+                                  text: l10n.resultsNewBest,
+                                  color: AppColors.star,
+                                ),
+                              if (unlockedLessonNumber != null)
+                                StickerBadge(
+                                  text: l10n.resultsUnlocked(
+                                    unlockedLessonNumber!,
+                                  ),
+                                  color: AppColors.success,
+                                ),
+                              StickerBadge(
+                                text: l10n.resultsBest(
+                                  progress.bestStars(lesson.id),
+                                ),
+                                color: AppColors.surface,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  padding: EdgeInsets.fromLTRB(
-                    sidePadding,
-                    AppSizes.gap12,
-                    sidePadding,
-                    AppSizes.gap12,
-                  ),
-                  child: wide
-                      ? IntrinsicHeight(
-                          child: Row(
+                  // Buttons stay on screen; side by side when there's room.
+                  Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: AppColors.outline,
+                          width: AppSizes.outlineWidth,
+                        ),
+                      ),
+                    ),
+                    padding: EdgeInsets.fromLTRB(
+                      sidePadding,
+                      AppSizes.gap12,
+                      sidePadding,
+                      AppSizes.gap12,
+                    ),
+                    child: wide
+                        ? IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(child: back),
+                                const SizedBox(width: AppSizes.gap12),
+                                Expanded(child: tryAgain),
+                                if (playGame != null) ...[
+                                  const SizedBox(width: AppSizes.gap12),
+                                  Expanded(child: playGame),
+                                ],
+                              ],
+                            ),
+                          )
+                        : Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Expanded(child: back),
-                              const SizedBox(width: AppSizes.gap12),
-                              Expanded(child: tryAgain),
                               if (playGame != null) ...[
-                                const SizedBox(width: AppSizes.gap12),
-                                Expanded(child: playGame),
+                                playGame,
+                                const SizedBox(height: AppSizes.gap4),
                               ],
+                              tryAgain,
+                              const SizedBox(height: AppSizes.gap4),
+                              back,
                             ],
                           ),
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            if (playGame != null) ...[
-                              playGame,
-                              const SizedBox(height: AppSizes.gap4),
-                            ],
-                            tryAgain,
-                            const SizedBox(height: AppSizes.gap4),
-                            back,
-                          ],
-                        ),
-                ),
-              ],
-            );
-          },
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

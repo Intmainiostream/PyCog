@@ -12,6 +12,7 @@ import 'screens/home_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/splash_screen.dart';
 import 'sound/audio_clips.dart';
+import 'sound/music_zone.dart';
 import 'sound/sounds.dart';
 import 'theme/app_theme.dart';
 
@@ -77,6 +78,8 @@ class PyCogApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         locale: settings.locale,
+        // Lets each screen's MusicZone know when it is shown again.
+        navigatorObservers: [musicRouteObserver],
         supportedLocales: AppLocalizations.supportedLocales,
         // Our app's text + material_ui's built-in text (buttons, tooltips...).
         // We don't use AppLocalizations.localizationsDelegates because it

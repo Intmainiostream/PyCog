@@ -13,6 +13,8 @@ import '../widgets/cloud_footer.dart';
 import 'lesson_screen.dart';
 import '../widgets/lesson_path.dart';
 import '../widgets/settings_sheet.dart';
+import '../sound/music_zone.dart';
+import '../sound/sounds.dart';
 
 /// Goes back to the lesson trail (used by "Back to lessons" on the results
 /// screens). Falls back to the first screen if the trail isn't open.
@@ -66,11 +68,14 @@ class TrailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // Redraw when saved progress changes (stars total, unlocked lessons).
-      body: ListenableBuilder(
-        listenable: progress,
-        builder: (context, _) => _body(context),
+    return MusicZone(
+      song: Song.game,
+      child: Scaffold(
+        // Redraw when saved progress changes (stars total, unlocked lessons).
+        body: ListenableBuilder(
+          listenable: progress,
+          builder: (context, _) => _body(context),
+        ),
       ),
     );
   }

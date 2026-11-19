@@ -16,6 +16,7 @@ import 'game_screen.dart';
 import 'trail_screen.dart';
 import '../sound/sounds.dart';
 import '../sound/sound_on_show.dart';
+import '../sound/music_zone.dart';
 
 /// End of the game: 1 to 3 bonus stars, Cog's reaction, "Play again" and
 /// "Back to lessons". (The bonus stars are already saved before this opens.)
@@ -59,137 +60,140 @@ class GameResultsScreen extends StatelessWidget {
       _ => l10n.gameResults1Star,
     };
 
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final wide =
-                constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
-                constraints.maxWidth > constraints.maxHeight;
-            final sidePadding = math.max(
-              AppSizes.screenPadding,
-              (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
-            );
-            final starSize = math.min(
-              AppSizes.resultsStarMax,
-              (constraints.maxWidth - sidePadding * 2) *
-                  AppSizes.resultsStarFraction,
-            );
+    return MusicZone(
+      song: Song.game,
+      child: Scaffold(
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final wide =
+                  constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
+                  constraints.maxWidth > constraints.maxHeight;
+              final sidePadding = math.max(
+                AppSizes.screenPadding,
+                (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
+              );
+              final starSize = math.min(
+                AppSizes.resultsStarMax,
+                (constraints.maxWidth - sidePadding * 2) *
+                    AppSizes.resultsStarFraction,
+              );
 
-            final playAgain = ChunkyButton(
-              color: AppColors.red,
-              onTap: () => _playAgain(context),
-              child: Text(l10n.gamePlayAgain, textAlign: TextAlign.center),
-            );
-            final back = ChunkyButton(
-              color: AppColors.surface,
-              onTap: () => popToTrail(context),
-              child: Text(
-                l10n.resultsBackToLessons,
-                textAlign: TextAlign.center,
-              ),
-            );
-
-            return Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      sidePadding,
-                      AppSizes.gap24,
-                      sidePadding,
-                      AppSizes.gap16,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Semantics(
-                          header: true,
-                          child: Text(
-                            l10n.gameResultsTitle,
-                            textAlign: TextAlign.center,
-                            style: AppTextStyles.display,
-                          ),
-                        ),
-                        const SizedBox(height: AppSizes.gap16),
-                        // Stars appear: one star sound per star.
-                        SoundOnShow(
-                          play: () => Sounds.stars(stars),
-                          child: StickerStarRow(
-                            stars: stars,
-                            size: starSize,
-                            label: l10n.gameBonusStars(stars),
-                          ),
-                        ),
-                        const SizedBox(height: AppSizes.gap16),
-                        Center(
-                          child: CogArt(
-                            pose: CogPose.cheering,
-                            size: CogPlaceholder.lessonSizeFor(context),
-                          ),
-                        ),
-                        SpeechBubble(text: reaction),
-                        const SizedBox(height: AppSizes.gap16),
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: AppSizes.gap8,
-                          runSpacing: AppSizes.gap8,
-                          children: [
-                            if (isNewBest)
-                              StickerBadge(
-                                text: l10n.resultsNewBest,
-                                color: AppColors.star,
-                              ),
-                            StickerBadge(
-                              text: l10n.gameBestBonus(
-                                progress.bestBonusStars(lesson.id),
-                              ),
-                              color: AppColors.surface,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+              final playAgain = ChunkyButton(
+                color: AppColors.red,
+                onTap: () => _playAgain(context),
+                child: Text(l10n.gamePlayAgain, textAlign: TextAlign.center),
+              );
+              final back = ChunkyButton(
+                color: AppColors.surface,
+                onTap: () => popToTrail(context),
+                child: Text(
+                  l10n.resultsBackToLessons,
+                  textAlign: TextAlign.center,
                 ),
-                Container(
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        color: AppColors.outline,
-                        width: AppSizes.outlineWidth,
+              );
+
+              return Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        sidePadding,
+                        AppSizes.gap24,
+                        sidePadding,
+                        AppSizes.gap16,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Semantics(
+                            header: true,
+                            child: Text(
+                              l10n.gameResultsTitle,
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.display,
+                            ),
+                          ),
+                          const SizedBox(height: AppSizes.gap16),
+                          // Stars appear: one star sound per star.
+                          SoundOnShow(
+                            play: () => Sounds.stars(stars),
+                            child: StickerStarRow(
+                              stars: stars,
+                              size: starSize,
+                              label: l10n.gameBonusStars(stars),
+                            ),
+                          ),
+                          const SizedBox(height: AppSizes.gap16),
+                          Center(
+                            child: CogArt(
+                              pose: CogPose.cheering,
+                              size: CogPlaceholder.lessonSizeFor(context),
+                            ),
+                          ),
+                          SpeechBubble(text: reaction),
+                          const SizedBox(height: AppSizes.gap16),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: AppSizes.gap8,
+                            runSpacing: AppSizes.gap8,
+                            children: [
+                              if (isNewBest)
+                                StickerBadge(
+                                  text: l10n.resultsNewBest,
+                                  color: AppColors.star,
+                                ),
+                              StickerBadge(
+                                text: l10n.gameBestBonus(
+                                  progress.bestBonusStars(lesson.id),
+                                ),
+                                color: AppColors.surface,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  padding: EdgeInsets.fromLTRB(
-                    sidePadding,
-                    AppSizes.gap12,
-                    sidePadding,
-                    AppSizes.gap12,
-                  ),
-                  child: wide
-                      ? IntrinsicHeight(
-                          child: Row(
+                  Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: AppColors.outline,
+                          width: AppSizes.outlineWidth,
+                        ),
+                      ),
+                    ),
+                    padding: EdgeInsets.fromLTRB(
+                      sidePadding,
+                      AppSizes.gap12,
+                      sidePadding,
+                      AppSizes.gap12,
+                    ),
+                    child: wide
+                        ? IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(child: back),
+                                const SizedBox(width: AppSizes.gap12),
+                                Expanded(child: playAgain),
+                              ],
+                            ),
+                          )
+                        : Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Expanded(child: back),
-                              const SizedBox(width: AppSizes.gap12),
-                              Expanded(child: playAgain),
+                              playAgain,
+                              const SizedBox(height: AppSizes.gap4),
+                              back,
                             ],
                           ),
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            playAgain,
-                            const SizedBox(height: AppSizes.gap4),
-                            back,
-                          ],
-                        ),
-                ),
-              ],
-            );
-          },
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

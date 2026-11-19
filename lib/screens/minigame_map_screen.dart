@@ -18,6 +18,7 @@ import '../widgets/title_top_bar.dart';
 import 'challenge_screen.dart';
 import '../sound/sounds.dart';
 import '../sound/sound_on_show.dart';
+import '../sound/music_zone.dart';
 
 /// The MINIGAME map (opened by MINIGAME on the home screen): 10 levels of
 /// challenges, with the stars earned on each. Level 1 is open; each next
@@ -69,60 +70,64 @@ class MinigameMapScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      body: ListenableBuilder(
-        listenable: progress, // stars and open levels update live
-        builder: (context, _) => SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final side = math.max(
-                AppSizes.screenPadding,
-                (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
-              );
-              final unlocked = progress.unlockedCount(levels);
-              return Column(
-                children: [
-                  TitleTopBar(
-                    padding: side,
-                    title: l10n.mgMapTitle,
-                    backLabel: l10n.homeBackToHome,
-                    settingsLabel: l10n.settingsTooltip,
-                    onSettings: () => showSettingsSheet(context, settings),
-                  ),
-                  Expanded(
-                    child: ListView(
-                      padding: EdgeInsets.fromLTRB(
-                        side,
-                        AppSizes.gap4,
-                        side,
-                        AppSizes.gap24,
-                      ),
-                      children: [
-                        CogSays(text: l10n.mgMapIntro),
-                        const SizedBox(height: AppSizes.gap8),
-                        Text(
-                          l10n.mgUnlockRule,
-                          textAlign: TextAlign.center,
-                          style: AppTextStyles.small,
-                        ),
-                        const SizedBox(height: AppSizes.gap16),
-                        for (final (i, level) in levels.indexed) ...[
-                          _LevelTile(
-                            key: ValueKey('mg-level-${level.number}'),
-                            level: level,
-                            unlocked: i < unlocked,
-                            stars: progress.levelStars(level),
-                            solved: progress.solvedCount(level),
-                            onTap: () => _onLevelTap(context, i, i < unlocked),
-                          ),
-                          const SizedBox(height: AppSizes.gap12),
-                        ],
-                      ],
+    return MusicZone(
+      song: Song.game,
+      child: Scaffold(
+        body: ListenableBuilder(
+          listenable: progress, // stars and open levels update live
+          builder: (context, _) => SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final side = math.max(
+                  AppSizes.screenPadding,
+                  (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
+                );
+                final unlocked = progress.unlockedCount(levels);
+                return Column(
+                  children: [
+                    TitleTopBar(
+                      padding: side,
+                      title: l10n.mgMapTitle,
+                      backLabel: l10n.homeBackToHome,
+                      settingsLabel: l10n.settingsTooltip,
+                      onSettings: () => showSettingsSheet(context, settings),
                     ),
-                  ),
-                ],
-              );
-            },
+                    Expanded(
+                      child: ListView(
+                        padding: EdgeInsets.fromLTRB(
+                          side,
+                          AppSizes.gap4,
+                          side,
+                          AppSizes.gap24,
+                        ),
+                        children: [
+                          CogSays(text: l10n.mgMapIntro),
+                          const SizedBox(height: AppSizes.gap8),
+                          Text(
+                            l10n.mgUnlockRule,
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.small,
+                          ),
+                          const SizedBox(height: AppSizes.gap16),
+                          for (final (i, level) in levels.indexed) ...[
+                            _LevelTile(
+                              key: ValueKey('mg-level-${level.number}'),
+                              level: level,
+                              unlocked: i < unlocked,
+                              stars: progress.levelStars(level),
+                              solved: progress.solvedCount(level),
+                              onTap: () =>
+                                  _onLevelTap(context, i, i < unlocked),
+                            ),
+                            const SizedBox(height: AppSizes.gap12),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -299,109 +304,112 @@ class MinigameLevelScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      body: ListenableBuilder(
-        listenable: progress,
-        builder: (context, _) => SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final side = math.max(
-                AppSizes.screenPadding,
-                (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
-              );
-              final total = level.challenges.length;
-              // The last level has no next level to open. When all of its
-              // challenges have a star, the whole game is done.
-              final isLast = identical(level, levels.last);
-              final allDone =
-                  isLast && total > 0 && progress.solvedCount(level) == total;
-              final gameTotal = levels.fold(
-                0,
-                (sum, l) => sum + l.challenges.length,
-              );
-              return Column(
-                children: [
-                  TitleTopBar(
-                    padding: side,
-                    title: l10n.mgLevel(level.number),
-                    backLabel: l10n.lessonBack,
-                    settingsLabel: l10n.settingsTooltip,
-                    onSettings: () => showSettingsSheet(context, settings),
-                  ),
-                  Expanded(
-                    child: ListView(
-                      padding: EdgeInsets.fromLTRB(
-                        side,
-                        AppSizes.gap4,
-                        side,
-                        AppSizes.gap24,
-                      ),
-                      children: [
-                        if (allDone) ...[
-                          // The big ending: the victory sound.
-                          SoundOnShow(
-                            play: () => Sounds.play(Sfx.victory),
-                            child: CogFeedbackCard(
-                              key: const ValueKey('mg-all-done'),
-                              text: l10n.mgAllDone(gameTotal),
-                              mood: CogMood.happy,
-                            ),
-                          ),
-                          const SizedBox(height: AppSizes.gap12),
-                        ],
-                        // A star icon, not an emoji: the app fonts have no
-                        // emoji.
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text:
-                                    '${l10n.mgSolved(progress.solvedCount(level), total)} · ',
-                              ),
-                              const WidgetSpan(
-                                alignment: PlaceholderAlignment.middle,
-                                child: Icon(
-                                  Icons.star_rounded,
-                                  color: AppColors.star,
-                                  size: 22,
-                                ),
-                              ),
-                              TextSpan(
-                                text:
-                                    ' ${progress.levelStars(level)}/${total * 3}',
-                              ),
-                            ],
-                          ),
-                          textAlign: TextAlign.center,
-                          style: AppTextStyles.bodyBold,
-                        ),
-                        if (!isLast) ...[
-                          const SizedBox(height: AppSizes.gap4),
-                          Text(
-                            key: const ValueKey('mg-unlock-rule'),
-                            l10n.mgUnlockRule,
-                            textAlign: TextAlign.center,
-                            style: AppTextStyles.small,
-                          ),
-                        ],
-                        const SizedBox(height: AppSizes.gap16),
-                        for (final (i, challenge)
-                            in level.challenges.indexed) ...[
-                          _ChallengeTile(
-                            key: ValueKey('mg-challenge-${challenge.id}'),
-                            number: i + 1,
-                            challenge: challenge,
-                            stars: progress.bestStars(challenge.id),
-                            onTap: () => _open(context, i),
-                          ),
-                          const SizedBox(height: AppSizes.gap12),
-                        ],
-                      ],
+    return MusicZone(
+      song: Song.game,
+      child: Scaffold(
+        body: ListenableBuilder(
+          listenable: progress,
+          builder: (context, _) => SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final side = math.max(
+                  AppSizes.screenPadding,
+                  (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
+                );
+                final total = level.challenges.length;
+                // The last level has no next level to open. When all of its
+                // challenges have a star, the whole game is done.
+                final isLast = identical(level, levels.last);
+                final allDone =
+                    isLast && total > 0 && progress.solvedCount(level) == total;
+                final gameTotal = levels.fold(
+                  0,
+                  (sum, l) => sum + l.challenges.length,
+                );
+                return Column(
+                  children: [
+                    TitleTopBar(
+                      padding: side,
+                      title: l10n.mgLevel(level.number),
+                      backLabel: l10n.lessonBack,
+                      settingsLabel: l10n.settingsTooltip,
+                      onSettings: () => showSettingsSheet(context, settings),
                     ),
-                  ),
-                ],
-              );
-            },
+                    Expanded(
+                      child: ListView(
+                        padding: EdgeInsets.fromLTRB(
+                          side,
+                          AppSizes.gap4,
+                          side,
+                          AppSizes.gap24,
+                        ),
+                        children: [
+                          if (allDone) ...[
+                            // The big ending: the victory sound.
+                            SoundOnShow(
+                              play: () => Sounds.play(Sfx.victory),
+                              child: CogFeedbackCard(
+                                key: const ValueKey('mg-all-done'),
+                                text: l10n.mgAllDone(gameTotal),
+                                mood: CogMood.happy,
+                              ),
+                            ),
+                            const SizedBox(height: AppSizes.gap12),
+                          ],
+                          // A star icon, not an emoji: the app fonts have no
+                          // emoji.
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text:
+                                      '${l10n.mgSolved(progress.solvedCount(level), total)} · ',
+                                ),
+                                const WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Icon(
+                                    Icons.star_rounded,
+                                    color: AppColors.star,
+                                    size: 22,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text:
+                                      ' ${progress.levelStars(level)}/${total * 3}',
+                                ),
+                              ],
+                            ),
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.bodyBold,
+                          ),
+                          if (!isLast) ...[
+                            const SizedBox(height: AppSizes.gap4),
+                            Text(
+                              key: const ValueKey('mg-unlock-rule'),
+                              l10n.mgUnlockRule,
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.small,
+                            ),
+                          ],
+                          const SizedBox(height: AppSizes.gap16),
+                          for (final (i, challenge)
+                              in level.challenges.indexed) ...[
+                            _ChallengeTile(
+                              key: ValueKey('mg-challenge-${challenge.id}'),
+                              number: i + 1,
+                              challenge: challenge,
+                              stars: progress.bestStars(challenge.id),
+                              onTap: () => _open(context, i),
+                            ),
+                            const SizedBox(height: AppSizes.gap12),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),

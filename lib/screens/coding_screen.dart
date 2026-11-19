@@ -16,6 +16,7 @@ import '../widgets/settings_sheet.dart';
 import '../widgets/title_top_bar.dart';
 import 'about_screen.dart';
 import '../sound/sounds.dart';
+import '../sound/music_zone.dart';
 
 /// What the student typed in the playground. Kept while the app is open,
 /// so leaving the screen and coming back keeps the code.
@@ -152,43 +153,47 @@ class _CodingScreenState extends State<CodingScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final side = math.max(
-              AppSizes.screenPadding,
-              (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
-            );
-            return Column(
-              children: [
-                TitleTopBar(
-                  padding: side,
-                  title: l10n.codingTitle,
-                  backLabel: l10n.lessonBack,
-                  settingsLabel: l10n.settingsTooltip,
-                  onSettings: () => showSettingsSheet(context, widget.settings),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      side,
-                      AppSizes.gap4,
-                      side,
-                      AppSizes.gap24,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: _content(l10n),
+    return MusicZone(
+      song: Song.game,
+      child: Scaffold(
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final side = math.max(
+                AppSizes.screenPadding,
+                (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
+              );
+              return Column(
+                children: [
+                  TitleTopBar(
+                    padding: side,
+                    title: l10n.codingTitle,
+                    backLabel: l10n.lessonBack,
+                    settingsLabel: l10n.settingsTooltip,
+                    onSettings: () =>
+                        showSettingsSheet(context, widget.settings),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        side,
+                        AppSizes.gap4,
+                        side,
+                        AppSizes.gap24,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: _content(l10n),
+                      ),
                     ),
                   ),
-                ),
-                // Hard-to-type symbols, right above the keyboard.
-                if (_codeFocus.hasFocus)
-                  CodeHelperBar(l10n: l10n, padding: side, onInsert: _insert),
-              ],
-            );
-          },
+                  // Hard-to-type symbols, right above the keyboard.
+                  if (_codeFocus.hasFocus)
+                    CodeHelperBar(l10n: l10n, padding: side, onInsert: _insert),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

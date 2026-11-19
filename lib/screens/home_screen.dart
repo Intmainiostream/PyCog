@@ -17,6 +17,8 @@ import '../widgets/speech_bubble.dart';
 import 'coding_screen.dart';
 import 'minigame_map_screen.dart';
 import 'trail_screen.dart';
+import '../sound/music_zone.dart';
+import '../sound/sounds.dart';
 
 /// The first screen: Cog says hi, with three big buttons.
 ///  * PLAY opens the lesson trail.
@@ -74,61 +76,64 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _build(BuildContext context) {
-    return Scaffold(
-      body: ListenableBuilder(
-        listenable: progress, // keeps the star counter up to date
-        builder: (context, _) => SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final wide =
-                  constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
-                  constraints.maxWidth > constraints.maxHeight;
-              final maxWidth = wide
-                  ? AppSizes.maxWideContentWidth
-                  : AppSizes.maxContentWidth;
-              final sidePadding = math.max(
-                AppSizes.screenPadding,
-                (constraints.maxWidth - maxWidth) / 2,
-              );
+    return MusicZone(
+      song: Song.title,
+      child: Scaffold(
+        body: ListenableBuilder(
+          listenable: progress, // keeps the star counter up to date
+          builder: (context, _) => SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final wide =
+                    constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
+                    constraints.maxWidth > constraints.maxHeight;
+                final maxWidth = wide
+                    ? AppSizes.maxWideContentWidth
+                    : AppSizes.maxContentWidth;
+                final sidePadding = math.max(
+                  AppSizes.screenPadding,
+                  (constraints.maxWidth - maxWidth) / 2,
+                );
 
-              return Column(
-                children: [
-                  AppTopBar(
-                    sidePadding: sidePadding,
-                    stars: progress.totalStars(lessons),
-                    onSettings: () => showSettingsSheet(context, settings),
-                    wordmark: true,
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(
-                        sidePadding,
-                        AppSizes.gap8,
-                        sidePadding,
-                        AppSizes.gap24,
-                      ),
-                      child: wide
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(flex: 2, child: _cog(context)),
-                                const SizedBox(width: AppSizes.gap24),
-                                Expanded(flex: 3, child: _buttons(context)),
-                              ],
-                            )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                _cog(context),
-                                const SizedBox(height: AppSizes.gap24),
-                                _buttons(context),
-                              ],
-                            ),
+                return Column(
+                  children: [
+                    AppTopBar(
+                      sidePadding: sidePadding,
+                      stars: progress.totalStars(lessons),
+                      onSettings: () => showSettingsSheet(context, settings),
+                      wordmark: true,
                     ),
-                  ),
-                ],
-              );
-            },
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.fromLTRB(
+                          sidePadding,
+                          AppSizes.gap8,
+                          sidePadding,
+                          AppSizes.gap24,
+                        ),
+                        child: wide
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(flex: 2, child: _cog(context)),
+                                  const SizedBox(width: AppSizes.gap24),
+                                  Expanded(flex: 3, child: _buttons(context)),
+                                ],
+                              )
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  _cog(context),
+                                  const SizedBox(height: AppSizes.gap24),
+                                  _buttons(context),
+                                ],
+                              ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
