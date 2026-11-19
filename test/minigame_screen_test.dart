@@ -742,36 +742,66 @@ void main() {
     });
   });
 
+  group('Level 2', () {
+    // 7 Level 1 challenges with a star open Level 2.
+    final level1Done = {
+      for (var c = 1; c <= 7; c++) 'minigame.stars.mgL1C$c': 1,
+    };
+
+    testWidgets('opens after 7 Level 1 stars and lists its 10 challenges', (
+      tester,
+    ) async {
+      await pumpMap(tester, size: const Size(800, 2000));
+      await tapAndSettle(tester, key('mg-level-2'));
+      expect(find.text(en.mgLevelLocked(1)), findsOneWidget);
+
+      await pumpMap(tester, size: const Size(800, 2000), saved: level1Done);
+      await tapAndSettle(tester, key('mg-level-2'));
+      expect(find.byType(MinigameLevelScreen), findsOneWidget);
+      for (final c in minigameLevels[1].challenges) {
+        expect(find.text(c.title(en)), findsOneWidget, reason: c.id);
+      }
+      expect(find.textContaining(en.mgSolved(0, 10)), findsOneWidget);
+    });
+  });
+
   group('Fits a 360px phone', () {
-    for (final lang in ['en', 'tl']) {
-      testWidgets('every Level 1 challenge, with hints and a failed run '
-          '($lang)', (tester) async {
-        final l10n = lang == 'en' ? en : tl;
-        await pumpMap(tester, lang: lang, size: const Size(360, 640));
-        expect(find.text(l10n.mgMapTitle), findsOneWidget);
-        await tapAndSettle(tester, key('mg-level-1'));
-        for (final c in level1.challenges) {
-          await tapAndSettle(tester, key('mg-challenge-${c.id}'));
-          if (c.hints.isNotEmpty) {
-            await tapAndSettle(tester, key('mg-hint'));
-            await tapAndSettle(tester, key('mg-hint'));
+    for (final number in [1, 2]) {
+      for (final lang in ['en', 'tl']) {
+        testWidgets('every Level $number challenge, with hints and a failed '
+            'run ($lang)', (tester) async {
+          final l10n = lang == 'en' ? en : tl;
+          await pumpMap(
+            tester,
+            lang: lang,
+            size: const Size(360, 640),
+            saved: {for (var c = 1; c <= 7; c++) 'minigame.stars.mgL1C$c': 1},
+          );
+          expect(find.text(l10n.mgMapTitle), findsOneWidget);
+          await tapAndSettle(tester, key('mg-level-$number'));
+          for (final c in minigameLevels[number - 1].challenges) {
+            await tapAndSettle(tester, key('mg-challenge-${c.id}'));
+            if (c.hints.isNotEmpty) {
+              await tapAndSettle(tester, key('mg-hint'));
+              await tapAndSettle(tester, key('mg-hint'));
+            }
+            if (c.type == ChallengeType.writeCode) {
+              await tester.enterText(key('mg-code'), 'print(1)');
+              await tapAndSettle(tester, key('mg-run'));
+              // With required code, print(1) gets the "must use" message.
+              expect(
+                c.requiredCode.isEmpty
+                    ? find.text(l10n.mgFailed(1))
+                    : key('mg-missing'),
+                findsOneWidget,
+              );
+            }
+            await goBack(tester);
+            await tester.pumpAndSettle();
           }
-          if (c.type == ChallengeType.writeCode) {
-            await tester.enterText(key('mg-code'), 'print(1)');
-            await tapAndSettle(tester, key('mg-run'));
-            // With required code, print(1) gets the "must use" message.
-            expect(
-              c.requiredCode.isEmpty
-                  ? find.text(l10n.mgFailed(1))
-                  : key('mg-missing'),
-              findsOneWidget,
-            );
-          }
-          await goBack(tester);
-          await tester.pumpAndSettle();
-        }
-        expect(tester.takeException(), isNull);
-      });
+          expect(tester.takeException(), isNull);
+        });
+      }
     }
   });
 }
