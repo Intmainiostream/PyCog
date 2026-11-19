@@ -889,8 +889,36 @@ void main() {
     });
   });
 
+  group('Level 4', () {
+    testWidgets('opens after 7 Level 3 stars and lists its 10 challenges', (
+      tester,
+    ) async {
+      final levels1to2 = {
+        for (var c = 1; c <= 7; c++) 'minigame.stars.mgL1C$c': 1,
+        for (var c = 1; c <= 7; c++) 'minigame.stars.mgL2C$c': 1,
+      };
+      await pumpMap(tester, size: const Size(800, 2000), saved: levels1to2);
+      await tapAndSettle(tester, key('mg-level-4'));
+      expect(find.text(en.mgLevelLocked(3)), findsOneWidget);
+
+      await pumpMap(
+        tester,
+        size: const Size(800, 2000),
+        saved: {
+          ...levels1to2,
+          for (var c = 1; c <= 7; c++) 'minigame.stars.mgL3C$c': 1,
+        },
+      );
+      await tapAndSettle(tester, key('mg-level-4'));
+      expect(find.byType(MinigameLevelScreen), findsOneWidget);
+      for (final c in minigameLevels[3].challenges) {
+        expect(find.text(c.title(en)), findsOneWidget, reason: c.id);
+      }
+    });
+  });
+
   group('Fits a 360px phone', () {
-    for (final number in [1, 2, 3]) {
+    for (final number in [1, 2, 3, 4]) {
       for (final lang in ['en', 'tl']) {
         testWidgets('every Level $number challenge, with hints and a failed '
             'run ($lang)', (tester) async {
@@ -902,6 +930,7 @@ void main() {
             saved: {
               for (var c = 1; c <= 7; c++) 'minigame.stars.mgL1C$c': 1,
               for (var c = 1; c <= 7; c++) 'minigame.stars.mgL2C$c': 1,
+              for (var c = 1; c <= 7; c++) 'minigame.stars.mgL3C$c': 1,
             },
           );
           expect(find.text(l10n.mgMapTitle), findsOneWidget);
