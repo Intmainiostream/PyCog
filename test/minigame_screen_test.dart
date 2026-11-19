@@ -917,8 +917,36 @@ void main() {
     });
   });
 
+  group('Level 5', () {
+    testWidgets('opens after 7 Level 4 stars and lists its 10 challenges', (
+      tester,
+    ) async {
+      final levels1to3 = {
+        for (var l = 1; l <= 3; l++)
+          for (var c = 1; c <= 7; c++) 'minigame.stars.mgL${l}C$c': 1,
+      };
+      await pumpMap(tester, size: const Size(800, 2000), saved: levels1to3);
+      await tapAndSettle(tester, key('mg-level-5'));
+      expect(find.text(en.mgLevelLocked(4)), findsOneWidget);
+
+      await pumpMap(
+        tester,
+        size: const Size(800, 2000),
+        saved: {
+          ...levels1to3,
+          for (var c = 1; c <= 7; c++) 'minigame.stars.mgL4C$c': 1,
+        },
+      );
+      await tapAndSettle(tester, key('mg-level-5'));
+      expect(find.byType(MinigameLevelScreen), findsOneWidget);
+      for (final c in minigameLevels[4].challenges) {
+        expect(find.text(c.title(en)), findsOneWidget, reason: c.id);
+      }
+    });
+  });
+
   group('Fits a 360px phone', () {
-    for (final number in [1, 2, 3, 4]) {
+    for (final number in [1, 2, 3, 4, 5]) {
       for (final lang in ['en', 'tl']) {
         testWidgets('every Level $number challenge, with hints and a failed '
             'run ($lang)', (tester) async {
@@ -931,9 +959,16 @@ void main() {
               for (var c = 1; c <= 7; c++) 'minigame.stars.mgL1C$c': 1,
               for (var c = 1; c <= 7; c++) 'minigame.stars.mgL2C$c': 1,
               for (var c = 1; c <= 7; c++) 'minigame.stars.mgL3C$c': 1,
+              for (var c = 1; c <= 7; c++) 'minigame.stars.mgL4C$c': 1,
             },
           );
           expect(find.text(l10n.mgMapTitle), findsOneWidget);
+          // The map builds its tiles lazily: scroll the level into view.
+          await tester.scrollUntilVisible(
+            key('mg-level-$number'),
+            200,
+            scrollable: find.byType(Scrollable).first,
+          );
           await tapAndSettle(tester, key('mg-level-$number'));
           for (final c in minigameLevels[number - 1].challenges) {
             await tapAndSettle(tester, key('mg-challenge-${c.id}'));
