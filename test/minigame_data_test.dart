@@ -37,8 +37,8 @@ void main() {
     expect(ids.toSet().length, ids.length);
   });
 
-  // Levels 1 and 2 use the same mix, easy to harder.
-  for (final number in [1, 2]) {
+  // Levels 1-3 use the same mix, easy to harder.
+  for (final number in [1, 2, 3]) {
     test('Level $number is full: 3 quizzes, 2 fill, 2 fix, 3 write', () {
       final challenges = minigameLevels[number - 1].challenges;
       expect(challenges.map((c) => c.type), [
@@ -59,14 +59,37 @@ void main() {
     });
   }
 
-  // What each level may use: the functions its lessons teach. Levels 1-2
-  // have no math, lists, comparisons or later keywords.
-  const allowedCalls = {
-    1: {'print'}, // Lesson 1 (variables) + print()
-    2: {'print', 'type'}, // + Lesson 2 (data types): type()
+  // What each level may use: the functions and ideas its lessons teach.
+  // Anything not listed (math, lists, loops, functions, and/or/not,
+  // input()...) is not allowed yet.
+  const allowed = {
+    // Lesson 1 (variables) + print()
+    1: (calls: {'print'}, ideas: <String>{}),
+    // + Lesson 2 (data types): type()
+    2: (calls: {'print', 'type'}, ideas: <String>{}),
+    // + Lesson 3 (if statements): if / elif / else and comparisons
+    // (==, !=, <, >, <=, >=). No new functions.
+    3: (
+      calls: {'print', 'type'},
+      ideas: {'if', 'elif', 'else', '<', '>', '=='},
+    ),
   };
-  for (final MapEntry(key: number, value: calls) in allowedCalls.entries) {
-    test('Level $number uses only Lessons 1-$number: $calls', () {
+  const laterSymbols = ['+', '-', '*', '/', '[', '{', '<', '>', '=='];
+  const laterWords = [
+    'if',
+    'elif',
+    'else',
+    'for',
+    'while',
+    'def',
+    'and',
+    'or',
+    'not',
+    'input',
+  ];
+  for (final MapEntry(key: number, value: (:calls, :ideas))
+      in allowed.entries) {
+    test('Level $number uses only Lessons 1-$number: $calls $ideas', () {
       for (final c in minigameLevels[number - 1].challenges) {
         final code = [
           for (final line in c.code) line.code,
@@ -82,20 +105,10 @@ void main() {
             .allMatches('$code\n$answers')
             .map((m) => m[1]!);
         expect(used.toSet().difference(calls), isEmpty, reason: c.id);
-        for (final later in ['+', '-', '*', '/', '[', '{', '<', '>', '==']) {
+        for (final later in laterSymbols.where((s) => !ideas.contains(s))) {
           expect(code, isNot(contains(later)), reason: '${c.id}: $later');
         }
-        for (final word in [
-          'if',
-          'else',
-          'for',
-          'while',
-          'def',
-          'and',
-          'or',
-          'not',
-          'input',
-        ]) {
+        for (final word in laterWords.where((w) => !ideas.contains(w))) {
           expect(
             RegExp('\\b$word\\b').hasMatch(code),
             isFalse,
