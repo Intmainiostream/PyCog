@@ -40,18 +40,19 @@ class CheckResult {
 }
 
 /// Makes code easy to search for a required piece: `#` comments are removed
-/// (a piece inside a comment does not count), and spaces are dropped around
-/// `=`, the comparison signs (`==`, `!=`, `<`, `>`, `<=`, `>=`), the math
-/// signs (`+`, `-`, `*`, `/`, `//`, `%`, `**`), around commas and just
-/// inside brackets. So `speed=5` and `speed = 5`, `lives>0` and
-/// `lives > 0`, `battery-1` and `battery - 1`, `range(1,6)` and
-/// `range(1, 6)`, `print( speed )` and `print(speed)` all match. The signs
-/// stay different: `<` never matches `<=`, `*` never matches `**`, `/`
-/// never matches `//`, and `+` never matches `-`.
+/// (a piece inside a comment does not count), every string's quotes become
+/// `"` (so `'Hi'` and `"Hi"` match; a quote inside the text stays as it
+/// is), and spaces are dropped around `=`, the comparison signs (`==`,
+/// `!=`, `<`, `>`, `<=`, `>=`), the math signs (`+`, `-`, `*`, `/`, `//`,
+/// `%`, `**`), around commas and just inside brackets. So `speed=5` and
+/// `speed = 5`, `lives>0` and `lives > 0`, `battery-1` and `battery - 1`,
+/// `range(1,6)` and `range(1, 6)`, `print( speed )` and `print(speed)` all
+/// match. The signs stay different: `<` never matches `<=`, `*` never
+/// matches `**`, `/` never matches `//`, and `+` never matches `-`.
 String normalizeCode(String code) {
   final lines = [
     for (final line in code.replaceAll('\r\n', '\n').split('\n'))
-      _withoutComment(line),
+      _sameQuotesNoComment(line),
   ];
   return lines
       .join('\n')
@@ -64,33 +65,49 @@ String normalizeCode(String code) {
       .replaceAllMapped(RegExp(r'[ \t]+([)\]}])'), (m) => m[1]!);
 }
 
-/// The line up to a `#` that is not inside quotes.
-String _withoutComment(String line) {
-  String? quote;
+/// The line up to a `#` that is not inside quotes, with each string's
+/// opening and closing quote written as `"`. The text inside a string is
+/// kept as it is (an apostrophe in "It's" stays an apostrophe).
+String _sameQuotesNoComment(String line) {
+  final out = StringBuffer();
+  String? quote; // the quote that opened the current string
   for (var i = 0; i < line.length; i++) {
     final c = line[i];
     if (quote != null) {
-      if (c == r'\') {
-        i++; // skip the escaped letter
+      if (c == r'\' && i + 1 < line.length) {
+        out
+          ..write(c)
+          ..write(line[i + 1]);
+        i++; // the escaped letter is text
       } else if (c == quote) {
+        out.write('"');
         quote = null;
+      } else {
+        out.write(c);
       }
     } else if (c == '"' || c == "'") {
+      out.write('"');
       quote = c;
     } else if (c == '#') {
-      return line.substring(0, i);
+      break;
+    } else {
+      out.write(c);
     }
   }
-  return line;
+  return out.toString();
 }
 
-/// The [required] pieces that [code] does not contain (see [normalizeCode]
-/// for what does not matter). Empty when all are there.
-List<String> missingCode(String code, List<String> required) {
+/// The required pieces that [code] does not contain (see [normalizeCode]
+/// for what does not matter). Each piece is a [String] or an [AnyOf]: an
+/// [AnyOf] counts when any one of its options is there. A missing piece is
+/// listed by its first option. Empty when all are there.
+List<String> missingCode(String code, List<Object> required) {
   final normalized = normalizeCode(code);
   return [
     for (final piece in required)
-      if (!normalized.contains(normalizeCode(piece))) piece,
+      if (!pieceOptions(piece)
+          .any((option) => normalized.contains(normalizeCode(option))))
+        pieceOptions(piece).first,
   ];
 }
 
@@ -125,7 +142,7 @@ Future<CheckResult> checkProgram(
   PythonEngine engine,
   String code,
   List<TestCase> tests, {
-  List<String> required = const [],
+  List<Object> required = const [],
 }) async {
   for (final (i, test) in tests.indexed) {
     final result = await engine.run(code, inputs: test.inputs);

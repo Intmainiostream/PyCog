@@ -291,6 +291,99 @@ void main() {
       }
     });
 
+    test("' and \" are the same quotes", () {
+      for (final (code, piece) in [
+        ("print('Hi')", 'print("Hi")'),
+        ('print("Hi")', "print('Hi')"),
+        ("name = 'Cog'", 'name = "Cog"'),
+        ("print('Hi, ' + name)", 'print("Hi, " + name)'),
+      ]) {
+        expect(missingCode(code, [piece]), isEmpty, reason: code);
+      }
+    });
+
+    test('a quote inside text stays as it is', () {
+      // An apostrophe inside double quotes is text, not the end.
+      expect(
+        missingCode('print("It\'s Cog")', ['print("It\'s Cog")']),
+        isEmpty,
+      );
+      expect(missingCode('print("It\'s Cog")', ['print("Its Cog")']), [
+        'print("Its Cog")',
+      ]);
+      // A # inside quotes is still not a comment.
+      expect(missingCode("tag = '#1'", ['tag = "#1"']), isEmpty);
+      // Different text never matches.
+      expect(missingCode("print('Hi')", ['print("Ho")']), ['print("Ho")']);
+    });
+
+    test('AnyOf: any one option counts', () {
+      const pieces = [
+        'score = 10',
+        AnyOf(['score += 5', 'score = score + 5']),
+        'print(score)',
+      ];
+      for (final code in [
+        'score = 10\nscore += 5\nprint(score)',
+        'score = 10\nscore = score + 5\nprint(score)',
+        'score=10\nscore=score+5\nprint(score)',
+      ]) {
+        expect(missingCode(code, pieces), isEmpty, reason: code);
+      }
+    });
+
+    test('AnyOf: when no option is there, the first one is listed', () {
+      const pieces = [
+        AnyOf(['score += 5', 'score = score + 5']),
+        'print(score)',
+      ];
+      expect(missingCode('score = 15\nprint(score)', pieces), ['score += 5']);
+      // A wrong sign is still missing.
+      expect(missingCode('score -= 5\nprint(score)', pieces), ['score += 5']);
+    });
+
+    test('AnyOf works in checkProgram after the output is right', () async {
+      final engine = ScriptedEngine((code, inputs) => printed('25\n'));
+      const pieces = [
+        AnyOf(['print(side ** 2)', 'print(side * side)']),
+      ];
+      final ok = await checkProgram(
+        engine,
+        'side = 5\nprint(side * side)',
+        const [
+          TestCase(output: ['25']),
+        ],
+        required: pieces,
+      );
+      expect(ok.passed, isTrue);
+      final missing = await checkProgram(engine, 'print(25)', const [
+        TestCase(output: ['25']),
+      ], required: pieces);
+      expect(missing.missing, ['print(side ** 2)']);
+    });
+
+    test('a challenge lists the first option of each piece', () {
+      final c = Challenge.writeCode(
+        id: 'any',
+        title: (_) => '',
+        prompt: (_) => '',
+        hints: [(_) => '', (_) => ''],
+        solution: 'side = 5\nprint(side ** 2)',
+        requiredCode: const [
+          'side = 5',
+          AnyOf(['print(side ** 2)', 'print(side * side)']),
+        ],
+        tests: const [
+          TestCase(output: ['25']),
+        ],
+      );
+      expect(c.requiredFirst, ['side = 5', 'print(side ** 2)']);
+      expect(c.requiredOptions.last, [
+        'print(side ** 2)',
+        'print(side * side)',
+      ]);
+    });
+
     test('math signs stay different from each other', () {
       for (final (code, piece) in [
         ('big = n ** 2', 'big = n * 2'),

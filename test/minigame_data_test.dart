@@ -222,7 +222,7 @@ void main() {
     final word = RegExp(r'[A-Za-z_]\w*');
     for (final c in allChallenges.where((c) => c.requiredCode.isNotEmpty)) {
       final names = {
-        for (final piece in c.requiredCode)
+        for (final piece in c.requiredFirst)
           ...word.allMatches(piece).map((m) => m[0]!),
       }..remove('print');
       for (final l10n in [en, tl]) {
@@ -301,7 +301,7 @@ void main() {
       )) {
         if (!comparison.hasMatch(c.solutionProgram)) continue;
         expect(
-          c.requiredCode.any(comparison.hasMatch),
+          c.requiredFirst.any(comparison.hasMatch),
           isTrue,
           reason: '${c.id}: no piece has the comparison',
         );
@@ -318,7 +318,7 @@ void main() {
         for (final loop in ['for ', 'while ']) {
           if (!c.solutionProgram.contains(loop)) continue;
           expect(
-            c.requiredCode.any((p) => p.startsWith(loop)),
+            c.requiredFirst.any((p) => p.startsWith(loop)),
             isTrue,
             reason: '${c.id}: no piece has the $loop line',
           );
@@ -335,7 +335,7 @@ void main() {
       )) {
         for (final m in RegExp(r'def (\w+)\(').allMatches(c.solutionProgram)) {
           expect(
-            c.requiredCode.any((p) => p.contains('${m[1]}(')),
+            c.requiredFirst.any((p) => p.contains('${m[1]}(')),
             isTrue,
             reason: '${c.id}: no piece has ${m[1]}(',
           );
@@ -353,7 +353,7 @@ void main() {
       )) {
         if (!math.hasMatch(c.solutionProgram)) continue;
         expect(
-          c.requiredCode.any(math.hasMatch),
+          c.requiredFirst.any(math.hasMatch),
           isTrue,
           reason: '${c.id}: no piece has the math sign',
         );
@@ -397,6 +397,25 @@ void main() {
         isNotEmpty,
         reason: '$id: "$to" must not pass',
       );
+    }
+  });
+
+  test('AnyOf pieces have 2+ options, and each option works in the '
+      'solution', () {
+    for (final c in allChallenges) {
+      for (final piece in c.requiredCode.whereType<AnyOf>()) {
+        expect(piece.options.length, greaterThanOrEqualTo(2), reason: c.id);
+        final first = piece.options.first;
+        expect(c.solutionProgram, contains(first), reason: c.id);
+        for (final other in piece.options.skip(1)) {
+          final alt = c.solutionProgram.replaceFirst(first, other);
+          expect(
+            missingCode(alt, c.requiredCode),
+            isEmpty,
+            reason: '${c.id}: "$other" must count',
+          );
+        }
+      }
     }
   });
 

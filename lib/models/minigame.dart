@@ -159,10 +159,22 @@ class Challenge {
 
   /// Fix the bug / write it yourself, optional: pieces the student's code
   /// must contain, e.g. `speed =` or `print(speed)`, so printing a fixed
-  /// answer does not pass. Checked before running (spaces around `=` and
-  /// inside brackets don't matter, and `#` comments don't count). Empty =
-  /// no check.
-  final List<String> requiredCode;
+  /// answer does not pass. Each piece is a [String] or an [AnyOf] (any one
+  /// of its options counts). Checked after the output is right; spaces
+  /// around signs, after commas and inside brackets don't matter, `'` and
+  /// `"` are the same, and `#` comments don't count. Empty = no check.
+  final List<Object> requiredCode;
+
+  /// The options of each required piece (one for a plain [String]).
+  List<List<String>> get requiredOptions => [
+    for (final piece in requiredCode) pieceOptions(piece),
+  ];
+
+  /// The first option of each required piece: the way the problem text
+  /// names it, and what the "must use" message shows.
+  List<String> get requiredFirst => [
+    for (final options in requiredOptions) options.first,
+  ];
 
   /// True for the three types whose answer is code that runs.
   bool get runsCode => type != ChallengeType.quiz;
@@ -176,6 +188,23 @@ class Challenge {
   /// The program [solution] stands for.
   String get solutionProgram => programFor(solution);
 }
+
+/// A required piece with alternatives: the code needs any one of
+/// [options], e.g. `AnyOf(['score += 5', 'score = score + 5'])`. The first
+/// option is the one the problem text names and the message shows. Give
+/// it at least two options (the data test checks this).
+class AnyOf {
+  const AnyOf(this.options);
+
+  final List<String> options;
+}
+
+/// The options of a required piece: a [String] (one option) or an [AnyOf].
+List<String> pieceOptions(Object piece) => switch (piece) {
+  final String one => [one],
+  AnyOf(:final options) => options,
+  _ => throw ArgumentError('A required piece is a String or an AnyOf'),
+};
 
 /// One level of the map: up to [challengesPerLevel] challenges.
 class MinigameLevel {

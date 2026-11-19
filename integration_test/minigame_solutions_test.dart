@@ -89,6 +89,22 @@ void main() {
           final start = await checkProgram(engine, c.starter, c.tests);
           report(c.id, 'starting code fails', !start.passed);
         }
+        // Each other option of an AnyOf piece, put in the solution, still
+        // passes in real Python (same output, pieces present).
+        for (final piece in c.requiredCode.whereType<AnyOf>()) {
+          final first = piece.options.first;
+          for (final other in piece.options.skip(1)) {
+            final alt = c.solutionProgram.replaceFirst(first, other);
+            final r = await checkProgram(
+              engine,
+              alt,
+              c.tests,
+              required: c.requiredCode,
+            );
+            report(c.id, 'other way ($other) passes', r.passed, shown(r));
+          }
+        }
+
         if (c.requiredCode.isNotEmpty) {
           // The solution written with no spaces around signs and after
           // commas (e.g. `if lives>0:`, `range(1,6)`, `battery-1`) still
@@ -138,7 +154,7 @@ void main() {
             '%': '//',
           };
           final sign = RegExp(r'==|!=|<=|>=|\*\*|//|<|>|\+|-|\*|/|%');
-          for (final piece in c.requiredCode.where(sign.hasMatch)) {
+          for (final piece in c.requiredFirst.where(sign.hasMatch)) {
             final s = sign.firstMatch(piece)![0]!;
             final wrongPiece = piece.replaceFirst(s, swap[s]!);
             final wrong = c.solutionProgram.replaceFirst(piece, wrongPiece);
@@ -155,7 +171,7 @@ void main() {
           // A wrong range (its last number one bigger, e.g. range(1, 7) for
           // range(1, 6)) must not pass either.
           final rangeCall = RegExp(r'range\(([^)]*?)(\d+)\)');
-          for (final piece in c.requiredCode.where(rangeCall.hasMatch)) {
+          for (final piece in c.requiredFirst.where(rangeCall.hasMatch)) {
             final m = rangeCall.firstMatch(piece)!;
             final bigger = 'range(${m[1]}${int.parse(m[2]!) + 1})';
             final wrongPiece = piece.replaceFirst(m[0]!, bigger);
