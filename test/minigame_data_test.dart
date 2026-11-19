@@ -37,8 +37,8 @@ void main() {
     expect(ids.toSet().length, ids.length);
   });
 
-  // Levels 1-5 use the same mix, easy to harder.
-  for (final number in [1, 2, 3, 4, 5]) {
+  // Levels 1-6 use the same mix, easy to harder.
+  for (final number in [1, 2, 3, 4, 5, 6]) {
     test('Level $number is full: 3 quizzes, 2 fill, 2 fix, 3 write', () {
       final challenges = minigameLevels[number - 1].challenges;
       expect(challenges.map((c) => c.type), [
@@ -110,8 +110,31 @@ void main() {
         '+',
       },
     ),
+    // + Lesson 6 (math operators): * / // % ** (and += -=). No new
+    // functions.
+    6: (
+      calls: {'print', 'type', 'range'},
+      ideas: {
+        'if',
+        'elif',
+        'else',
+        '<',
+        '>',
+        '==',
+        'for',
+        'while',
+        'break',
+        '-',
+        'def',
+        'return',
+        '+',
+        '*',
+        '/',
+        '%',
+      },
+    ),
   };
-  const laterSymbols = ['+', '-', '*', '/', '[', '{', '<', '>', '=='];
+  const laterSymbols = ['+', '-', '*', '/', '%', '[', '{', '<', '>', '=='];
   const laterWords = [
     'if',
     'elif',
@@ -321,10 +344,27 @@ void main() {
     }
   });
 
-  test('Levels 3-4: a wrong comparison, range or sign is caught by the '
+  test('from Level 6 on, a solution that does math has the sign in its '
+      'pieces', () {
+    final math = RegExp(r'\*\*|//|\*|/|%|\+|-');
+    for (final level in minigameLevels.skip(5)) {
+      for (final c in level.challenges.where(
+        (c) => c.requiredCode.isNotEmpty,
+      )) {
+        if (!math.hasMatch(c.solutionProgram)) continue;
+        expect(
+          c.requiredCode.any(math.hasMatch),
+          isTrue,
+          reason: '${c.id}: no piece has the math sign',
+        );
+      }
+    }
+  });
+
+  test('Levels 3-6: a wrong comparison, range or sign is caught by the '
       'pieces', () {
     final level3 = {
-      for (final level in minigameLevels.take(4))
+      for (final level in minigameLevels.take(6))
         for (final c in level.challenges) c.id: c,
     };
     for (final (id, from, to) in [
@@ -341,6 +381,13 @@ void main() {
       ('mgL4C9', 'battery - 1', 'battery // 1'),
       ('mgL4C10', 'range(1, 6)', 'range(6)'),
       ('mgL4C10', 'range(1, 6)', 'range(1, 9)'),
+      ('mgL6C3', 'score += 5', 'score += 6'),
+      ('mgL6C6', '(red + blue) * 4', 'red * 4 + blue * 4'),
+      ('mgL6C8', 'robots // 4', 'robots / 4'),
+      ('mgL6C9', 'side ** 2', 'side * side'),
+      ('mgL6C10', 'coins // 5', 'coins / 5'),
+      ('mgL6C10', 'coins % 5', 'coins - 15'),
+      ('mgL6C10', 'coins / 2', 'coins // 2'),
     ]) {
       final c = level3[id]!;
       expect(c.solutionProgram, contains(from), reason: id);
