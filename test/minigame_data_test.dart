@@ -37,8 +37,8 @@ void main() {
     expect(ids.toSet().length, ids.length);
   });
 
-  // Levels 1-8 use the same mix, easy to harder.
-  for (final number in [1, 2, 3, 4, 5, 6, 7, 8]) {
+  // Levels 1-9 use the same mix, easy to harder.
+  for (final number in [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
     test('Level $number is full: 3 quizzes, 2 fill, 2 fix, 3 write', () {
       final challenges = minigameLevels[number - 1].challenges;
       expect(challenges.map((c) => c.type), [
@@ -190,6 +190,42 @@ void main() {
         '[',
       },
     ),
+    // + Lesson 9 (input and output): input(), int() and float().
+    9: (
+      calls: {
+        'print',
+        'type',
+        'range',
+        'len',
+        'str',
+        'upper',
+        'lower',
+        'append',
+        'input',
+        'int',
+        'float',
+      },
+      ideas: {
+        'if',
+        'elif',
+        'else',
+        '<',
+        '>',
+        '==',
+        'for',
+        'while',
+        'break',
+        '-',
+        'def',
+        'return',
+        '+',
+        '*',
+        '/',
+        '%',
+        '[',
+        'input',
+      },
+    ),
   };
   const laterSymbols = ['+', '-', '*', '/', '%', '[', '{', '<', '>', '=='];
   const laterWords = [
@@ -255,10 +291,14 @@ void main() {
           .map((m) => m[1]!);
       for (final q in questions) {
         for (final l10n in [en, tl]) {
+          // Inside a `code span`, alone or in a line like
+          // `name = input("Name? ")`.
+          final parts = c.prompt(l10n).split('`');
+          final spans = [for (var i = 1; i < parts.length; i += 2) parts[i]];
           expect(
-            c.prompt(l10n),
-            contains('`input($q)`'),
-            reason: '${c.id} must show `input($q)` in its text',
+            spans.any((span) => span.contains('input($q)')),
+            isTrue,
+            reason: '${c.id} must show input($q) as code in its text',
           );
         }
       }
@@ -519,12 +559,30 @@ void main() {
     );
   });
 
-  test('fix and write challenges with input() have 2+ different tests', () {
+  test('a quiz whose code uses input() says what is typed', () {
+    for (final c in allChallenges.where((c) => c.type == ChallengeType.quiz)) {
+      final code = c.code.map((line) => line.code).join('\n');
+      final asks = 'input('.allMatches(code).length;
+      expect(
+        c.typed.length,
+        asks,
+        reason: '${c.id}: one typed answer per input()',
+      );
+      for (final answer in c.typed) {
+        for (final l10n in [en, tl]) {
+          expect(
+            c.prompt(l10n),
+            contains('`$answer`'),
+            reason: '${c.id}: the text must say `$answer` is typed',
+          );
+        }
+      }
+    }
+  });
+
+  test('code challenges with input() have 2+ tests with different answers', () {
     for (final c in allChallenges.where(
-      (c) =>
-          (c.type == ChallengeType.fixBug ||
-              c.type == ChallengeType.writeCode) &&
-          c.solutionProgram.contains('input('),
+      (c) => c.runsCode && c.solutionProgram.contains('input('),
     )) {
       expect(c.tests.length, greaterThanOrEqualTo(2), reason: c.id);
       final inputs = c.tests.map((t) => t.inputs.join('\n')).toSet();

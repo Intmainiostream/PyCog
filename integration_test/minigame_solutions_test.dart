@@ -16,6 +16,7 @@ import 'package:pycog/data/minigame/levels.dart';
 import 'package:pycog/l10n/generated/app_localizations.dart';
 import 'package:pycog/minigame/output_checker.dart';
 import 'package:pycog/models/minigame.dart';
+import 'package:pycog/playground/coding_output.dart';
 import 'package:pycog/playground/python_runner.dart';
 
 void main() {
@@ -48,7 +49,7 @@ void main() {
             continue;
           }
           final code = c.code.map((line) => line.code).join('\n');
-          final result = await engine.run(code);
+          final result = await engine.run(code, inputs: c.typed);
           if (!code.contains('print(')) {
             // The question is about the code (e.g. a value's type), not
             // what it prints: it just has to run without an error.
@@ -56,7 +57,15 @@ void main() {
             continue;
           }
           // Several printed lines are written as one answer: `2, 3, 4`.
-          final printed = normalizeOutput(result.stdout).split('\n').join(', ');
+          // With typed answers, the input() question rows are left out:
+          // the answer is what print shows.
+          final (rows, typedRows) = splitOutput(result.stdout, result.typed);
+          final printed = normalizeOutput(
+            [
+              for (final (i, row) in rows.indexed)
+                if (!typedRows.containsKey(i)) row,
+            ].join('\n'),
+          ).split('\n').join(', ');
           final right = c.answers.indexWhere((a) => a.correct);
           String label(int i) => c.answers[i].label(en).replaceAll('`', '');
           report(
@@ -83,6 +92,48 @@ void main() {
           required: c.requiredCode,
         );
         report(c.id, 'solution passes', solution.passed, shown(solution));
+
+        // With input(): a different question, a missing int() and a fixed
+        // printed answer must all fail.
+        final question = RegExp(r'input\("([^"]*)"\)')
+            .firstMatch(c.solutionProgram)?[1];
+        if (question != null) {
+          for (final other in {
+            question.trimRight(),
+            question.replaceAll('?', ':'),
+            '',
+          }..remove(question)) {
+            final asked = c.solutionProgram.replaceFirst(
+              'input("$question")',
+              'input("$other")',
+            );
+            final r = await checkProgram(
+              engine,
+              asked,
+              c.tests,
+              required: c.requiredCode,
+            );
+            report(c.id, 'question "$other" fails', !r.passed);
+          }
+          final noInt = c.solutionProgram.replaceAllMapped(
+            RegExp(r'int\((input\([^)]*\))\)'),
+            (m) => m[1]!,
+          );
+          if (noInt != c.solutionProgram) {
+            final r = await checkProgram(
+              engine,
+              noInt,
+              c.tests,
+              required: c.requiredCode,
+            );
+            report(c.id, 'a missing int() fails', !r.passed);
+          }
+          final fixed = [
+            for (final line in c.tests.first.output) 'print("$line")',
+          ].join('\n');
+          final r = await checkProgram(engine, fixed, c.tests);
+          report(c.id, 'a fixed printed answer fails', !r.passed);
+        }
 
         if (c.type == ChallengeType.fixBug) {
           // Fails in real Python even without the "must use" check.
@@ -237,10 +288,10 @@ void main() {
     }
     // ignore: avoid_print
     print('MINIGAME checked $checked challenges');
-    // Every challenge of every level was checked (Levels 1-8: 80).
+    // Every challenge of every level was checked (Levels 1-9: 90).
     final total = minigameLevels.fold(0, (n, l) => n + l.challenges.length);
     expect(checked, total);
-    expect(total, greaterThanOrEqualTo(80));
+    expect(total, greaterThanOrEqualTo(90));
     expect(failures, isEmpty, reason: 'failed: $failures');
   });
 }

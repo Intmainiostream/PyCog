@@ -46,6 +46,7 @@ class Challenge {
     required this.prompt,
     required this.answers,
     this.code = const [],
+    this.typed = const [],
   }) : type = ChallengeType.quiz,
        hints = const [],
        template = '',
@@ -71,6 +72,7 @@ class Challenge {
     this.choices = const [],
     this.showFirstTest = false,
   }) : type = ChallengeType.fillBlank,
+       typed = const [],
        answers = const [],
        code = const [],
        starter = '',
@@ -91,6 +93,7 @@ class Challenge {
     this.showFirstTest = false,
     this.requiredCode = const [],
   }) : type = ChallengeType.fixBug,
+       typed = const [],
        answers = const [],
        code = const [],
        template = '',
@@ -111,6 +114,7 @@ class Challenge {
     this.showFirstTest = false,
     this.requiredCode = const [],
   }) : type = ChallengeType.writeCode,
+       typed = const [],
        answers = const [],
        code = const [],
        template = '',
@@ -135,6 +139,11 @@ class Challenge {
 
   /// Quiz only: the answer buttons (exactly one correct).
   final List<QuizAnswer> answers;
+
+  /// Quiz only, optional: what the person types when [code] runs (its
+  /// input() answers). The problem text says it, e.g. "You type `12`". The
+  /// right answer is then what `print` shows (not the input() lines).
+  final List<String> typed;
 
   /// Fill the blank only: the code, with [blankMarker] where the blank is.
   final String template;
