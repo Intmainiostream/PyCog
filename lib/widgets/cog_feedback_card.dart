@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../theme/app_theme.dart';
+import 'cog_art.dart';
 import 'cog_placeholder.dart';
 import 'lesson_text.dart';
 
@@ -31,7 +32,16 @@ class CogFeedbackCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const CogPlaceholder(size: AppSizes.feedbackCogSize),
+            // A cheer shows Cog with both hands up. Hints and explanations
+            // keep the drawn Cog: neither new picture (waving hello or
+            // celebrating) fits "not quite, try again".
+            if (mood == CogMood.happy)
+              const CogArt(
+                pose: CogPose.cheering,
+                size: AppSizes.feedbackCogSize,
+              )
+            else
+              const CogPlaceholder(size: AppSizes.feedbackCogSize),
             const SizedBox(width: AppSizes.gap12),
             Expanded(child: LessonText(text, style: AppTextStyles.bodyBold)),
           ],

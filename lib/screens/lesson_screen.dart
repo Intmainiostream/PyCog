@@ -10,6 +10,7 @@ import '../models/lesson_card.dart';
 import '../theme/app_theme.dart';
 import '../widgets/chunky_button.dart';
 import '../widgets/code_box.dart';
+import '../widgets/cog_art.dart';
 import '../widgets/cog_placeholder.dart';
 import '../widgets/lesson_top_bar.dart';
 import '../widgets/lesson_text.dart';
@@ -211,7 +212,10 @@ class _CardView extends StatelessWidget {
     final cogAndBubble = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CogPlaceholder(size: CogPlaceholder.lessonSizeFor(context)),
+        CogArt(
+          pose: CogPose.waving,
+          size: CogPlaceholder.lessonSizeFor(context),
+        ),
         SpeechBubble(
           text: card.speech(l10n),
           textAlign: TextAlign.start,

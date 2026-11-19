@@ -6,6 +6,7 @@ import '../data/settings_controller.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/chunky_button.dart';
+import '../widgets/cog_art.dart';
 import '../widgets/cog_placeholder.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
@@ -108,7 +109,8 @@ class ComingSoonScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSizes.gap16),
                         Center(
-                          child: CogPlaceholder(
+                          child: CogArt(
+                            pose: CogPose.waving,
                             size: CogPlaceholder.lessonSizeFor(context),
                           ),
                         ),

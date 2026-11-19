@@ -12,7 +12,7 @@ import '../theme/app_theme.dart';
 import '../widgets/chunky_button.dart';
 import '../widgets/code_box.dart';
 import '../widgets/cog_feedback_card.dart';
-import '../widgets/cog_placeholder.dart';
+import '../widgets/cog_art.dart';
 import '../widgets/game_widgets.dart';
 import '../widgets/lesson_top_bar.dart';
 import '../widgets/settings_sheet.dart';
@@ -341,7 +341,7 @@ class _GameScreenState extends State<GameScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const CogPlaceholder(size: AppSizes.gameCogSize),
+        const CogArt(pose: CogPose.waving, size: AppSizes.gameCogSize),
         const SizedBox(width: AppSizes.gap4),
         Expanded(
           child: Semantics(

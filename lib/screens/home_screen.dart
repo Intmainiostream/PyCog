@@ -11,6 +11,7 @@ import '../playground/python_runner.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_top_bar.dart';
 import '../widgets/chunky_button.dart';
+import '../widgets/cog_art.dart';
 import '../widgets/cog_placeholder.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
@@ -97,6 +98,7 @@ class HomeScreen extends StatelessWidget {
                     sidePadding: sidePadding,
                     stars: progress.totalStars(lessons),
                     onSettings: () => showSettingsSheet(context, settings),
+                    wordmark: true,
                   ),
                   Expanded(
                     child: SingleChildScrollView(
@@ -138,7 +140,7 @@ class HomeScreen extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CogPlaceholder(size: CogPlaceholder.sizeFor(context)),
+        CogArt(pose: CogPose.waving, size: CogPlaceholder.sizeFor(context)),
         SpeechBubble(text: AppLocalizations.of(context).homeGreeting),
       ],
     );

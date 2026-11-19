@@ -11,6 +11,7 @@ import '../models/quiz.dart';
 import '../theme/app_theme.dart';
 import '../widgets/chunky_button.dart';
 import '../widgets/code_box.dart';
+import '../widgets/cog_art.dart';
 import '../widgets/cog_placeholder.dart';
 import '../widgets/lesson_text.dart';
 import '../widgets/cog_feedback_card.dart';
@@ -224,7 +225,10 @@ class _QuizScreenState extends State<QuizScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Center(
-          child: CogPlaceholder(size: CogPlaceholder.lessonSizeFor(context)),
+          child: CogArt(
+            pose: CogPose.waving,
+            size: CogPlaceholder.lessonSizeFor(context),
+          ),
         ),
         Semantics(
           header: true,
