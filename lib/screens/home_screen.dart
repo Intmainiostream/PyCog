@@ -12,7 +12,6 @@ import '../theme/app_theme.dart';
 import '../widgets/app_top_bar.dart';
 import '../widgets/chunky_button.dart';
 import '../widgets/cog_art.dart';
-import '../widgets/cog_placeholder.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
 import 'coding_screen.dart';
@@ -136,18 +135,56 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  /// A small Cog with a compact speech bubble.
   Widget _cog(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CogArt(pose: CogPose.waving, size: CogPlaceholder.sizeFor(context)),
-        SpeechBubble(text: AppLocalizations.of(context).homeGreeting),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CogArt(
+            key: ValueKey('home-cog'),
+            pose: CogPose.waving,
+            size: AppSizes.homeCogSize,
+          ),
+          ConstrainedBox(
+            key: const ValueKey('home-bubble'),
+            constraints: BoxConstraints(
+              maxWidth: math.min(
+                constraints.maxWidth * AppSizes.homeBubbleWidthFraction,
+                AppSizes.homeBubbleMaxWidth,
+              ),
+            ),
+            child: SpeechBubble(
+              text: AppLocalizations.of(context).homeGreeting,
+              style: AppTextStyles.bodyBold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
+  /// The three buttons, centered and narrower than the screen.
   Widget _buttons(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final bigText = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+    return LayoutBuilder(
+      builder: (context, constraints) => Center(
+        child: SizedBox(
+          width: math.min(
+            constraints.maxWidth *
+                (bigText
+                    ? AppSizes.homeButtonWidthFractionBigText
+                    : AppSizes.homeButtonWidthFraction),
+            AppSizes.homeButtonMaxWidth,
+          ),
+          child: _buttonColumn(context, l10n),
+        ),
+      ),
+    );
+  }
+
+  Widget _buttonColumn(BuildContext context, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -200,7 +237,7 @@ class _HomeButton extends StatelessWidget {
       color: color,
       radius: AppSizes.radiusLarge,
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSizes.gap24,
+        horizontal: AppSizes.gap16,
         vertical: AppSizes.homeButtonPadding,
       ),
       onTap: onTap,
@@ -210,17 +247,22 @@ class _HomeButton extends StatelessWidget {
           Icon(icon, size: AppSizes.homeButtonIconSize),
           const SizedBox(width: AppSizes.gap12),
           Flexible(
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              // No color here: the label takes the button's text color
-              // (white on red/teal, dark on yellow-green).
-              style: const TextStyle(
-                fontFamily: AppFonts.title,
-                fontSize: AppSizes.fontTitle + 4,
-                fontWeight: FontWeight.w700,
-                fontVariations: [FontVariation.weight(700)],
-                height: 1.2,
+            // A long word shrinks a little instead of breaking in the
+            // middle (the buttons are narrower than the screen).
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                // No color here: the label takes the button's text color
+                // (white on red/teal, dark on yellow-green).
+                style: const TextStyle(
+                  fontFamily: AppFonts.title,
+                  fontSize: AppSizes.fontTitle + 4,
+                  fontWeight: FontWeight.w700,
+                  fontVariations: [FontVariation.weight(700)],
+                  height: 1.2,
+                ),
               ),
             ),
           ),
