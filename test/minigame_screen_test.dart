@@ -54,8 +54,15 @@ class FakePython implements PythonEngine {
         return _age(inputs[0], '13');
       case 'print(1 + 1)':
         return _out('2\n');
-      case 'speed = 5\nprint(speed)':
+      case 'speed = 5\nprint(speed)' ||
+          'speed=5\nprint( speed )' ||
+          'print(5)' ||
+          'speed = 5\nprint(5)':
         return _out('5\n');
+      case 'print(6)':
+        return _out('6\n');
+      case 'speed = 5\nprint(Speed)':
+        return _out('', "NameError: name 'Speed' is not defined");
       case 'robot_name = "Cog"\nspeed = 5\nis_moving = True\n'
           'print(robot_name)\nprint(speed)\nprint(is_moving)':
         return _out('Cog\n5\nTrue\n');
@@ -601,9 +608,8 @@ void main() {
       ],
     );
 
-    testWidgets('a missing piece: not run, a short message, no star lost', (
-      tester,
-    ) async {
+    testWidgets('right output but a missing piece: the code runs, then a '
+        'short message, no star lost', (tester) async {
       final (progress, engine) = await pumpMap(
         tester,
         levels: [
@@ -613,44 +619,95 @@ void main() {
       await openChallenge(tester, 'need');
       await tester.enterText(key('mg-code'), 'print(5)');
       await tapAndSettle(tester, key('mg-run'));
-      expect(engine.runs, isEmpty);
+      expect(engine.runs, hasLength(1)); // it ran first
       expect(
         find.text(mustUse(en, ['speed = 5', 'print(speed)'])),
         findsOneWidget,
       );
-      expect(key('mg-failed'), findsNothing); // no test is shown
+      expect(key('mg-failed'), findsNothing); // no failed test is shown
       expect(starsLeft(tester), 3);
       expect(progress.bestStars('need'), 0);
 
       // Only the piece still missing is named.
       await tester.enterText(key('mg-code'), 'speed = 5\nprint(5)');
       await tapAndSettle(tester, key('mg-run'));
-      expect(engine.runs, isEmpty);
       expect(find.text(mustUse(en, ['print(speed)'])), findsOneWidget);
     });
 
-    testWidgets('extra spaces still count; with every piece it runs', (
+    testWidgets('wrong output: the failed test, not the "must use" message', (
       tester,
     ) async {
-      final (progress, engine) = await pumpMap(
+      await pumpMap(
         tester,
         levels: [
           MinigameLevel(number: 1, challenges: [need]),
         ],
       );
       await openChallenge(tester, 'need');
-      // Has every piece (spaces differ): it runs, and the pretend Python
-      // doesn't know it, so test 1 fails - but no "must use" message.
+      await tester.enterText(key('mg-code'), 'print(6)');
+      await tapAndSettle(tester, key('mg-run'));
+      expect(find.text(en.mgFailed(1)), findsOneWidget);
+      expect(key('mg-your-output'), findsOneWidget);
+      expect(key('mg-missing'), findsNothing);
+    });
+
+    testWidgets('extra spaces still count: with every piece it passes', (
+      tester,
+    ) async {
+      final (progress, _) = await pumpMap(
+        tester,
+        levels: [
+          MinigameLevel(number: 1, challenges: [need]),
+        ],
+      );
+      await openChallenge(tester, 'need');
       await tester.enterText(key('mg-code'), 'speed=5\nprint( speed )');
       await tapAndSettle(tester, key('mg-run'));
-      expect(engine.runs, hasLength(1));
       expect(key('mg-missing'), findsNothing);
-      expect(find.text(en.mgFailed(1)), findsOneWidget);
+      expect(find.text(en.mgPassed(3)), findsOneWidget);
+      expect(progress.bestStars('need'), 3);
+    });
+
+    testWidgets('fix the bug: the starting code shows its real error first', (
+      tester,
+    ) async {
+      final fix = Challenge.fixBug(
+        id: 'fixspeed',
+        title: (_) => 'Fix speed',
+        prompt: (_) => 'Fix it so print(speed) shows 5.',
+        hints: [(_) => 'h1', (_) => 'h2'],
+        starter: 'speed = 5\nprint(Speed)',
+        solution: 'speed = 5\nprint(speed)',
+        requiredCode: const ['speed =', 'print(speed)'],
+        tests: const [
+          TestCase(output: ['5']),
+        ],
+      );
+      final (progress, _) = await pumpMap(
+        tester,
+        levels: [
+          MinigameLevel(number: 1, challenges: [fix]),
+        ],
+      );
+      await openChallenge(tester, 'fixspeed');
+      // Run the starting code as it is: the real NameError, no message.
+      await tapAndSettle(tester, key('mg-run'));
+      expect(key('mg-error'), findsOneWidget);
+      expect(find.textContaining('NameError'), findsOneWidget);
+      expect(key('mg-missing'), findsNothing);
+
+      // Right output, but a piece is missing: the message, no star lost.
+      await tester.enterText(key('mg-code'), 'print(5)');
+      await tapAndSettle(tester, key('mg-run'));
+      expect(
+        find.text(mustUse(en, ['speed =', 'print(speed)'])),
+        findsOneWidget,
+      );
+      expect(starsLeft(tester), 3);
 
       await tester.enterText(key('mg-code'), 'speed = 5\nprint(speed)');
       await tapAndSettle(tester, key('mg-run'));
-      expect(find.text(en.mgPassed(3)), findsOneWidget);
-      expect(progress.bestStars('need'), 3);
+      expect(progress.bestStars('fixspeed'), 3);
     });
 
     testWidgets('the message is in Tagalog too', (tester) async {
@@ -818,13 +875,10 @@ void main() {
             if (c.type == ChallengeType.writeCode) {
               await tester.enterText(key('mg-code'), 'print(1)');
               await tapAndSettle(tester, key('mg-run'));
-              // With required code, print(1) gets the "must use" message.
-              expect(
-                c.requiredCode.isEmpty
-                    ? find.text(l10n.mgFailed(1))
-                    : key('mg-missing'),
-                findsOneWidget,
-              );
+              // The output is wrong, so the failed test is shown (the
+              // "must use" message only comes when the output is right).
+              expect(find.text(l10n.mgFailed(1)), findsOneWidget);
+              expect(key('mg-missing'), findsNothing);
             }
             await goBack(tester);
             await tester.pumpAndSettle();

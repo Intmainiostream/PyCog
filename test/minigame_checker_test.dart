@@ -187,22 +187,91 @@ void main() {
     ScriptedEngine fivePrinter() =>
         ScriptedEngine((code, inputs) => printed('5\n'));
 
+    test('right output but a missing piece: the code runs first, then the '
+        'piece is listed', () async {
+      final engine = fivePrinter();
+      final result = await checkProgram(
+        engine,
+        'print(5)',
+        tests,
+        required: required,
+      );
+      expect(engine.runs, hasLength(1)); // it ran
+      expect(result.passed, isFalse);
+      expect(result.missing, ['speed = 5', 'print(speed)']);
+      expect(result.failedNumber, isNull); // no test failed
+    });
+
     test(
-      'a missing piece: the code is not run, and the piece is listed',
+      'wrong output: the failed test is shown, not the missing pieces',
       () async {
-        final engine = fivePrinter();
+        final engine = ScriptedEngine((code, inputs) => printed('6\n'));
         final result = await checkProgram(
           engine,
-          'print(5)',
+          'print(6)',
           tests,
           required: required,
         );
-        expect(result.passed, isFalse);
-        expect(result.missing, ['speed = 5', 'print(speed)']);
-        expect(result.failedNumber, isNull); // no test ran or failed
-        expect(engine.runs, isEmpty);
+        expect(result.failedNumber, 1);
+        expect(result.got!.stdout, '6\n');
+        expect(result.missing, isEmpty);
       },
     );
+
+    test('an error: the real error is shown, not the missing pieces', () async {
+      final engine = ScriptedEngine(
+        (code, inputs) =>
+            printed('', error: "NameError: name 'Speed' is not defined"),
+      );
+      final result = await checkProgram(
+        engine,
+        'speed = 5\nprint(Speed)',
+        tests,
+        required: required,
+      );
+      expect(result.failedNumber, 1);
+      expect(result.got!.error, startsWith('NameError'));
+      expect(result.missing, isEmpty);
+    });
+
+    test('the pieces are checked only after every test passed', () async {
+      final engine = ScriptedEngine((code, inputs) => printed('5\n'));
+      final result = await checkProgram(engine, 'print(5)', const [
+        TestCase(output: ['5']),
+        TestCase(output: ['5']),
+      ], required: required);
+      expect(engine.runs, hasLength(2));
+      expect(result.missing, required);
+    });
+
+    test('spaces around comparison signs do not matter', () {
+      for (final (code, piece) in [
+        ('if lives>0:', 'if lives > 0'),
+        ('if lives   >   0:', 'if lives > 0'),
+        ('if battery<20:', 'if battery < 20'),
+        ('if score>=90:', 'if score >= 90'),
+        ('if score <=90:', 'if score <= 90'),
+        ('if lives==0:', 'if lives == 0'),
+        ('if room!=5:', 'if room != 5'),
+        ('print(score>=90)', 'print(score >= 90)'),
+      ]) {
+        expect(missingCode(code, [piece]), isEmpty, reason: code);
+      }
+    });
+
+    test('comparison signs stay different from each other', () {
+      for (final (code, piece) in [
+        ('if lives <= 0:', 'if lives < 0'),
+        ('if lives < 0:', 'if lives <= 0'),
+        ('if score >= 90:', 'if score > 90'),
+        ('if score > 90:', 'if score >= 90'),
+        ('if lives = 0:', 'if lives == 0'),
+        ('if lives == 0:', 'if lives != 0'),
+        ('if lives > 0:', 'if lives < 0'),
+      ]) {
+        expect(missingCode(code, [piece]), [piece], reason: '$code vs $piece');
+      }
+    });
 
     test('only the missing pieces are listed, in order', () async {
       final result = await checkProgram(

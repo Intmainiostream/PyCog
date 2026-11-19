@@ -89,6 +89,25 @@ void main() {
           report(c.id, 'starting code fails', !start.passed);
         }
         if (c.requiredCode.isNotEmpty) {
+          // The solution written with no spaces around = and the comparison
+          // signs (e.g. `if lives>0:`) still passes, pieces included.
+          final tight = c.solutionProgram.replaceAllMapped(
+            RegExp(r' *(==|!=|<=|>=|<|>|=) *'),
+            (m) => m[1]!,
+          );
+          final tightResult = await checkProgram(
+            engine,
+            tight,
+            c.tests,
+            required: c.requiredCode,
+          );
+          report(
+            c.id,
+            'solution without spaces around signs passes',
+            tightResult.passed,
+            shown(tightResult),
+          );
+
           // e.g. print(5) for "5", print("Cog") for "Cog".
           final fixedAnswer = [
             for (final line in c.tests.first.output)

@@ -15,7 +15,8 @@ class CheckResult {
     required PythonResult this.got,
   }) : missing = const [];
 
-  /// The code was not run: it does not contain these required pieces.
+  /// Every test passed, but the code does not contain these required
+  /// pieces.
   const CheckResult.missing(this.missing)
     : failedNumber = null,
       failedCase = null,
@@ -31,17 +32,19 @@ class CheckResult {
   /// What the code did in [failedCase].
   final PythonResult? got;
 
-  /// Required code pieces the student's code does not contain (the code
-  /// was not run). Empty otherwise.
+  /// Required code pieces the student's code does not contain (its output
+  /// was right). Empty otherwise.
   final List<String> missing;
 
   bool get passed => failedNumber == null && missing.isEmpty;
 }
 
 /// Makes code easy to search for a required piece: `#` comments are removed
-/// (a piece inside a comment does not count), and spaces around `=` and
-/// just inside brackets are dropped, so `speed=5`, `speed = 5`,
-/// `print( speed )` and `print(speed)` all match.
+/// (a piece inside a comment does not count), and spaces around `=` and the
+/// comparison signs (`==`, `!=`, `<`, `>`, `<=`, `>=`) and just inside
+/// brackets are dropped, so `speed=5`, `speed = 5`, `print( speed )` and
+/// `print(speed)` all match, and so do `lives>0` and `lives > 0`. The signs
+/// stay different: `lives < 0` does not match `lives <= 0`.
 String normalizeCode(String code) {
   final lines = [
     for (final line in code.replaceAll('\r\n', '\n').split('\n'))
@@ -49,7 +52,11 @@ String normalizeCode(String code) {
   ];
   return lines
       .join('\n')
-      .replaceAll(RegExp(r'[ \t]*=[ \t]*'), '=')
+      // Longest signs first, so `<=` stays `<=` and never matches `<`.
+      .replaceAllMapped(
+        RegExp(r'[ \t]*(==|!=|<=|>=|<|>|=)[ \t]*'),
+        (m) => m[1]!,
+      )
       .replaceAllMapped(RegExp(r'([(\[{])[ \t]+'), (m) => m[1]!)
       .replaceAllMapped(RegExp(r'[ \t]+([)\]}])'), (m) => m[1]!);
 }
@@ -108,16 +115,15 @@ bool outputMatches(String stdout, List<String> expected) =>
 /// fails. A test passes only if the program finished without an error, did
 /// not run too long, and printed exactly the expected output.
 ///
-/// When [required] pieces are missing from the code, nothing runs and the
-/// result lists them ([CheckResult.missing]).
+/// Only when every test passes are the [required] pieces checked: if one
+/// is missing, the result lists them ([CheckResult.missing]). So a wrong
+/// output or a real Python error is always shown first.
 Future<CheckResult> checkProgram(
   PythonEngine engine,
   String code,
   List<TestCase> tests, {
   List<String> required = const [],
 }) async {
-  final missing = missingCode(code, required);
-  if (missing.isNotEmpty) return CheckResult.missing(missing);
   for (final (i, test) in tests.indexed) {
     final result = await engine.run(code, inputs: test.inputs);
     final ok = result.ok && outputMatches(result.stdout, test.output);
@@ -129,6 +135,8 @@ Future<CheckResult> checkProgram(
       );
     }
   }
+  final missing = missingCode(code, required);
+  if (missing.isNotEmpty) return CheckResult.missing(missing);
   return const CheckResult.passed();
 }
 
