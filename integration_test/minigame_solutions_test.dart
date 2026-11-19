@@ -152,6 +152,24 @@ void main() {
             report(c.id, 'wrong sign ($wrongPiece) fails', !r.passed);
           }
 
+          // A wrong range (its last number one bigger, e.g. range(1, 7) for
+          // range(1, 6)) must not pass either.
+          final rangeCall = RegExp(r'range\(([^)]*?)(\d+)\)');
+          for (final piece in c.requiredCode.where(rangeCall.hasMatch)) {
+            final m = rangeCall.firstMatch(piece)!;
+            final bigger = 'range(${m[1]}${int.parse(m[2]!) + 1})';
+            final wrongPiece = piece.replaceFirst(m[0]!, bigger);
+            final wrong = c.solutionProgram.replaceFirst(piece, wrongPiece);
+            if (wrong == c.solutionProgram) continue;
+            final r = await checkProgram(
+              engine,
+              wrong,
+              c.tests,
+              required: c.requiredCode,
+            );
+            report(c.id, 'wrong range ($wrongPiece) fails', !r.passed);
+          }
+
           // e.g. print(5) for "5", print("Cog") for "Cog".
           final fixedAnswer = [
             for (final line in c.tests.first.output)

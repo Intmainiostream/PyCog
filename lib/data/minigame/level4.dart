@@ -9,9 +9,9 @@ import '../../models/quiz.dart';
 /// hidden test, and every fix and write challenge lists required code with
 /// the loop line in it, so printing the answer can't pass.
 ///
-/// Pieces avoid commas and `-` (spaces there are not ignored yet), e.g.
-/// `for number in range(1,` and `battery = battery`; the output checks the
-/// numbers.
+/// Pieces have the full range call and the full `- 1` line (spaces after
+/// commas and around signs don't matter), so a wrong range or sign can't
+/// pass.
 ///
 /// Every answer, solution, starting code, wrong choice and expected output
 /// was run in real Python; integration_test/minigame_solutions_test.dart
@@ -114,7 +114,7 @@ final level4 = MinigameLevel(
           'while battery > 0:\n'
           '    print("Moving")\n'
           '    battery = battery - 1',
-      requiredCode: const ['while battery > 0', 'battery = battery'],
+      requiredCode: const ['while battery > 0', 'battery = battery - 1'],
       tests: const [
         TestCase(output: ['Moving', 'Moving', 'Moving']),
       ],
@@ -150,7 +150,7 @@ final level4 = MinigameLevel(
       solution:
           'for number in range(1, 6):\n'
           '    print(number)',
-      requiredCode: const ['for number in range(1,'],
+      requiredCode: const ['for number in range(1, 6)'],
       tests: const [
         TestCase(output: ['1', '2', '3', '4', '5']),
       ],
@@ -172,7 +172,7 @@ final level4 = MinigameLevel(
         'battery = 3',
         'while battery > 0',
         'print(battery)',
-        'battery = battery',
+        'battery = battery - 1',
       ],
       tests: const [
         TestCase(output: ['3', '2', '1', 'Empty!']),
@@ -193,7 +193,7 @@ final level4 = MinigameLevel(
           '        break\n'
           '    print(room)',
       requiredCode: const [
-        'for room in range(1,',
+        'for room in range(1, 6)',
         'if room == 4',
         'break',
         'print(room)',

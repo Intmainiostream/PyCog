@@ -275,8 +275,12 @@ void main() {
     }
   });
 
-  test('Level 3: a wrong comparison is caught by the pieces', () {
-    final level3 = {for (final c in minigameLevels[2].challenges) c.id: c};
+  test('Levels 3-4: a wrong comparison, range or sign is caught by the '
+      'pieces', () {
+    final level3 = {
+      for (final level in minigameLevels.take(4))
+        for (final c in level.challenges) c.id: c,
+    };
     for (final (id, from, to) in [
       ('mgL3C3', 'lives > 0', 'lives >= 0'),
       ('mgL3C3', 'lives > 0', 'lives > 1'),
@@ -284,6 +288,13 @@ void main() {
       ('mgL3C9', 'battery < 20', 'battery < 100'),
       ('mgL3C10', 'score >= 90', 'score > 90'),
       ('mgL3C10', 'score >= 70', 'score >= 80'),
+      ('mgL4C6', 'battery - 1', 'battery + 1'),
+      ('mgL4C6', 'battery - 1', 'battery - 2'),
+      ('mgL4C8', 'range(1, 6)', 'range(0, 6)'),
+      ('mgL4C8', 'range(1, 6)', 'range(1, 7)'),
+      ('mgL4C9', 'battery - 1', 'battery // 1'),
+      ('mgL4C10', 'range(1, 6)', 'range(6)'),
+      ('mgL4C10', 'range(1, 6)', 'range(1, 9)'),
     ]) {
       final c = level3[id]!;
       expect(c.solutionProgram, contains(from), reason: id);
