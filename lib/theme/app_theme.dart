@@ -124,6 +124,9 @@ class AppSizes {
   // Home screen (PLAY / MINIGAME / CODING)
   static const homeButtonIconSize = 34.0;
   static const homeButtonPadding = 20.0; // vertical padding inside each button
+  // PyCog wordmark in the home top bar: as tall as the buttons beside it,
+  // so the bar (and everything under it) keeps its height.
+  static const wordmarkHeight = 48.0;
 
   // End of the lesson trail
   static const trailTailHeight = 70.0; // path past the last lesson

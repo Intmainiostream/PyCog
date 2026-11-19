@@ -17,7 +17,14 @@ class AppTopBar extends StatelessWidget {
     required this.onSettings,
     this.onBack,
     this.backLabel,
+    this.wordmark = false,
   });
+
+  /// The PyCog wordmark picture (home screen title).
+  static const wordmarkAsset = 'assets/branding/pycog_wordmark.png';
+
+  /// Width / height of [wordmarkAsset] (1200 x 404).
+  static const wordmarkAspect = 1200 / 404;
 
   final double sidePadding;
   final int stars;
@@ -28,6 +35,9 @@ class AppTopBar extends StatelessWidget {
 
   /// What screen readers say for the back arrow.
   final String? backLabel;
+
+  /// Shows the PyCog wordmark picture instead of the plain "PyCog" text.
+  final bool wordmark;
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +87,29 @@ class AppTopBar extends StatelessWidget {
     );
   }
 
+  Widget _titleText(AppLocalizations l10n) => Text(
+    l10n.appTitle,
+    style: AppTextStyles.title.copyWith(color: AppColors.tealDark),
+  );
+
+  /// The wordmark picture; screen readers still say "PyCog". If the picture
+  /// can't load, the plain title shows instead.
+  Widget _wordmark(AppLocalizations l10n) => Semantics(
+    label: l10n.appTitle,
+    image: true,
+    child: ExcludeSemantics(
+      child: Image.asset(
+        wordmarkAsset,
+        key: const ValueKey('app-wordmark'),
+        height: AppSizes.wordmarkHeight,
+        width: AppSizes.wordmarkHeight * wordmarkAspect,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.medium,
+        errorBuilder: (_, _, _) => _titleText(l10n),
+      ),
+    ),
+  );
+
   Widget _row(AppLocalizations l10n, double titleMax) {
     return Row(
       children: [
@@ -95,10 +128,7 @@ class AppTopBar extends StatelessWidget {
             fit: BoxFit.scaleDown,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSizes.gap8),
-              child: Text(
-                l10n.appTitle,
-                style: AppTextStyles.title.copyWith(color: AppColors.tealDark),
-              ),
+              child: wordmark ? _wordmark(l10n) : _titleText(l10n),
             ),
           ),
         ),

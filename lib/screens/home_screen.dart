@@ -97,6 +97,7 @@ class HomeScreen extends StatelessWidget {
                     sidePadding: sidePadding,
                     stars: progress.totalStars(lessons),
                     onSettings: () => showSettingsSheet(context, settings),
+                    wordmark: true,
                   ),
                   Expanded(
                     child: SingleChildScrollView(
