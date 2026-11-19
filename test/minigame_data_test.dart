@@ -37,8 +37,8 @@ void main() {
     expect(ids.toSet().length, ids.length);
   });
 
-  // Levels 1-4 use the same mix, easy to harder.
-  for (final number in [1, 2, 3, 4]) {
+  // Levels 1-5 use the same mix, easy to harder.
+  for (final number in [1, 2, 3, 4, 5]) {
     test('Level $number is full: 3 quizzes, 2 fill, 2 fix, 3 write', () {
       final challenges = minigameLevels[number - 1].challenges;
       expect(challenges.map((c) => c.type), [
@@ -90,6 +90,26 @@ void main() {
         '-',
       },
     ),
+    // + Lesson 5 (functions): def, return, and `a + b`. Calling a function
+    // the code defines is allowed too (see below).
+    5: (
+      calls: {'print', 'type', 'range'},
+      ideas: {
+        'if',
+        'elif',
+        'else',
+        '<',
+        '>',
+        '==',
+        'for',
+        'while',
+        'break',
+        '-',
+        'def',
+        'return',
+        '+',
+      },
+    ),
   };
   const laterSymbols = ['+', '-', '*', '/', '[', '{', '<', '>', '=='];
   const laterWords = [
@@ -101,6 +121,7 @@ void main() {
     'break',
     'continue',
     'def',
+    'return',
     'and',
     'or',
     'not',
@@ -123,7 +144,15 @@ void main() {
         final used = RegExp(r'(\w+)\(')
             .allMatches('$code\n$answers')
             .map((m) => m[1]!);
-        expect(used.toSet().difference(calls), isEmpty, reason: c.id);
+        // Functions the code makes with def may be called too.
+        final defined = RegExp(r'def (\w+)\(')
+            .allMatches(code)
+            .map((m) => m[1]!);
+        expect(
+          used.toSet().difference({...calls, ...defined}),
+          isEmpty,
+          reason: c.id,
+        );
         for (final later in laterSymbols.where((s) => !ideas.contains(s))) {
           expect(code, isNot(contains(later)), reason: '${c.id}: $later');
         }
@@ -269,6 +298,23 @@ void main() {
             c.requiredCode.any((p) => p.startsWith(loop)),
             isTrue,
             reason: '${c.id}: no piece has the $loop line',
+          );
+        }
+      }
+    }
+  });
+
+  test('from Level 5 on, a solution with def has the function name in its '
+      'pieces', () {
+    for (final level in minigameLevels.skip(4)) {
+      for (final c in level.challenges.where(
+        (c) => c.requiredCode.isNotEmpty,
+      )) {
+        for (final m in RegExp(r'def (\w+)\(').allMatches(c.solutionProgram)) {
+          expect(
+            c.requiredCode.any((p) => p.contains('${m[1]}(')),
+            isTrue,
+            reason: '${c.id}: no piece has ${m[1]}(',
           );
         }
       }
