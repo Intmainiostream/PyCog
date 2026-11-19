@@ -56,6 +56,9 @@ class FakePython implements PythonEngine {
         return _out('2\n');
       case 'speed = 5\nprint(speed)':
         return _out('5\n');
+      case 'robot_name = "Cog"\nspeed = 5\nis_moving = True\n'
+          'print(robot_name)\nprint(speed)\nprint(is_moving)':
+        return _out('Cog\n5\nTrue\n');
     }
     return _out('', 'SyntaxError: invalid syntax');
   }
@@ -171,8 +174,8 @@ void main() {
       }
       await tester.ensureVisible(key('mg-level-1'));
       await tester.pumpAndSettle();
-      expect(find.text(en.mgSolved(0, 3)), findsOneWidget);
-      expect(find.text('0/9'), findsOneWidget);
+      expect(find.text(en.mgSolved(0, 10)), findsOneWidget);
+      expect(find.text('0/30'), findsOneWidget);
       expect(find.text(en.mgLocked), findsNWidgets(9));
     });
 
@@ -187,23 +190,28 @@ void main() {
         tester,
         saved: {'minigame.stars.mgL1C1': 3, 'minigame.stars.mgL1C3': 1},
       );
-      expect(find.text('4/9'), findsOneWidget);
-      expect(find.text(en.mgSolved(2, 3)), findsOneWidget);
+      expect(find.text('4/30'), findsOneWidget);
+      expect(find.text(en.mgSolved(2, 10)), findsOneWidget);
     });
 
     testWidgets('an open level lists its challenges with their stars', (
       tester,
     ) async {
-      await pumpMap(tester, saved: {'minigame.stars.mgL1C2': 2});
+      await pumpMap(
+        tester,
+        size: const Size(800, 2000), // all 10 tiles on screen
+        saved: {'minigame.stars.mgL1C2': 2, 'minigame.stars.mgL1C10': 3},
+      );
       await tapAndSettle(tester, key('mg-level-1'));
-      expect(find.text(en.mgL1C1Title), findsOneWidget);
-      expect(find.text(en.mgL1C2Title), findsOneWidget);
-      expect(find.text(en.mgL1C3Title), findsOneWidget);
-      expect(find.text(en.mgTypeQuiz), findsOneWidget);
-      expect(find.text(en.mgTypeFillBlank), findsOneWidget);
-      expect(find.text(en.mgTypeWriteCode), findsOneWidget);
+      for (final c in level1.challenges) {
+        expect(find.text(c.title(en)), findsOneWidget, reason: c.id);
+      }
+      expect(find.text(en.mgTypeQuiz), findsNWidgets(3));
+      expect(find.text(en.mgTypeFillBlank), findsNWidgets(2));
+      expect(find.text(en.mgTypeFixBug), findsNWidgets(2));
+      expect(find.text(en.mgTypeWriteCode), findsNWidgets(3));
       final stars = tester.widgetList<StarRow>(find.byType(StarRow));
-      expect(stars.map((s) => s.stars), [0, 2, 0]);
+      expect(stars.map((s) => s.stars), [0, 2, 0, 0, 0, 0, 0, 0, 0, 3]);
     });
 
     testWidgets('an open level with no challenges says "coming soon"', (
@@ -226,11 +234,11 @@ void main() {
       final (progress, _) = await pumpMap(tester);
       await openChallenge(tester, 'mgL1C1');
       expect(find.text(plain(en.mgL1C1Prompt)), findsOneWidget);
-      expect(find.text('battery = battery + 10'), findsOneWidget);
+      expect(find.text('battery = 80'), findsOneWidget);
       expect(key('mg-hint'), findsNothing);
       expect(starsLeft(tester), 3);
 
-      await tapAndSettle(tester, answer('60'));
+      await tapAndSettle(tester, answer('80'));
       await tapAndSettle(tester, key('mg-check'));
       expect(find.text(en.mgPassed(3)), findsOneWidget);
       expect(progress.bestStars('mgL1C1'), 3);
@@ -239,12 +247,12 @@ void main() {
     testWidgets('right on the second try = 2 stars', (tester) async {
       final (progress, _) = await pumpMap(tester);
       await openChallenge(tester, 'mgL1C1');
-      await tapAndSettle(tester, answer('50'));
+      await tapAndSettle(tester, answer('100'));
       await tapAndSettle(tester, key('mg-check'));
       expect(find.text(en.mgTryAgain), findsOneWidget);
       expect(starsLeft(tester), 2);
 
-      await tapAndSettle(tester, answer('60'));
+      await tapAndSettle(tester, answer('80'));
       await tapAndSettle(tester, key('mg-check'));
       expect(find.text(en.mgPassed(2)), findsOneWidget);
       expect(progress.bestStars('mgL1C1'), 2);
@@ -255,12 +263,12 @@ void main() {
     ) async {
       final (progress, _) = await pumpMap(tester);
       await openChallenge(tester, 'mgL1C1');
-      for (final (wrong, left) in [('50', 2), ('10', 1), ('battery', 1)]) {
+      for (final (wrong, left) in [('100', 2), ('180', 1), ('battery', 1)]) {
         await tapAndSettle(tester, answer(wrong));
         await tapAndSettle(tester, key('mg-check'));
         expect(starsLeft(tester), left, reason: 'after picking $wrong');
       }
-      await tapAndSettle(tester, answer('60'));
+      await tapAndSettle(tester, answer('80'));
       await tapAndSettle(tester, key('mg-check'));
       expect(find.text(en.mgPassed(1)), findsOneWidget);
       expect(progress.bestStars('mgL1C1'), 1);
@@ -271,9 +279,9 @@ void main() {
     ) async {
       final (progress, _) = await pumpMap(tester);
       await openChallenge(tester, 'mgL1C1');
-      await tapAndSettle(tester, answer('50'));
+      await tapAndSettle(tester, answer('100'));
       await tapAndSettle(tester, key('mg-check'));
-      // `50` is answers[1] in the data.
+      // `100` is answers[1] in the data.
       expect(progress.wrongPicks('mgL1C1'), {1});
 
       await goBack(tester);
@@ -281,17 +289,17 @@ void main() {
       // Still marked wrong, can't be picked again, and still 2 stars.
       expect(
         find.descendant(
-          of: answer('50'),
+          of: answer('100'),
           matching: find.byIcon(Icons.cancel_rounded),
         ),
         findsOneWidget,
       );
-      await tapAndSettle(tester, answer('50'));
+      await tapAndSettle(tester, answer('100'));
       await tapAndSettle(tester, key('mg-check'));
       expect(find.text(en.mgTryAgain), findsNothing); // nothing was picked
       expect(starsLeft(tester), 2);
 
-      await tapAndSettle(tester, answer('60'));
+      await tapAndSettle(tester, answer('80'));
       await tapAndSettle(tester, key('mg-check'));
       expect(progress.bestStars('mgL1C1'), 2);
       // Finished: the saved wrong picks are cleared, so a replay is fresh.
@@ -307,9 +315,9 @@ void main() {
         saved: {'minigame.stars.mgL1C1': 3},
       );
       await openChallenge(tester, 'mgL1C1');
-      await tapAndSettle(tester, answer('50'));
+      await tapAndSettle(tester, answer('100'));
       await tapAndSettle(tester, key('mg-check'));
-      await tapAndSettle(tester, answer('60'));
+      await tapAndSettle(tester, answer('80'));
       await tapAndSettle(tester, key('mg-check'));
       expect(find.text(en.mgPassed(2)), findsOneWidget);
       expect(progress.bestStars('mgL1C1'), 3);
@@ -317,7 +325,8 @@ void main() {
   });
 
   group('Hints (code challenges)', () {
-    const solution = 'age = int(input("Age? "))\nprint(age + 1)';
+    // Level 1, challenge 3: make speed = 5 and print it.
+    const solution = 'speed = 5\nprint(speed)';
 
     Future<void> solve(WidgetTester tester) async {
       await tester.enterText(key('mg-code'), solution);
@@ -409,8 +418,13 @@ void main() {
       // While the hints are open, the level still shows the best: 3.
       await goBack(tester);
       expect(progress.bestStars('mgL1C3'), 3);
-      final stars = tester.widgetList<StarRow>(find.byType(StarRow));
-      expect(stars.last.stars, 3);
+      final c3 = tester.widget<StarRow>(
+        find.descendant(
+          of: key('mg-challenge-mgL1C3'),
+          matching: find.byType(StarRow),
+        ),
+      );
+      expect(c3.stars, 3);
 
       await tapAndSettle(tester, key('mg-challenge-mgL1C3'));
       await solve(tester);
@@ -485,8 +499,27 @@ void main() {
     testWidgets('only the first failed test is shown, never the untried ones', (
       tester,
     ) async {
-      final (progress, engine) = await pumpMap(tester);
-      await openChallenge(tester, 'mgL1C3');
+      // A test-only challenge with input() (Level 1 has none).
+      final age = Challenge.writeCode(
+        id: 'age',
+        title: (_) => 'Next year',
+        prompt: (_) => 'Ask with input("Age? ") and print the age plus 1.',
+        hints: [(_) => 'h1', (_) => 'h2'],
+        solution: 'age = int(input("Age? "))\nprint(age + 1)',
+        showFirstTest: true,
+        tests: const [
+          TestCase(inputs: ['12'], output: ['Age? 12', '13']),
+          TestCase(inputs: ['0'], output: ['Age? 0', '1']),
+          TestCase(inputs: ['99'], output: ['Age? 99', '100']),
+        ],
+      );
+      final (progress, engine) = await pumpMap(
+        tester,
+        levels: [
+          MinigameLevel(number: 1, challenges: [age]),
+        ],
+      );
+      await openChallenge(tester, 'age');
       // The first test is shown as an example.
       final example = tester.widget<OutputBox>(key('mg-example'));
       expect(example.lines, ['Age? ', '13']);
@@ -511,13 +544,26 @@ void main() {
       expect(expected.typed, {0: '0'});
       expect(find.textContaining('99'), findsNothing);
       expect(find.textContaining('100'), findsNothing);
-      expect(progress.bestStars('mgL1C3'), 0);
+      expect(progress.bestStars('age'), 0);
 
       await tester.enterText(
         key('mg-code'),
         'age = int(input("Age? "))\nprint(age + 1)',
       );
       await tapAndSettle(tester, key('mg-run'));
+      expect(find.text(en.mgPassed(3)), findsOneWidget);
+      expect(progress.bestStars('age'), 3);
+    });
+
+    testWidgets('a Level 1 write-it challenge with no example shown', (
+      tester,
+    ) async {
+      final (progress, engine) = await pumpMap(tester);
+      await openChallenge(tester, 'mgL1C3');
+      expect(key('mg-example'), findsNothing);
+      await tester.enterText(key('mg-code'), 'speed = 5\nprint(speed)');
+      await tapAndSettle(tester, key('mg-run'));
+      expect(engine.runs.single.$2, isEmpty); // no typed answers
       expect(find.text(en.mgPassed(3)), findsOneWidget);
       expect(progress.bestStars('mgL1C3'), 3);
     });
@@ -631,7 +677,7 @@ void main() {
     ) async {
       await pumpMap(tester);
       await openChallenge(tester, 'mgL1C1');
-      await tapAndSettle(tester, answer('60'));
+      await tapAndSettle(tester, answer('80'));
       await tapAndSettle(tester, key('mg-check'));
       await tapAndSettle(tester, key('mg-next'));
       expect(find.text(plain(en.mgL1C2Prompt)), findsOneWidget);
@@ -641,16 +687,26 @@ void main() {
       await tapAndSettle(tester, key('mg-next'));
       expect(find.text(en.mgL1C3Title), findsWidgets);
 
-      await tester.enterText(
-        key('mg-code'),
-        'age = int(input("Age? "))\nprint(age + 1)',
-      );
+      await tester.enterText(key('mg-code'), 'speed = 5\nprint(speed)');
       await tapAndSettle(tester, key('mg-run'));
-      expect(key('mg-next'), findsNothing); // the last one
+      expect(key('mg-next'), findsOneWidget); // 7 more to go
       await tapAndSettle(tester, key('mg-back-level'));
       expect(find.byType(ChallengeScreen), findsNothing);
       expect(find.byType(MinigameLevelScreen), findsOneWidget);
-      expect(find.textContaining(en.mgSolved(3, 3)), findsOneWidget);
+      expect(find.textContaining(en.mgSolved(3, 10)), findsOneWidget);
+
+      // The last challenge (10) has no Next button, only Back.
+      await tapAndSettle(tester, key('mg-challenge-mgL1C10'));
+      await tester.enterText(
+        key('mg-code'),
+        'robot_name = "Cog"\nspeed = 5\nis_moving = True\n'
+        'print(robot_name)\nprint(speed)\nprint(is_moving)',
+      );
+      await tapAndSettle(tester, key('mg-run'));
+      expect(find.text(en.mgPassed(3)), findsOneWidget);
+      expect(key('mg-next'), findsNothing);
+      await tapAndSettle(tester, key('mg-back-level'));
+      expect(find.textContaining(en.mgSolved(4, 10)), findsOneWidget);
     });
 
     testWidgets('solving the 7th challenge opens the next level', (
@@ -703,7 +759,13 @@ void main() {
           if (c.type == ChallengeType.writeCode) {
             await tester.enterText(key('mg-code'), 'print(1)');
             await tapAndSettle(tester, key('mg-run'));
-            expect(find.text(l10n.mgFailed(1)), findsOneWidget);
+            // With required code, print(1) gets the "must use" message.
+            expect(
+              c.requiredCode.isEmpty
+                  ? find.text(l10n.mgFailed(1))
+                  : key('mg-missing'),
+              findsOneWidget,
+            );
           }
           await goBack(tester);
           await tester.pumpAndSettle();

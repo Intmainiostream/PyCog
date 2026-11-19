@@ -122,7 +122,7 @@ void main() {
       expect(find.byType(ComingSoonScreen), findsNothing);
       expect(find.text(en.mgMapTitle), findsOneWidget);
       // Saved MINIGAME stars show on Level 1.
-      expect(find.text('3/9'), findsOneWidget);
+      expect(find.text('3/30'), findsOneWidget);
 
       await tapAndSettle(tester, find.bySemanticsLabel(en.homeBackToHome));
       expect(find.byType(MinigameMapScreen), findsNothing);

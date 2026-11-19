@@ -325,9 +325,29 @@ class MinigameLevelScreen extends StatelessWidget {
                         AppSizes.gap24,
                       ),
                       children: [
-                        Text(
-                          '${l10n.mgSolved(progress.solvedCount(level), total)}'
-                          ' · ⭐ ${progress.levelStars(level)}/${total * 3}',
+                        // A star icon, not an emoji: the app fonts have no
+                        // emoji.
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text:
+                                    '${l10n.mgSolved(progress.solvedCount(level), total)} · ',
+                              ),
+                              const WidgetSpan(
+                                alignment: PlaceholderAlignment.middle,
+                                child: Icon(
+                                  Icons.star_rounded,
+                                  color: AppColors.star,
+                                  size: 22,
+                                ),
+                              ),
+                              TextSpan(
+                                text:
+                                    ' ${progress.levelStars(level)}/${total * 3}',
+                              ),
+                            ],
+                          ),
                           textAlign: TextAlign.center,
                           style: AppTextStyles.bodyBold,
                         ),
