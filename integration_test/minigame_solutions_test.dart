@@ -113,7 +113,14 @@ void main() {
               c.tests,
               required: c.requiredCode,
             );
-            report(c.id, 'question "$other" fails', !r.passed);
+            // ...and the result names the question to ask (for the kind
+            // message), not just a failed test.
+            report(
+              c.id,
+              'question "$other" fails and names "$question"',
+              !r.passed && r.wrongQuestion == question,
+              '| named=${r.wrongQuestion}',
+            );
           }
           final noInt = c.solutionProgram.replaceAllMapped(
             RegExp(r'int\((input\([^)]*\))\)'),

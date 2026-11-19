@@ -518,4 +518,97 @@ void main() {
       expect(fill.requiredCode, isEmpty);
     });
   });
+
+  group('Wrong input() question', () {
+    // Like the real runner: each typed answer comes right after its
+    // question, then a new line.
+    PythonResult asked(String stdout, List<(int, String)> typed) =>
+        PythonResult(
+          stdout: stdout,
+          typed: [for (final (at, text) in typed) TypedAnswer(at, text)],
+          elapsed: Duration.zero,
+        );
+    const ageTest = [
+      TestCase(inputs: ['12'], output: ['Age? 12', '13']),
+    ];
+
+    Future<CheckResult> checkWith(PythonResult result, List<TestCase> tests) =>
+        checkProgram(ScriptedEngine((code, inputs) => result), 'code', tests);
+
+    test('a question without its space: says which question to ask', () async {
+      final r = await checkWith(asked('Age?12\n13\n', [(4, '12')]), ageTest);
+      expect(r.passed, isFalse);
+      expect(r.wrongQuestion, 'Age? ');
+    });
+
+    test('different words: says which question to ask', () async {
+      final r = await checkWith(asked('Age: 12\n13\n', [(5, '12')]), ageTest);
+      expect(r.wrongQuestion, 'Age? ');
+    });
+
+    test('no input() at all: says which question to ask', () async {
+      // e.g. print("Age? 12") and print(14): wrong output, no question.
+      final r = await checkWith(asked('Age? 12\n14\n', []), ageTest);
+      expect(r.wrongQuestion, 'Age? ');
+    });
+
+    test('a question printed on its own line counts as different', () async {
+      // print("Age? ") then input(): the answer is alone on its line.
+      final r = await checkWith(asked('Age? \n12\n13\n', [(6, '12')]), ageTest);
+      expect(r.wrongQuestion, 'Age? ');
+    });
+
+    test(
+      'the right question with a wrong answer is a normal failed test',
+      () async {
+        final r = await checkWith(asked('Age? 12\n14\n', [(5, '12')]), ageTest);
+        expect(r.passed, isFalse);
+        expect(r.failedNumber, 1);
+        expect(r.wrongQuestion, isNull);
+      },
+    );
+
+    test('with two questions, the first different one is named', () async {
+      const tests = [
+        TestCase(
+          inputs: ['2', '3'],
+          output: ['First? 2', 'Second? 3', 'Total: 5'],
+        ),
+      ];
+      final r = await checkWith(
+        asked('First? 2\nSecond: 3\nTotal: 5\n', [(7, '2'), (17, '3')]),
+        tests,
+      );
+      expect(r.wrongQuestion, 'Second? ');
+    });
+
+    test('a test without input() never names a question', () async {
+      final r = await checkWith(asked('6\n', []), const [
+        TestCase(output: ['5']),
+      ]);
+      expect(r.wrongQuestion, isNull);
+    });
+
+    test('a pass has no question message', () async {
+      final r = await checkWith(asked('Age? 12\n13\n', [(5, '12')]), ageTest);
+      expect(r.passed, isTrue);
+      expect(r.wrongQuestion, isNull);
+    });
+
+    test('asked and expected questions are read from the output', () {
+      expect(
+        askedQuestions(asked('Name? Ana\nAge? 12\n', [(6, 'Ana'), (15, '12')])),
+        ['Name? ', 'Age? '],
+      );
+      expect(
+        expectedQuestions(
+          const TestCase(
+            inputs: ['Ana', '12'],
+            output: ['Name? Ana', 'Age? 12', 'Ana is 12'],
+          ),
+        ),
+        ['Name? ', 'Age? '],
+      );
+    });
+  });
 }

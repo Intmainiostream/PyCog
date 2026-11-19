@@ -7,12 +7,14 @@ class CheckResult {
     : failedNumber = null,
       failedCase = null,
       got = null,
+      wrongQuestion = null,
       missing = const [];
 
   const CheckResult.failed({
     required int this.failedNumber,
     required TestCase this.failedCase,
     required PythonResult this.got,
+    this.wrongQuestion,
   }) : missing = const [];
 
   /// Every test passed, but the code does not contain these required
@@ -20,7 +22,8 @@ class CheckResult {
   const CheckResult.missing(this.missing)
     : failedNumber = null,
       failedCase = null,
-      got = null;
+      got = null,
+      wrongQuestion = null;
 
   /// Which test failed, counting from 1 (null when every test passed).
   final int? failedNumber;
@@ -31,6 +34,10 @@ class CheckResult {
 
   /// What the code did in [failedCase].
   final PythonResult? got;
+
+  /// When the test failed because the code asked a different input()
+  /// question (or none): the question it should ask, e.g. `Age? `.
+  final String? wrongQuestion;
 
   /// Required code pieces the student's code does not contain (its output
   /// was right). Empty otherwise.
@@ -170,6 +177,7 @@ Future<CheckResult> checkProgram(
         failedNumber: i + 1,
         failedCase: test,
         got: result,
+        wrongQuestion: wrongQuestion(test, result),
       );
     }
   }
@@ -200,4 +208,38 @@ Future<CheckResult> checkProgram(
     }
   }
   return (rows, typed);
+}
+
+/// The input() questions [result] asked, in order: the text on the line
+/// before each typed answer, e.g. `Age? ` for `Age? 12`.
+List<String> askedQuestions(PythonResult result) => [
+  for (final answer in result.typed)
+    result.stdout.substring(
+      answer.offset == 0
+          ? 0
+          : result.stdout.lastIndexOf('\n', answer.offset - 1) + 1,
+      answer.offset,
+    ),
+];
+
+/// The input() questions [test] expects, in order (from its output lines
+/// and typed answers).
+List<String> expectedQuestions(TestCase test) {
+  final (rows, typed) = splitExpected(test.output, test.inputs);
+  return [for (final row in typed.keys.toList()..sort()) rows[row]];
+}
+
+/// When [result] asked a different input() question than [test] expects,
+/// or asked none at all: the question it should have asked. Null when the
+/// questions are right (the test failed for another reason) or the test
+/// asks nothing.
+String? wrongQuestion(TestCase test, PythonResult result) {
+  final expected = expectedQuestions(test);
+  if (expected.isEmpty) return null;
+  final asked = askedQuestions(result);
+  if (asked.isEmpty) return expected.first;
+  for (var i = 0; i < expected.length && i < asked.length; i++) {
+    if (asked[i] != expected[i]) return expected[i];
+  }
+  return null;
 }

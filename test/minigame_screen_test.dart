@@ -52,6 +52,15 @@ class FakePython implements PythonEngine {
         return _age(inputs[0], '${int.parse(inputs[0]) + 1}');
       case 'age = int(input("Age? "))\nprint(13)':
         return _age(inputs[0], '13');
+      case 'age = int(input("Age? "))\nprint(age + 2)':
+        return _age(inputs[0], '${int.parse(inputs[0]) + 2}');
+      case 'age = int(input("Age: "))\nprint(age + 1)':
+        // A different question: "Age: " instead of "Age? ".
+        return PythonResult(
+          stdout: 'Age: ${inputs[0]}\n${int.parse(inputs[0]) + 1}\n',
+          typed: [TypedAnswer('Age: '.length, inputs[0])],
+          elapsed: Duration.zero,
+        );
       case 'print(1 + 1)':
         return _out('2\n');
       case 'speed = 5\nprint(speed)' ||
@@ -740,6 +749,89 @@ void main() {
     });
   });
 
+  group('Wrong input() question', () {
+    // A test-only challenge with input(), like Level 9.
+    final age = Challenge.writeCode(
+      id: 'askage',
+      title: (_) => 'Next year',
+      prompt: (_) => 'Ask with input("Age? ") and print the age plus 1.',
+      hints: [(_) => 'h1', (_) => 'h2'],
+      solution: 'age = int(input("Age? "))\nprint(age + 1)',
+      tests: const [
+        TestCase(inputs: ['12'], output: ['Age? 12', '13']),
+        TestCase(inputs: ['30'], output: ['Age? 30', '31']),
+      ],
+    );
+
+    /// The message as the screen shows it (non-breaking spaces inside the
+    /// question, no backticks).
+    String wrongQuestion(AppLocalizations l10n, String question) => plain(
+      l10n.mgWrongQuestion('`input("${question.replaceAll(' ', '\u00A0')}")`'),
+    );
+
+    testWidgets('a different question: a kind message names the question', (
+      tester,
+    ) async {
+      final (progress, _) = await pumpMap(
+        tester,
+        levels: [
+          MinigameLevel(number: 1, challenges: [age]),
+        ],
+      );
+      await openChallenge(tester, 'askage');
+      await tester.enterText(
+        key('mg-code'),
+        'age = int(input("Age: "))\nprint(age + 1)',
+      );
+      await tapAndSettle(tester, key('mg-run'));
+      expect(find.text(wrongQuestion(en, 'Age? ')), findsOneWidget);
+      // Instead of "did not match"; the outputs are still shown.
+      expect(key('mg-failed'), findsNothing);
+      final yours = tester.widget<OutputBox>(key('mg-your-output'));
+      expect(yours.lines, ['Age: ', '13']);
+      expect(yours.typed, {0: '12'});
+      expect(key('mg-expected-output'), findsOneWidget);
+      expect(starsLeft(tester), 3); // a failed run costs nothing
+      expect(progress.bestStars('askage'), 0);
+    });
+
+    testWidgets('the right question with a wrong answer: the normal view', (
+      tester,
+    ) async {
+      await pumpMap(
+        tester,
+        levels: [
+          MinigameLevel(number: 1, challenges: [age]),
+        ],
+      );
+      await openChallenge(tester, 'askage');
+      await tester.enterText(
+        key('mg-code'),
+        'age = int(input("Age? "))\nprint(age + 2)',
+      );
+      await tapAndSettle(tester, key('mg-run'));
+      expect(find.text(en.mgFailed(1)), findsOneWidget);
+      expect(key('mg-wrong-question'), findsNothing);
+    });
+
+    testWidgets('the message is in Tagalog too', (tester) async {
+      await pumpMap(
+        tester,
+        lang: 'tl',
+        levels: [
+          MinigameLevel(number: 1, challenges: [age]),
+        ],
+      );
+      await openChallenge(tester, 'askage');
+      await tester.enterText(
+        key('mg-code'),
+        'age = int(input("Age: "))\nprint(age + 1)',
+      );
+      await tapAndSettle(tester, key('mg-run'));
+      expect(find.text(wrongQuestion(tl, 'Age? ')), findsOneWidget);
+    });
+  });
+
   group('Moving on', () {
     testWidgets('Next challenge opens the next one; the last goes back', (
       tester,
@@ -1029,8 +1121,36 @@ void main() {
     });
   });
 
+  group('Level 9', () {
+    testWidgets('opens after 7 Level 8 stars and lists its 10 challenges', (
+      tester,
+    ) async {
+      final levels1to7 = {
+        for (var l = 1; l <= 7; l++)
+          for (var c = 1; c <= 7; c++) 'minigame.stars.mgL${l}C$c': 1,
+      };
+      await pumpMap(tester, size: const Size(800, 2000), saved: levels1to7);
+      await tapAndSettle(tester, key('mg-level-9'));
+      expect(find.text(en.mgLevelLocked(8)), findsOneWidget);
+
+      await pumpMap(
+        tester,
+        size: const Size(800, 2000),
+        saved: {
+          ...levels1to7,
+          for (var c = 1; c <= 7; c++) 'minigame.stars.mgL8C$c': 1,
+        },
+      );
+      await tapAndSettle(tester, key('mg-level-9'));
+      expect(find.byType(MinigameLevelScreen), findsOneWidget);
+      for (final c in minigameLevels[8].challenges) {
+        expect(find.text(c.title(en)), findsOneWidget, reason: c.id);
+      }
+    });
+  });
+
   group('Fits a 360px phone', () {
-    for (final number in [1, 2, 3, 4, 5, 6, 7, 8]) {
+    for (final number in [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
       for (final lang in ['en', 'tl']) {
         testWidgets('every Level $number challenge, with hints and a failed '
             'run ($lang)', (tester) async {
@@ -1047,6 +1167,7 @@ void main() {
               for (var c = 1; c <= 7; c++) 'minigame.stars.mgL5C$c': 1,
               for (var c = 1; c <= 7; c++) 'minigame.stars.mgL6C$c': 1,
               for (var c = 1; c <= 7; c++) 'minigame.stars.mgL7C$c': 1,
+              for (var c = 1; c <= 7; c++) 'minigame.stars.mgL8C$c': 1,
             },
           );
           expect(find.text(l10n.mgMapTitle), findsOneWidget);
@@ -1068,7 +1189,14 @@ void main() {
               await tapAndSettle(tester, key('mg-run'));
               // The output is wrong, so the failed test is shown (the
               // "must use" message only comes when the output is right).
-              expect(find.text(l10n.mgFailed(1)), findsOneWidget);
+              // print(1) asks no question, so a challenge with input()
+              // shows which question to ask instead.
+              expect(
+                c.solutionProgram.contains('input(')
+                    ? key('mg-wrong-question')
+                    : find.text(l10n.mgFailed(1)),
+                findsOneWidget,
+              );
               expect(key('mg-missing'), findsNothing);
             }
             await goBack(tester);

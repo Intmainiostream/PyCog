@@ -597,7 +597,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   /// code showed, and what was expected. Tests after it are never shown.
   List<Widget> _failure(AppLocalizations l10n, CheckResult check) {
     if (check.missing.isNotEmpty) {
-      // Not run (so no test is shown): a required piece is missing.
+      // The output was right, but a required piece is missing.
       return [
         CogFeedbackCard(
           key: const ValueKey('mg-missing'),
@@ -619,12 +619,24 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     }
     final (rows, typed) = splitOutput(got.stdout, got.typed);
     final (wantRows, wantTyped) = splitExpected(test.output, test.inputs);
+    final question = check.wrongQuestion;
     return [
-      CogFeedbackCard(
-        key: const ValueKey('mg-failed'),
-        text: l10n.mgFailed(check.failedNumber!),
-        mood: CogMood.hint,
-      ),
+      if (question != null)
+        // A kind message instead of "did not match": which question to ask.
+        // Non-breaking spaces keep `input("Age? ")` on one line.
+        CogFeedbackCard(
+          key: const ValueKey('mg-wrong-question'),
+          text: l10n.mgWrongQuestion(
+            '`input("${question.replaceAll(' ', '\u00A0')}")`',
+          ),
+          mood: CogMood.hint,
+        )
+      else
+        CogFeedbackCard(
+          key: const ValueKey('mg-failed'),
+          text: l10n.mgFailed(check.failedNumber!),
+          mood: CogMood.hint,
+        ),
       if (got.timedOut)
         CogFeedbackCard(text: l10n.codingTimeout, mood: CogMood.hint),
       if (error != null) ...[
