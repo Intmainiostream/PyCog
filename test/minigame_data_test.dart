@@ -37,8 +37,8 @@ void main() {
     expect(ids.toSet().length, ids.length);
   });
 
-  // Levels 1-6 use the same mix, easy to harder.
-  for (final number in [1, 2, 3, 4, 5, 6]) {
+  // Levels 1-7 use the same mix, easy to harder.
+  for (final number in [1, 2, 3, 4, 5, 6, 7]) {
     test('Level $number is full: 3 quizzes, 2 fill, 2 fix, 3 write', () {
       final challenges = minigameLevels[number - 1].challenges;
       expect(challenges.map((c) => c.type), [
@@ -133,6 +133,30 @@ void main() {
         '%',
       },
     ),
+    // + Lesson 7 (strings): len(), str(), .upper(), .lower(), and [ ] to
+    // pick a letter.
+    7: (
+      calls: {'print', 'type', 'range', 'len', 'str', 'upper', 'lower'},
+      ideas: {
+        'if',
+        'elif',
+        'else',
+        '<',
+        '>',
+        '==',
+        'for',
+        'while',
+        'break',
+        '-',
+        'def',
+        'return',
+        '+',
+        '*',
+        '/',
+        '%',
+        '[',
+      },
+    ),
   };
   const laterSymbols = ['+', '-', '*', '/', '%', '[', '{', '<', '>', '=='];
   const laterWords = [
@@ -172,7 +196,8 @@ void main() {
             .allMatches(code)
             .map((m) => m[1]!);
         expect(
-          used.toSet().difference({...calls, ...defined}),
+          // A blank before `(` (like `___(score)`) is not a call.
+          used.toSet().difference({...calls, ...defined, blankMarker}),
           isEmpty,
           reason: c.id,
         );
