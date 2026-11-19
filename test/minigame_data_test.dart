@@ -384,7 +384,8 @@ void main() {
       ('mgL6C3', 'score += 5', 'score += 6'),
       ('mgL6C6', '(red + blue) * 4', 'red * 4 + blue * 4'),
       ('mgL6C8', 'robots // 4', 'robots / 4'),
-      ('mgL6C9', 'side ** 2', 'side * side'),
+      ('mgL6C9', 'side ** 2', 'side ** 3'),
+      ('mgL6C9', 'side * 4', 'side * 5'),
       ('mgL6C10', 'coins // 5', 'coins / 5'),
       ('mgL6C10', 'coins % 5', 'coins - 15'),
       ('mgL6C10', 'coins / 2', 'coins // 2'),
@@ -416,6 +417,31 @@ void main() {
           );
         }
       }
+    }
+  });
+
+  test('Level 6: the equal other ways count, wrong ones do not', () {
+    final level6 = {for (final c in minigameLevels[5].challenges) c.id: c};
+    for (final (id, from, to, counts) in [
+      ('mgL6C3', 'score += 5', 'score = score + 5', true),
+      ('mgL6C3', 'score += 5', 'score = score - 5', false),
+      ('mgL6C3', 'score += 5', 'score = 15', false),
+      ('mgL6C6', '(red + blue) * 4', '4 * (red + blue)', true),
+      ('mgL6C6', '(red + blue) * 4', 'red * 4 + blue * 4', false),
+      ('mgL6C9', 'side ** 2', 'side * side', true),
+      ('mgL6C9', 'side ** 2', 'side * 2', false),
+      ('mgL6C9', 'side * 4', '4 * side', true),
+      ('mgL6C10', 'left += 3', 'left = left + 3', true),
+      ('mgL6C10', 'left += 3', 'left = 5', false),
+    ]) {
+      final c = level6[id]!;
+      expect(c.solutionProgram, contains(from), reason: id);
+      final other = c.solutionProgram.replaceFirst(from, to);
+      expect(
+        missingCode(other, c.requiredCode).isEmpty,
+        counts,
+        reason: '$id: "$to" ${counts ? 'must' : 'must not'} count',
+      );
     }
   });
 

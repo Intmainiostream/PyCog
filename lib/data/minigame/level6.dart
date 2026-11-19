@@ -8,6 +8,8 @@ import '../../models/quiz.dart';
 /// There is no input(), so each code challenge has one hidden test, and
 /// every fix and write challenge lists required code with the full math
 /// line in it, so printing the answer (or a different sign) can't pass.
+/// Where an equal way exists (`score = score + 5` for `score += 5`,
+/// `side * side` for `side ** 2`), it is an [AnyOf] option.
 ///
 /// Every answer, solution, starting code, wrong choice and expected output
 /// was run in real Python; integration_test/minigame_solutions_test.dart
@@ -49,7 +51,11 @@ final level6 = MinigameLevel(
       prompt: (l10n) => l10n.mgL6C3Prompt,
       hints: [(l10n) => l10n.mgL6C3Hint1, (l10n) => l10n.mgL6C3Hint2],
       solution: 'score = 10\nscore += 5\nprint(score)',
-      requiredCode: const ['score = 10', 'score += 5', 'print(score)'],
+      requiredCode: const [
+        'score = 10',
+        AnyOf(['score += 5', 'score = score + 5']),
+        'print(score)',
+      ],
       tests: const [
         TestCase(output: ['15']),
       ],
@@ -97,7 +103,10 @@ final level6 = MinigameLevel(
           'blue = 3\n'
           'wheels = (red + blue) * 4\n'
           'print(wheels)',
-      requiredCode: const ['wheels = (red + blue) * 4', 'print(wheels)'],
+      requiredCode: const [
+        AnyOf(['wheels = (red + blue) * 4', 'wheels = 4 * (red + blue)']),
+        'print(wheels)',
+      ],
       tests: const [
         TestCase(output: ['20']),
       ],
@@ -147,7 +156,11 @@ final level6 = MinigameLevel(
       prompt: (l10n) => l10n.mgL6C9Prompt,
       hints: [(l10n) => l10n.mgL6C9Hint1, (l10n) => l10n.mgL6C9Hint2],
       solution: 'side = 5\nprint(side ** 2)\nprint(side * 4)',
-      requiredCode: const ['side = 5', 'print(side ** 2)', 'print(side * 4)'],
+      requiredCode: const [
+        'side = 5',
+        AnyOf(['print(side ** 2)', 'print(side * side)']),
+        AnyOf(['print(side * 4)', 'print(4 * side)']),
+      ],
       tests: const [
         TestCase(output: ['25', '20']),
       ],
@@ -171,7 +184,7 @@ final level6 = MinigameLevel(
         'coins = 17',
         'teams = coins // 5',
         'left = coins % 5',
-        'left += 3',
+        AnyOf(['left += 3', 'left = left + 3']),
         'print(teams)',
         'print(left)',
         'print(coins / 2)',
