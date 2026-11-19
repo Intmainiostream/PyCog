@@ -37,12 +37,13 @@ void main() {
     expect(find.bySemanticsLabel(en.appTitle), findsOneWidget);
   });
 
-  testWidgets('the lesson trail keeps the plain "PyCog" text', (tester) async {
+  testWidgets('the lesson trail has no title (no wordmark, no "PyCog" '
+      'text)', (tester) async {
     await startApp(tester);
     await openTrail(tester);
     expect(find.byType(TrailScreen), findsOneWidget);
     expect(wordmark, findsNothing);
-    expect(find.text(en.appTitle), findsOneWidget);
+    expect(find.text(en.appTitle), findsNothing);
   });
 
   testWidgets('the wordmark does not make the top bar taller, so the home '

@@ -26,12 +26,13 @@ void main() {
     return settings;
   }
 
-  testWidgets('Home shows Cog, stars and the lesson path', (tester) async {
+  testWidgets('The lesson trail shows stars and the lesson path (no Cog '
+      'greeting there any more)', (tester) async {
     await pumpApp(tester);
 
     expect(
       find.text("Hi! I'm Cog. Let's learn Python together!"),
-      findsOneWidget,
+      findsNothing,
     );
     expect(find.text('Variables'), findsOneWidget);
     expect(find.text('Functions'), findsOneWidget);

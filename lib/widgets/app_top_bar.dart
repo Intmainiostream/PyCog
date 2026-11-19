@@ -18,6 +18,7 @@ class AppTopBar extends StatelessWidget {
     this.onBack,
     this.backLabel,
     this.wordmark = false,
+    this.showTitle = true,
   });
 
   /// The PyCog wordmark picture (home screen title).
@@ -38,6 +39,10 @@ class AppTopBar extends StatelessWidget {
 
   /// Shows the PyCog wordmark picture instead of the plain "PyCog" text.
   final bool wordmark;
+
+  /// Shows the title in the middle. Off on the lesson trail: only the
+  /// buttons (back, stars, gear) stay.
+  final bool showTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -122,16 +127,17 @@ class AppTopBar extends StatelessWidget {
             ),
           ),
         ),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: titleMax),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.gap8),
-              child: wordmark ? _wordmark(l10n) : _titleText(l10n),
+        if (showTitle)
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: titleMax),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSizes.gap8),
+                child: wordmark ? _wordmark(l10n) : _titleText(l10n),
+              ),
             ),
           ),
-        ),
         Expanded(
           child: Align(
             alignment: Alignment.centerRight,
