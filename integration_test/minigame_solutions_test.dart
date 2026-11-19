@@ -55,7 +55,8 @@ void main() {
             report(c.id, 'quiz code runs without an error', result.ok);
             continue;
           }
-          final printed = normalizeOutput(result.stdout);
+          // Several printed lines are written as one answer: `2, 3, 4`.
+          final printed = normalizeOutput(result.stdout).split('\n').join(', ');
           final right = c.answers.indexWhere((a) => a.correct);
           String label(int i) => c.answers[i].label(en).replaceAll('`', '');
           report(
@@ -168,10 +169,10 @@ void main() {
     }
     // ignore: avoid_print
     print('MINIGAME checked $checked challenges');
-    // Every challenge of every level was checked (Levels 1-3: 30).
+    // Every challenge of every level was checked (Levels 1-4: 40).
     final total = minigameLevels.fold(0, (n, l) => n + l.challenges.length);
     expect(checked, total);
-    expect(total, greaterThanOrEqualTo(30));
+    expect(total, greaterThanOrEqualTo(40));
     expect(failures, isEmpty, reason: 'failed: $failures');
   });
 }

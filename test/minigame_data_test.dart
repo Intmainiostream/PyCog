@@ -37,8 +37,8 @@ void main() {
     expect(ids.toSet().length, ids.length);
   });
 
-  // Levels 1-3 use the same mix, easy to harder.
-  for (final number in [1, 2, 3]) {
+  // Levels 1-4 use the same mix, easy to harder.
+  for (final number in [1, 2, 3, 4]) {
     test('Level $number is full: 3 quizzes, 2 fill, 2 fix, 3 write', () {
       final challenges = minigameLevels[number - 1].challenges;
       expect(challenges.map((c) => c.type), [
@@ -73,6 +73,23 @@ void main() {
       calls: {'print', 'type'},
       ideas: {'if', 'elif', 'else', '<', '>', '=='},
     ),
+    // + Lesson 4 (loops): range(), for, while, break, and `- 1` to change
+    // the value a while loop checks.
+    4: (
+      calls: {'print', 'type', 'range'},
+      ideas: {
+        'if',
+        'elif',
+        'else',
+        '<',
+        '>',
+        '==',
+        'for',
+        'while',
+        'break',
+        '-',
+      },
+    ),
   };
   const laterSymbols = ['+', '-', '*', '/', '[', '{', '<', '>', '=='];
   const laterWords = [
@@ -81,6 +98,8 @@ void main() {
     'else',
     'for',
     'while',
+    'break',
+    'continue',
     'def',
     'and',
     'or',
@@ -234,6 +253,24 @@ void main() {
           isTrue,
           reason: '${c.id}: no piece has the comparison',
         );
+      }
+    }
+  });
+
+  test('from Level 4 on, a solution with a loop has the loop line in its '
+      'pieces', () {
+    for (final level in minigameLevels.skip(3)) {
+      for (final c in level.challenges.where(
+        (c) => c.requiredCode.isNotEmpty,
+      )) {
+        for (final loop in ['for ', 'while ']) {
+          if (!c.solutionProgram.contains(loop)) continue;
+          expect(
+            c.requiredCode.any((p) => p.startsWith(loop)),
+            isTrue,
+            reason: '${c.id}: no piece has the $loop line',
+          );
+        }
       }
     }
   });
