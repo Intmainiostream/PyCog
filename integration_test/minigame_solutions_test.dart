@@ -237,10 +237,10 @@ void main() {
     }
     // ignore: avoid_print
     print('MINIGAME checked $checked challenges');
-    // Every challenge of every level was checked (Levels 1-7: 70).
+    // Every challenge of every level was checked (Levels 1-8: 80).
     final total = minigameLevels.fold(0, (n, l) => n + l.challenges.length);
     expect(checked, total);
-    expect(total, greaterThanOrEqualTo(70));
+    expect(total, greaterThanOrEqualTo(80));
     expect(failures, isEmpty, reason: 'failed: $failures');
   });
 }

@@ -37,8 +37,8 @@ void main() {
     expect(ids.toSet().length, ids.length);
   });
 
-  // Levels 1-7 use the same mix, easy to harder.
-  for (final number in [1, 2, 3, 4, 5, 6, 7]) {
+  // Levels 1-8 use the same mix, easy to harder.
+  for (final number in [1, 2, 3, 4, 5, 6, 7, 8]) {
     test('Level $number is full: 3 quizzes, 2 fill, 2 fix, 3 write', () {
       final challenges = minigameLevels[number - 1].challenges;
       expect(challenges.map((c) => c.type), [
@@ -137,6 +137,39 @@ void main() {
     // pick a letter.
     7: (
       calls: {'print', 'type', 'range', 'len', 'str', 'upper', 'lower'},
+      ideas: {
+        'if',
+        'elif',
+        'else',
+        '<',
+        '>',
+        '==',
+        'for',
+        'while',
+        'break',
+        '-',
+        'def',
+        'return',
+        '+',
+        '*',
+        '/',
+        '%',
+        '[',
+      },
+    ),
+    // + Lesson 8 (lists): .append(). Lists use [ ] (already allowed), and
+    // `in` asks if an item is in a list.
+    8: (
+      calls: {
+        'print',
+        'type',
+        'range',
+        'len',
+        'str',
+        'upper',
+        'lower',
+        'append',
+      },
       ideas: {
         'if',
         'elif',
