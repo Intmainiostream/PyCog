@@ -39,6 +39,9 @@ class CodingSession {
 class CodingScreen extends StatefulWidget {
   const CodingScreen({super.key, required this.settings, this.engine});
 
+  /// How long the "Code cleared / Undo" bar stays after Clear.
+  static const undoDuration = Duration(seconds: 3);
+
   final SettingsController settings;
 
   /// Defaults to the real Python. Tests pass a fake.
@@ -117,6 +120,10 @@ class _CodingScreenState extends State<CodingScreen> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
+          // Shown for 3 seconds, then it hides by itself (a bar with an
+          // Undo button would otherwise stay until it is closed).
+          duration: CodingScreen.undoDuration,
+          persist: false,
           content: Text(l10n.codingCleared),
           action: SnackBarAction(
             label: l10n.codingUndo,

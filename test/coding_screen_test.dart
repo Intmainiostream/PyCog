@@ -311,6 +311,44 @@ void main() {
       expect(codeText(tester), 'print("keep me")');
     });
 
+    testWidgets('the Undo bar shows for 3 seconds, then hides by itself', (
+      tester,
+    ) async {
+      await pumpCoding(tester);
+      expect(CodingScreen.undoDuration, const Duration(seconds: 3));
+      await tester.enterText(code, 'print("keep me")');
+      await tester.ensureVisible(clear);
+      await tester.tap(clear);
+      await tester.pump(); // the bar starts to appear
+      await tester.pump(const Duration(milliseconds: 300)); // fully in
+      expect(find.text(en.codingCleared), findsOneWidget);
+      expect(find.text(en.codingUndo), findsOneWidget);
+
+      // Still there just before 3 seconds.
+      await tester.pump(const Duration(milliseconds: 2600));
+      expect(find.text(en.codingUndo), findsOneWidget);
+
+      // Gone after 3 seconds. The 3 seconds count from when the bar is
+      // fully in (it slides in for about 0.25 s), then it slides out.
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpAndSettle();
+      expect(find.text(en.codingUndo), findsNothing);
+      expect(find.text(en.codingCleared), findsNothing);
+      expect(codeText(tester), ''); // nothing was undone
+    });
+
+    testWidgets('Undo still works within the 3 seconds', (tester) async {
+      await pumpCoding(tester);
+      await tester.enterText(code, 'print("keep me")');
+      await tester.ensureVisible(clear);
+      await tester.tap(clear);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.tap(find.text(en.codingUndo));
+      await tester.pumpAndSettle();
+      expect(codeText(tester), 'print("keep me")');
+    });
+
     testWidgets('The code is kept while the app is open', (tester) async {
       await pumpCoding(tester);
       await tester.enterText(code, 'x = 42');
