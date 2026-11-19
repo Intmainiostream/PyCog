@@ -58,8 +58,12 @@ class CheckResult {
 /// matches `**`, `/` never matches `//`, and `+` never matches `-`.
 /// Inside an open bracket, line breaks and indentation don't matter, so a
 /// list written over several lines matches the same list on one line.
+/// Several spaces between words count as one (`a  and b` is `a and b`).
 String normalizeCode(String code) {
   return _flatten(code.replaceAll('\r\n', '\n'))
+      // Several spaces or tabs count as one space (`a  and b` is
+      // `a and b`). Line breaks are not touched.
+      .replaceAll(RegExp(r'[ \t]+'), ' ')
       // Longest signs first, so `<=`, `**` and `//` stay whole.
       .replaceAllMapped(
         RegExp(r'[ \t]*(==|!=|<=|>=|\*\*|//|<|>|=|\+|-|\*|/|%|,)[ \t]*'),

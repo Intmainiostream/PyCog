@@ -461,6 +461,27 @@ void main() {
       expect(missingCode('speed = 5', ['speed=5']), isEmpty);
     });
 
+    test('several spaces between words count as one', () {
+      for (final (code, piece) in [
+        ('if a  and b:', 'if a and b'),
+        ('if  a   or    b:', 'if a or b'),
+        ('if\ta\tand\tb:', 'if a and b'),
+        ('if not  done:', 'if not done'),
+        ('for  item  in  items:', 'for item in items'),
+      ]) {
+        expect(missingCode(code, [piece]), isEmpty, reason: code);
+      }
+    });
+
+    test('several spaces never join two words or two lines', () {
+      // No space at all is still different from one space.
+      expect(missingCode('if aand b:', ['if a and b']), ['if a and b']);
+      // A line break is not a space.
+      expect(missingCode('x = 1\n  print(x)', ['x = 1 print(x)']), [
+        'x = 1 print(x)',
+      ]);
+    });
+
     test('other spaces still count', () {
       expect(missingCode('spe ed = 5', ['speed =']), ['speed =']);
       expect(missingCode('print (speed)', ['print(speed)']), ['print(speed)']);
