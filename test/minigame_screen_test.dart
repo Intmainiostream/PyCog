@@ -1243,11 +1243,110 @@ void main() {
 
       await tapAndSettle(tester, key('mg-back-level'));
       expect(find.textContaining(en.mgSolved(10, 10)), findsOneWidget);
+      // The whole game is done: the celebration shows.
+      expect(find.text(en.mgAllDone(100)), findsOneWidget);
       await goBack(tester);
       // The map: all 10 levels open, nothing locked, nothing broken.
       expect(find.text(en.mgLocked), findsNothing);
       expect(progress.unlockedCount(minigameLevels), 10);
       expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('The ending', () {
+    // Every level before [number] open (7 stars each).
+    Map<String, Object> openUpTo(int number) => {
+      for (var l = 1; l < number; l++)
+        for (var c = 1; c <= 7; c++) 'minigame.stars.mgL${l}C$c': 1,
+    };
+
+    Future<void> openLevel(WidgetTester tester, int number) async {
+      await tester.scrollUntilVisible(
+        key('mg-level-$number'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tapAndSettle(tester, key('mg-level-$number'));
+    }
+
+    testWidgets('the "open the next level" line shows on Levels 1-9, not on '
+        'Level 10', (tester) async {
+      await pumpMap(tester, size: const Size(800, 2400), saved: openUpTo(10));
+      for (var number = 1; number <= 10; number++) {
+        await openLevel(tester, number);
+        expect(find.byType(MinigameLevelScreen), findsOneWidget);
+        expect(
+          find.text(en.mgUnlockRule),
+          number < 10 ? findsOneWidget : findsNothing,
+          reason: 'Level $number',
+        );
+        await goBack(tester);
+      }
+    });
+
+    testWidgets('the message shows only when all 10 Level 10 challenges have '
+        'a star', (tester) async {
+      // 9 of 10: no message yet.
+      await pumpMap(
+        tester,
+        size: const Size(800, 2400),
+        saved: {
+          ...openUpTo(10),
+          for (var c = 1; c <= 9; c++) 'minigame.stars.mgL10C$c': 1,
+        },
+      );
+      await openLevel(tester, 10);
+      expect(key('mg-all-done'), findsNothing);
+      await goBack(tester);
+
+      // 10 of 10 (1 star is enough): the message, at the top.
+      await pumpMap(
+        tester,
+        size: const Size(800, 2400),
+        saved: {
+          ...openUpTo(10),
+          for (var c = 1; c <= 10; c++) 'minigame.stars.mgL10C$c': 1,
+        },
+      );
+      await openLevel(tester, 10);
+      expect(find.text(en.mgAllDone(100)), findsOneWidget);
+      expect(
+        tester.getTopLeft(key('mg-all-done')).dy,
+        lessThan(tester.getTopLeft(key('mg-challenge-mgL10C1')).dy),
+      );
+    });
+
+    testWidgets('no other level shows the message, even when it is full', (
+      tester,
+    ) async {
+      await pumpMap(
+        tester,
+        size: const Size(800, 2400),
+        saved: {
+          for (var l = 1; l <= 9; l++)
+            for (var c = 1; c <= 10; c++) 'minigame.stars.mgL${l}C$c': 3,
+        },
+      );
+      for (var number = 1; number <= 9; number++) {
+        await openLevel(tester, number);
+        expect(key('mg-all-done'), findsNothing, reason: 'Level $number');
+        await goBack(tester);
+      }
+    });
+
+    testWidgets('the message is in Tagalog too', (tester) async {
+      await pumpMap(
+        tester,
+        lang: 'tl',
+        size: const Size(800, 2400),
+        saved: {
+          ...openUpTo(10),
+          for (var c = 1; c <= 10; c++) 'minigame.stars.mgL10C$c': 2,
+        },
+      );
+      await openLevel(tester, 10);
+      expect(find.text(tl.mgAllDone(100)), findsOneWidget);
+      expect(find.text(tl.mgUnlockRule), findsNothing);
     });
   });
 

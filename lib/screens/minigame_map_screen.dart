@@ -10,6 +10,7 @@ import '../models/minigame.dart';
 import '../playground/python_runner.dart';
 import '../theme/app_theme.dart';
 import '../widgets/chunky_button.dart';
+import '../widgets/cog_feedback_card.dart';
 import '../widgets/cog_placeholder.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
@@ -307,6 +308,15 @@ class MinigameLevelScreen extends StatelessWidget {
                 (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
               );
               final total = level.challenges.length;
+              // The last level has no next level to open. When all of its
+              // challenges have a star, the whole game is done.
+              final isLast = identical(level, levels.last);
+              final allDone =
+                  isLast && total > 0 && progress.solvedCount(level) == total;
+              final gameTotal = levels.fold(
+                0,
+                (sum, l) => sum + l.challenges.length,
+              );
               return Column(
                 children: [
                   TitleTopBar(
@@ -325,6 +335,14 @@ class MinigameLevelScreen extends StatelessWidget {
                         AppSizes.gap24,
                       ),
                       children: [
+                        if (allDone) ...[
+                          CogFeedbackCard(
+                            key: const ValueKey('mg-all-done'),
+                            text: l10n.mgAllDone(gameTotal),
+                            mood: CogMood.happy,
+                          ),
+                          const SizedBox(height: AppSizes.gap12),
+                        ],
                         // A star icon, not an emoji: the app fonts have no
                         // emoji.
                         Text.rich(
@@ -351,12 +369,15 @@ class MinigameLevelScreen extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: AppTextStyles.bodyBold,
                         ),
-                        const SizedBox(height: AppSizes.gap4),
-                        Text(
-                          l10n.mgUnlockRule,
-                          textAlign: TextAlign.center,
-                          style: AppTextStyles.small,
-                        ),
+                        if (!isLast) ...[
+                          const SizedBox(height: AppSizes.gap4),
+                          Text(
+                            key: const ValueKey('mg-unlock-rule'),
+                            l10n.mgUnlockRule,
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.small,
+                          ),
+                        ],
                         const SizedBox(height: AppSizes.gap16),
                         for (final (i, challenge)
                             in level.challenges.indexed) ...[
