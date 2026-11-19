@@ -7,9 +7,11 @@ import 'package:pycog/data/progress_controller.dart';
 import 'package:pycog/data/settings_controller.dart';
 import 'package:pycog/l10n/generated/app_localizations.dart';
 import 'package:pycog/main.dart';
+import 'package:pycog/screens/coding_screen.dart';
 import 'package:pycog/screens/coming_soon_screen.dart';
 import 'package:pycog/screens/game_results_screen.dart';
 import 'package:pycog/screens/home_screen.dart';
+import 'package:pycog/screens/minigame_map_screen.dart';
 import 'package:pycog/screens/quiz_results_screen.dart';
 import 'package:pycog/screens/trail_screen.dart';
 import 'package:pycog/widgets/chunky_button.dart';
@@ -111,26 +113,30 @@ void main() {
       expect(find.byType(HomeScreen), findsOneWidget);
     });
 
-    testWidgets('MINIGAME opens "Coming soon"; the big Back returns', (
+    testWidgets('MINIGAME opens the level map; the back arrow returns', (
       tester,
     ) async {
-      await startApp(tester);
+      await startApp(tester, saved: {'minigame.stars.mgL1C1': 3});
       await tapAndSettle(tester, minigame);
-      expect(find.byType(ComingSoonScreen), findsOneWidget);
-      expect(find.text(en.homeComingSoonTitle), findsOneWidget);
-      expect(find.text(en.homeMinigameSoon), findsOneWidget);
-
-      await tapAndSettle(tester, find.text(en.lessonBack));
+      expect(find.byType(MinigameMapScreen), findsOneWidget);
       expect(find.byType(ComingSoonScreen), findsNothing);
+      expect(find.text(en.mgMapTitle), findsOneWidget);
+      // Saved MINIGAME stars show on Level 1.
+      expect(find.text('3/30'), findsOneWidget);
+
+      await tapAndSettle(tester, find.bySemanticsLabel(en.homeBackToHome));
+      expect(find.byType(MinigameMapScreen), findsNothing);
       expect(find.byType(HomeScreen), findsOneWidget);
     });
 
-    testWidgets('CODING opens "Coming soon"; the back arrow returns', (
+    testWidgets('CODING opens the playground; the back arrow returns', (
       tester,
     ) async {
       await startApp(tester);
       await tapAndSettle(tester, coding);
-      expect(find.text(en.homeCodingSoon), findsOneWidget);
+      expect(find.byType(CodingScreen), findsOneWidget);
+      expect(find.byType(ComingSoonScreen), findsNothing);
+      expect(find.text(en.codingTitle), findsOneWidget);
 
       await tapAndSettle(tester, find.byIcon(Icons.arrow_back_rounded).first);
       expect(find.byType(HomeScreen), findsOneWidget);
@@ -260,9 +266,9 @@ void main() {
 
         for (final button in [minigame, coding]) {
           await tapAndSettle(tester, button);
-          expectBigEnough(tester); // coming soon
+          expectBigEnough(tester); // the level map, or the playground
           await tester.drag(
-            find.byType(SingleChildScrollView).first,
+            find.byType(Scrollable).first,
             const Offset(0, -2000),
           );
           await tester.pumpAndSettle();

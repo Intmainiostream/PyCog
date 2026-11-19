@@ -3,29 +3,44 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 
 import '../data/lessons.dart';
+import '../data/minigame_progress.dart';
 import '../data/progress_controller.dart';
 import '../data/settings_controller.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../playground/python_runner.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_top_bar.dart';
 import '../widgets/chunky_button.dart';
 import '../widgets/cog_placeholder.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
-import 'coming_soon_screen.dart';
+import 'coding_screen.dart';
+import 'minigame_map_screen.dart';
 import 'trail_screen.dart';
 
 /// The first screen: Cog says hi, with three big buttons.
 ///  * PLAY opens the lesson trail.
-///  * MINIGAME and CODING open "Coming soon" screens for now.
+///  * MINIGAME opens the challenge map ([MinigameMapScreen]).
+///  * CODING opens the Python playground ([CodingScreen]).
+///
+/// When it opens, Python starts quietly in the background, so the first Run
+/// in the playground is fast.
 ///
 /// The star counter and gear are the same as on the trail, and the stars
 /// update live from saved progress.
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.settings, required this.progress});
+  const HomeScreen({
+    super.key,
+    required this.settings,
+    required this.progress,
+    this.minigame,
+  });
 
   final SettingsController settings;
   final ProgressController progress;
+
+  /// MINIGAME stars. Loaded when MINIGAME is tapped if not given.
+  final MinigameProgress? minigame;
 
   void _openTrail(BuildContext context) {
     Navigator.of(context).push(
@@ -37,16 +52,28 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  void _openComingSoon(BuildContext context, ComingSoonKind kind) {
+  void _openCoding(BuildContext context) {
     Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => CodingScreen(settings: settings)),
+    );
+  }
+
+  Future<void> _openMinigame(BuildContext context) async {
+    final navigator = Navigator.of(context);
+    final saved = minigame ?? await MinigameProgress.load();
+    navigator.push(
       MaterialPageRoute<void>(
-        builder: (_) => ComingSoonScreen(kind: kind, settings: settings),
+        builder: (_) => MinigameMapScreen(settings: settings, progress: saved),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    return _WarmUpPython(child: _build(context));
+  }
+
+  Widget _build(BuildContext context) {
     return Scaffold(
       body: ListenableBuilder(
         listenable: progress, // keeps the star counter up to date
@@ -135,7 +162,7 @@ class HomeScreen extends StatelessWidget {
           label: l10n.homeMinigame,
           icon: Icons.extension_rounded,
           color: AppColors.teal,
-          onTap: () => _openComingSoon(context, ComingSoonKind.minigame),
+          onTap: () => _openMinigame(context),
         ),
         const SizedBox(height: AppSizes.gap12),
         _HomeButton(
@@ -143,7 +170,7 @@ class HomeScreen extends StatelessWidget {
           label: l10n.homeCoding,
           icon: Icons.code_rounded,
           color: AppColors.success,
-          onTap: () => _openComingSoon(context, ComingSoonKind.coding),
+          onTap: () => _openCoding(context),
         ),
       ],
     );
@@ -199,4 +226,27 @@ class _HomeButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Starts Python quietly in the background once, when the home screen
+/// opens. If it cannot start here (e.g. no WebView), nothing happens; the
+/// playground shows "Starting Python..." and tries again on Run.
+class _WarmUpPython extends StatefulWidget {
+  const _WarmUpPython({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_WarmUpPython> createState() => _WarmUpPythonState();
+}
+
+class _WarmUpPythonState extends State<_WarmUpPython> {
+  @override
+  void initState() {
+    super.initState();
+    PyodideEngine.instance.warmUp().ignore();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

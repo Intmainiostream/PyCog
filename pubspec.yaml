@@ -39,6 +39,7 @@ dependencies:
     sdk: flutter
   intl: any
   shared_preferences: ^2.5.6
+  flutter_inappwebview: 6.2.0-beta.3
 
 dev_dependencies:
   flutter_test:
@@ -50,6 +51,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  integration_test:
+    sdk: flutter
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -67,6 +70,8 @@ flutter:
   # (one file = every weight); weights are set in lib/theme/app_theme.dart.
   assets:
     - assets/images/
+    # Python runtime for the playground (Pyodide, runs offline in a WebView).
+    - assets/pyodide/
     # Font licenses (shown on the app's licenses page).
     - assets/fonts/OFL-Fredoka.txt
     - assets/fonts/OFL-Nunito.txt
