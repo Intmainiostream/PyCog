@@ -61,6 +61,10 @@ class FakePython implements PythonEngine {
         return _out('5\n');
       case 'print(6)':
         return _out('6\n');
+      case 'lives = 3\nif lives > 0:\n    print("Keep playing!")' ||
+          'lives = 3\nif lives >= 0:\n    print("Keep playing!")' ||
+          'lives=3\nif lives>0:\n    print("Keep playing!")':
+        return _out('Keep playing!\n');
       case 'speed = 5\nprint(Speed)':
         return _out('', "NameError: name 'Speed' is not defined");
       case 'robot_name = "Cog"\nspeed = 5\nis_moving = True\n'
@@ -138,6 +142,14 @@ Future<void> goBack(WidgetTester tester) async {
   tester.state<NavigatorState>(find.byType(Navigator)).pop();
   await tester.pumpAndSettle();
 }
+
+/// The "must use" message as the screen shows it (non-breaking spaces
+/// inside each piece, no backticks).
+String plainMustUse(AppLocalizations l10n, List<String> pieces) => plain(
+  l10n.mgMustUse(
+    pieces.map((p) => '`${p.replaceAll(' ', '\u00A0')}`').join(', '),
+  ),
+);
 
 int starsLeft(WidgetTester tester) =>
     tester.widget<StarRow>(key('mg-stars-left')).stars;
@@ -823,6 +835,34 @@ void main() {
   });
 
   group('Level 3', () {
+    testWidgets('challenge 3: a wrong comparison with the right output gets '
+        'the "must use" message; spaces around > do not matter', (
+      tester,
+    ) async {
+      final level3 = MinigameLevel(
+        number: 1,
+        challenges: [minigameLevels[2].challenges[2]], // mgL3C3
+      );
+      final (progress, _) = await pumpMap(tester, levels: [level3]);
+      await openChallenge(tester, 'mgL3C3');
+
+      await tester.enterText(
+        key('mg-code'),
+        'lives = 3\nif lives >= 0:\n    print("Keep playing!")',
+      );
+      await tapAndSettle(tester, key('mg-run'));
+      expect(find.text(plainMustUse(en, ['if lives > 0'])), findsOneWidget);
+      expect(progress.bestStars('mgL3C3'), 0);
+
+      await tester.enterText(
+        key('mg-code'),
+        'lives=3\nif lives>0:\n    print("Keep playing!")',
+      );
+      await tapAndSettle(tester, key('mg-run'));
+      expect(find.text(en.mgPassed(3)), findsOneWidget);
+      expect(progress.bestStars('mgL3C3'), 3);
+    });
+
     testWidgets('opens after 7 Level 2 stars and lists its 10 challenges', (
       tester,
     ) async {

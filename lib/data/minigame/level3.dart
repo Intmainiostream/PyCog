@@ -7,8 +7,8 @@ import '../../models/quiz.dart';
 /// 4-space indent, and "the first True one runs, then Python stops". There
 /// is no input(), so each code challenge has one hidden test, and every fix
 /// and write challenge lists required code so printing the answer can't
-/// pass. Required pieces avoid `<` and `>`, so `battery<20` and
-/// `battery < 20` both count.
+/// pass. The write-it challenges' pieces include the comparison (e.g.
+/// `if lives > 0`); spaces around the signs don't matter.
 ///
 /// Every answer, solution, starting code, wrong choice and expected output
 /// was run in real Python; integration_test/minigame_solutions_test.dart
@@ -56,7 +56,7 @@ final level3 = MinigameLevel(
           'lives = 3\n'
           'if lives > 0:\n'
           '    print("Keep playing!")',
-      requiredCode: const ['lives = 3', 'if lives'],
+      requiredCode: const ['lives = 3', 'if lives > 0'],
       tests: const [
         TestCase(output: ['Keep playing!']),
       ],
@@ -173,7 +173,7 @@ final level3 = MinigameLevel(
           '    print("Low battery!")\n'
           'else:\n'
           '    print("Battery OK!")',
-      requiredCode: const ['battery = 15', 'if battery', 'else:'],
+      requiredCode: const ['battery = 15', 'if battery < 20', 'else:'],
       tests: const [
         TestCase(output: ['Low battery!']),
       ],
@@ -197,10 +197,10 @@ final level3 = MinigameLevel(
           'print(score >= 90)',
       requiredCode: const [
         'score = 85',
-        'if score',
-        'elif score',
+        'if score >= 90',
+        'elif score >= 70',
         'else:',
-        'print(score',
+        'print(score >= 90)',
       ],
       tests: const [
         TestCase(output: ['Silver!', 'False']),

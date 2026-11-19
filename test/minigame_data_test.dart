@@ -217,6 +217,48 @@ void main() {
     }
   });
 
+  // A solution that compares must have the comparison in its pieces, so a
+  // wrong comparison can't pass: Level 3 write-it challenges, and from
+  // Level 4 on every fix and write challenge.
+  final comparison = RegExp(r'==|!=|<=|>=|<|>');
+  test('pieces include the comparison when the solution compares', () {
+    for (final (i, level) in minigameLevels.indexed.skip(2)) {
+      for (final c in level.challenges.where(
+        (c) =>
+            c.type == ChallengeType.writeCode ||
+            (i >= 3 && c.type == ChallengeType.fixBug),
+      )) {
+        if (!comparison.hasMatch(c.solutionProgram)) continue;
+        expect(
+          c.requiredCode.any(comparison.hasMatch),
+          isTrue,
+          reason: '${c.id}: no piece has the comparison',
+        );
+      }
+    }
+  });
+
+  test('Level 3: a wrong comparison is caught by the pieces', () {
+    final level3 = {for (final c in minigameLevels[2].challenges) c.id: c};
+    for (final (id, from, to) in [
+      ('mgL3C3', 'lives > 0', 'lives >= 0'),
+      ('mgL3C3', 'lives > 0', 'lives > 1'),
+      ('mgL3C9', 'battery < 20', 'battery <= 20'),
+      ('mgL3C9', 'battery < 20', 'battery < 100'),
+      ('mgL3C10', 'score >= 90', 'score > 90'),
+      ('mgL3C10', 'score >= 70', 'score >= 80'),
+    ]) {
+      final c = level3[id]!;
+      expect(c.solutionProgram, contains(from), reason: id);
+      final wrong = c.solutionProgram.replaceFirst(from, to);
+      expect(
+        missingCode(wrong, c.requiredCode),
+        isNotEmpty,
+        reason: '$id: "$to" must not pass',
+      );
+    }
+  });
+
   test('fix and write challenges with input() have 2+ different tests', () {
     for (final c in allChallenges.where(
       (c) =>

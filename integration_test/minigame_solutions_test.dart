@@ -108,6 +108,34 @@ void main() {
             shown(tightResult),
           );
 
+          // A wrong comparison (the first sign in a piece, swapped, e.g.
+          // `>` for `>=`) must not pass: its output is wrong, or a piece
+          // is missing.
+          const swap = {
+            '>=': '>',
+            '<=': '<',
+            '==': '!=',
+            '!=': '==',
+            '>': '>=',
+            '<': '<=',
+          };
+          final sign = RegExp(r'==|!=|<=|>=|<|>');
+          final piece = c.requiredCode.where(sign.hasMatch).firstOrNull;
+          if (piece != null) {
+            final s = sign.firstMatch(piece)![0]!;
+            final wrongPiece = piece.replaceFirst(s, swap[s]!);
+            final wrong = c.solutionProgram.replaceFirst(piece, wrongPiece);
+            if (wrong != c.solutionProgram) {
+              final r = await checkProgram(
+                engine,
+                wrong,
+                c.tests,
+                required: c.requiredCode,
+              );
+              report(c.id, 'wrong comparison ($wrongPiece) fails', !r.passed);
+            }
+          }
+
           // e.g. print(5) for "5", print("Cog") for "Cog".
           final fixedAnswer = [
             for (final line in c.tests.first.output)

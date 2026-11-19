@@ -1252,7 +1252,7 @@
   "mgL3C9Hint1": "Walang tanong ang `else:`, pero kailangan pa rin nito ng colon.",
   "mgL3C9Hint2": "Kailangan ng 4 na space sa harap ng bawat `print` sa loob.",
   "mgL3C10Title": "Oras ng medalya",
-  "mgL3C10Prompt": "Gumawa ng `score` na may `85`. I-print ang `Gold!` kung `score >= 90`, `Silver!` kung `score >= 70`, at kung hindi, `Try again!`. Gamitin ang `if score`, `elif score` at `else:`. Sa huli, `print(score >= 90)` sa sariling linya.",
+  "mgL3C10Prompt": "Gumawa ng `score` na may `85`. `if score >= 90:` para sa `Gold!`, `elif score >= 70:` para sa `Silver!`, at `else:` para sa `Try again!`. Sa huli, `print(score >= 90)`.",
   "mgL3C10Hint1": "Sinusuri ng Python mula taas pababa. Ang unang True ang tatakbo.",
   "mgL3C10Hint2": "Walang space sa harap ang huling linya, kaya lagi itong tatakbo."
 }
