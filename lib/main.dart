@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -7,6 +9,11 @@ import 'data/progress_controller.dart';
 import 'data/settings_controller.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'screens/home_screen.dart';
+import 'screens/onboarding_screen.dart';
+import 'screens/splash_screen.dart';
+import 'sound/audio_clips.dart';
+import 'sound/music_zone.dart';
+import 'sound/sounds.dart';
 import 'theme/app_theme.dart';
 
 Future<void> main() async {
@@ -17,6 +24,13 @@ Future<void> main() async {
   final settings = await SettingsController.load();
   final progress = await ProgressController.load();
   final minigame = await MinigameProgress.load();
+  // Sound effects: loaded in the background, so the app starts right away.
+  Sounds.player = SequencedSoundPlayer(AudioplayersClips());
+  unawaited(Sounds.player.preload());
+  // Background music: quiet, looped, paused while the app is away.
+  Sounds.music = FadingMusicPlayer(AudioplayersTracks());
+  unawaited(Sounds.music.preload());
+  Sounds.followAppLifecycle();
   runApp(PyCogApp(settings: settings, progress: progress, minigame: minigame));
 }
 
@@ -26,6 +40,7 @@ class PyCogApp extends StatelessWidget {
     required this.settings,
     required this.progress,
     this.minigame,
+    this.intro = true,
   });
 
   final SettingsController settings;
@@ -34,8 +49,27 @@ class PyCogApp extends StatelessWidget {
   /// MINIGAME stars (the home screen loads them itself if not given).
   final MinigameProgress? minigame;
 
+  /// Show the splash first (and the onboarding on the first launch).
+  /// Tests that start at the home screen turn this off.
+  final bool intro;
+
+  Widget _home(BuildContext context) =>
+      HomeScreen(settings: settings, progress: progress, minigame: minigame);
+
+  /// Splash, then the onboarding (first launch only), then home.
+  Widget _start(BuildContext context) {
+    if (!intro) return _home(context);
+    return SplashScreen(
+      next: (context) => settings.onboardingSeen
+          ? _home(context)
+          : OnboardingScreen(settings: settings, home: _home),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Sounds follow the "Sound effects" switch.
+    Sounds.useSettings(settings);
     // Rebuild the whole app whenever a setting changes.
     return ListenableBuilder(
       listenable: settings,
@@ -44,6 +78,8 @@ class PyCogApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         locale: settings.locale,
+        // Lets each screen's MusicZone know when it is shown again.
+        navigatorObservers: [musicRouteObserver],
         supportedLocales: AppLocalizations.supportedLocales,
         // Our app's text + material_ui's built-in text (buttons, tooltips...).
         // We don't use AppLocalizations.localizationsDelegates because it
@@ -64,11 +100,7 @@ class PyCogApp extends StatelessWidget {
             child: child!,
           );
         },
-        home: HomeScreen(
-          settings: settings,
-          progress: progress,
-          minigame: minigame,
-        ),
+        home: Builder(builder: _start),
       ),
     );
   }

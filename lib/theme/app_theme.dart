@@ -127,9 +127,21 @@ class AppSizes {
   // Home screen (PLAY / MINIGAME / CODING)
   static const homeButtonIconSize = 34.0;
   static const homeButtonPadding = 20.0; // vertical padding inside each button
+  // Home Cog: a fixed, small size (about 88px tall), not as wide as the
+  // buttons. CogArt draws 1.2x this wide and 0.84x this tall.
+  static const homeCogSize = 105.0;
+  static const homeBubbleMaxWidth = 240.0; // compact speech bubble
+  static const homeBubbleWidthFraction = 0.7; // of the content width
+  // The three home buttons: centered, 72% of the content width (90% with
+  // very big text), never wider than this.
+  static const homeButtonWidthFraction = 0.72;
+  static const homeButtonWidthFractionBigText = 0.9;
+  static const homeButtonMaxWidth = 340.0;
   // PyCog wordmark in the home top bar: as tall as the buttons beside it,
   // so the bar (and everything under it) keeps its height.
   static const wordmarkHeight = 48.0;
+  // Splash screen: the wordmark is 70% of the screen width, up to this.
+  static const splashWordmarkMaxWidth = 360.0;
 
   // End of the lesson trail
   static const trailTailHeight = 70.0; // path past the last lesson

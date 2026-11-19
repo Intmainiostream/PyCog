@@ -40,6 +40,7 @@ dependencies:
   intl: any
   shared_preferences: ^2.5.6
   flutter_inappwebview: 6.2.0-beta.3
+  audioplayers: ^6.8.1
 
 dev_dependencies:
   flutter_test:
@@ -93,6 +94,10 @@ flutter:
     # Only the files directly in this folder are bundled: originals/ (the
     # untouched source files) and icon/ (app icon sources) stay out.
     - assets/branding/
+    # Sound effects (short .mp3 files, played by lib/sound/sounds.dart).
+    - assets/sfx/
+    # Background music (looped, played quietly by lib/sound/).
+    - assets/music/
     # Python runtime for the playground (Pyodide, runs offline in a WebView).
     - assets/pyodide/
     # Font licenses (shown on the app's licenses page).

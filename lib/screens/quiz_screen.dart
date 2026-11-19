@@ -19,6 +19,8 @@ import '../widgets/lesson_top_bar.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
 import 'quiz_results_screen.dart';
+import '../sound/sounds.dart';
+import '../sound/music_zone.dart';
 
 /// Where the student is within one question.
 enum _Phase {
@@ -94,8 +96,10 @@ class _QuizScreenState extends State<QuizScreen> {
     if (picked == null) return;
     setState(() {
       if (_question.answers[picked].correct) {
+        Sounds.play(Sfx.correct);
         _phase = _Phase.correct;
       } else {
+        Sounds.play(Sfx.wrong);
         _mistakes++;
         _wrongPicked.add(picked);
         _lastWrong = picked;
@@ -164,49 +168,53 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final wide =
-                constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
-                constraints.maxWidth > constraints.maxHeight;
-            final maxWidth = wide
-                ? AppSizes.maxWideContentWidth
-                : AppSizes.maxContentWidth;
-            final sidePadding = math.max(
-              AppSizes.screenPadding,
-              (constraints.maxWidth - maxWidth) / 2,
-            );
+    return MusicZone(
+      song: Song.game,
+      child: Scaffold(
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final wide =
+                  constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
+                  constraints.maxWidth > constraints.maxHeight;
+              final maxWidth = wide
+                  ? AppSizes.maxWideContentWidth
+                  : AppSizes.maxContentWidth;
+              final sidePadding = math.max(
+                AppSizes.screenPadding,
+                (constraints.maxWidth - maxWidth) / 2,
+              );
 
-            return Column(
-              children: [
-                LessonTopBar(
-                  sidePadding: sidePadding,
-                  current: _q + 1,
-                  total: _quiz.length,
-                  progressLabel: l10n.quizProgress(_q + 1, _quiz.length),
-                  closeLabel: l10n.quizClose,
-                  onClose: () => Navigator.of(context).pop(),
-                  onSettings: () => showSettingsSheet(context, widget.settings),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    // New key per question = starts scrolled to the top.
-                    key: ValueKey(_q),
-                    padding: EdgeInsets.fromLTRB(
-                      sidePadding,
-                      AppSizes.gap8,
-                      sidePadding,
-                      AppSizes.gap16,
-                    ),
-                    child: _questionView(context, l10n, wide),
+              return Column(
+                children: [
+                  LessonTopBar(
+                    sidePadding: sidePadding,
+                    current: _q + 1,
+                    total: _quiz.length,
+                    progressLabel: l10n.quizProgress(_q + 1, _quiz.length),
+                    closeLabel: l10n.quizClose,
+                    onClose: () => Navigator.of(context).pop(),
+                    onSettings: () =>
+                        showSettingsSheet(context, widget.settings),
                   ),
-                ),
-                _bottomBar(l10n, sidePadding),
-              ],
-            );
-          },
+                  Expanded(
+                    child: SingleChildScrollView(
+                      // New key per question = starts scrolled to the top.
+                      key: ValueKey(_q),
+                      padding: EdgeInsets.fromLTRB(
+                        sidePadding,
+                        AppSizes.gap8,
+                        sidePadding,
+                        AppSizes.gap16,
+                      ),
+                      child: _questionView(context, l10n, wide),
+                    ),
+                  ),
+                  _bottomBar(l10n, sidePadding),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

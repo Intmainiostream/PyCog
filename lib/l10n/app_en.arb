@@ -1423,6 +1423,30 @@
   "codingTipOther": "Read the last line: it says what went wrong. You can fix it!",
   "codingAbout": "Python runs on your phone, even offline. Made with Pyodide (MPL-2.0) and CPython (PSF License).",
   "codingLicenses": "See licenses",
+  "onbTitle1": "Welcome to PyCog!",
+  "@onbTitle1": {
+    "description": "Onboarding (first launch only), screen 1 of 3: title."
+  },
+  "onbText1": "Learn the basics of Python step by step, with Cog.",
+  "onbTitle2": "Play and code",
+  "onbText2": "Play lessons and games, try your own code in CODING, and beat 100 challenges in MINIGAME.",
+  "onbTitle3": "Collect stars",
+  "onbText3": "Collect stars as you learn. No internet needed, and it is free!",
+  "onbSkip": "Skip",
+  "onbNext": "Next",
+  "onbStart": "Let's start!",
+  "onbPage": "{number} of {total}",
+  "@onbPage": {
+    "description": "Read aloud by screen readers for the page dots of the onboarding.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "aboutTitle": "About PyCog",
   "@aboutTitle": {
     "description": "Title of the About screen, and the button on the CODING screen that opens it."

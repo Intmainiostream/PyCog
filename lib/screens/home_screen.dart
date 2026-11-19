@@ -12,12 +12,13 @@ import '../theme/app_theme.dart';
 import '../widgets/app_top_bar.dart';
 import '../widgets/chunky_button.dart';
 import '../widgets/cog_art.dart';
-import '../widgets/cog_placeholder.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
 import 'coding_screen.dart';
 import 'minigame_map_screen.dart';
 import 'trail_screen.dart';
+import '../sound/music_zone.dart';
+import '../sound/sounds.dart';
 
 /// The first screen: Cog says hi, with three big buttons.
 ///  * PLAY opens the lesson trail.
@@ -75,79 +76,120 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _build(BuildContext context) {
-    return Scaffold(
-      body: ListenableBuilder(
-        listenable: progress, // keeps the star counter up to date
-        builder: (context, _) => SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final wide =
-                  constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
-                  constraints.maxWidth > constraints.maxHeight;
-              final maxWidth = wide
-                  ? AppSizes.maxWideContentWidth
-                  : AppSizes.maxContentWidth;
-              final sidePadding = math.max(
-                AppSizes.screenPadding,
-                (constraints.maxWidth - maxWidth) / 2,
-              );
+    return MusicZone(
+      song: Song.title,
+      child: Scaffold(
+        body: ListenableBuilder(
+          listenable: progress, // keeps the star counter up to date
+          builder: (context, _) => SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final wide =
+                    constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
+                    constraints.maxWidth > constraints.maxHeight;
+                final maxWidth = wide
+                    ? AppSizes.maxWideContentWidth
+                    : AppSizes.maxContentWidth;
+                final sidePadding = math.max(
+                  AppSizes.screenPadding,
+                  (constraints.maxWidth - maxWidth) / 2,
+                );
 
-              return Column(
-                children: [
-                  AppTopBar(
-                    sidePadding: sidePadding,
-                    stars: progress.totalStars(lessons),
-                    onSettings: () => showSettingsSheet(context, settings),
-                    wordmark: true,
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(
-                        sidePadding,
-                        AppSizes.gap8,
-                        sidePadding,
-                        AppSizes.gap24,
-                      ),
-                      child: wide
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(flex: 2, child: _cog(context)),
-                                const SizedBox(width: AppSizes.gap24),
-                                Expanded(flex: 3, child: _buttons(context)),
-                              ],
-                            )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                _cog(context),
-                                const SizedBox(height: AppSizes.gap24),
-                                _buttons(context),
-                              ],
-                            ),
+                return Column(
+                  children: [
+                    AppTopBar(
+                      sidePadding: sidePadding,
+                      stars: progress.totalStars(lessons),
+                      onSettings: () => showSettingsSheet(context, settings),
+                      wordmark: true,
                     ),
-                  ),
-                ],
-              );
-            },
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.fromLTRB(
+                          sidePadding,
+                          AppSizes.gap8,
+                          sidePadding,
+                          AppSizes.gap24,
+                        ),
+                        child: wide
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(flex: 2, child: _cog(context)),
+                                  const SizedBox(width: AppSizes.gap24),
+                                  Expanded(flex: 3, child: _buttons(context)),
+                                ],
+                              )
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  _cog(context),
+                                  const SizedBox(height: AppSizes.gap24),
+                                  _buttons(context),
+                                ],
+                              ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
     );
   }
 
+  /// A small Cog with a compact speech bubble.
   Widget _cog(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CogArt(pose: CogPose.waving, size: CogPlaceholder.sizeFor(context)),
-        SpeechBubble(text: AppLocalizations.of(context).homeGreeting),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CogArt(
+            key: ValueKey('home-cog'),
+            pose: CogPose.waving,
+            size: AppSizes.homeCogSize,
+          ),
+          ConstrainedBox(
+            key: const ValueKey('home-bubble'),
+            constraints: BoxConstraints(
+              maxWidth: math.min(
+                constraints.maxWidth * AppSizes.homeBubbleWidthFraction,
+                AppSizes.homeBubbleMaxWidth,
+              ),
+            ),
+            child: SpeechBubble(
+              text: AppLocalizations.of(context).homeGreeting,
+              style: AppTextStyles.bodyBold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
+  /// The three buttons, centered and narrower than the screen.
   Widget _buttons(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final bigText = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+    return LayoutBuilder(
+      builder: (context, constraints) => Center(
+        child: SizedBox(
+          width: math.min(
+            constraints.maxWidth *
+                (bigText
+                    ? AppSizes.homeButtonWidthFractionBigText
+                    : AppSizes.homeButtonWidthFraction),
+            AppSizes.homeButtonMaxWidth,
+          ),
+          child: _buttonColumn(context, l10n),
+        ),
+      ),
+    );
+  }
+
+  Widget _buttonColumn(BuildContext context, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -200,7 +242,7 @@ class _HomeButton extends StatelessWidget {
       color: color,
       radius: AppSizes.radiusLarge,
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSizes.gap24,
+        horizontal: AppSizes.gap16,
         vertical: AppSizes.homeButtonPadding,
       ),
       onTap: onTap,
@@ -210,17 +252,22 @@ class _HomeButton extends StatelessWidget {
           Icon(icon, size: AppSizes.homeButtonIconSize),
           const SizedBox(width: AppSizes.gap12),
           Flexible(
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              // No color here: the label takes the button's text color
-              // (white on red/teal, dark on yellow-green).
-              style: const TextStyle(
-                fontFamily: AppFonts.title,
-                fontSize: AppSizes.fontTitle + 4,
-                fontWeight: FontWeight.w700,
-                fontVariations: [FontVariation.weight(700)],
-                height: 1.2,
+            // A long word shrinks a little instead of breaking in the
+            // middle (the buttons are narrower than the screen).
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                // No color here: the label takes the button's text color
+                // (white on red/teal, dark on yellow-green).
+                style: const TextStyle(
+                  fontFamily: AppFonts.title,
+                  fontSize: AppSizes.fontTitle + 4,
+                  fontWeight: FontWeight.w700,
+                  fontVariations: [FontVariation.weight(700)],
+                  height: 1.2,
+                ),
               ),
             ),
           ),

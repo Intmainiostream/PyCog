@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../theme/app_theme.dart';
+import '../sound/sounds.dart';
 
 /// A chunky on/off switch in the sticker style.
 /// Yellow-green when on, light brown when off.
@@ -26,7 +27,10 @@ class StickerSwitch extends StatelessWidget {
       label: semanticLabel,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => onChanged(!value),
+        onTap: () {
+          onChanged(!value);
+          Sounds.play(Sfx.tap);
+        },
         // The pill is 36px tall, but the tappable area is at least 48x48.
         child: ConstrainedBox(
           constraints: const BoxConstraints(

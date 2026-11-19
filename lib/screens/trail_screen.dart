@@ -11,11 +11,10 @@ import '../theme/app_theme.dart';
 import '../widgets/app_top_bar.dart';
 import '../widgets/cloud_footer.dart';
 import 'lesson_screen.dart';
-import '../widgets/cog_art.dart';
-import '../widgets/cog_placeholder.dart';
 import '../widgets/lesson_path.dart';
 import '../widgets/settings_sheet.dart';
-import '../widgets/speech_bubble.dart';
+import '../sound/music_zone.dart';
+import '../sound/sounds.dart';
 
 /// Goes back to the lesson trail (used by "Back to lessons" on the results
 /// screens). Falls back to the first screen if the trail isn't open.
@@ -29,11 +28,9 @@ void popToTrail(BuildContext context) {
 /// home screen). Its route is named [TrailScreen.routeName] so "Back to
 /// lessons" on the results screens can return here (see [popToTrail]).
 ///
-/// Two layouts:
-///  * Narrow / portrait: one centered column (max width on tablets) with Cog,
-///    the speech bubble and the lesson path, all in one scrolling list.
-///  * Wide landscape: Cog + speech bubble on the left, the lesson path on the
-///    right; each side scrolls on its own.
+/// One centered column (max width on tablets and in landscape) with the
+/// "Lessons" header and the lesson path, in one scrolling list. The top bar
+/// has the back arrow, the stars and the gear (no title).
 class TrailScreen extends StatelessWidget {
   const TrailScreen({
     super.key,
@@ -71,11 +68,14 @@ class TrailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // Redraw when saved progress changes (stars total, unlocked lessons).
-      body: ListenableBuilder(
-        listenable: progress,
-        builder: (context, _) => _body(context),
+    return MusicZone(
+      song: Song.game,
+      child: Scaffold(
+        // Redraw when saved progress changes (stars total, unlocked lessons).
+        body: ListenableBuilder(
+          listenable: progress,
+          builder: (context, _) => _body(context),
+        ),
       ),
     );
   }
@@ -84,12 +84,7 @@ class TrailScreen extends StatelessWidget {
     return SafeArea(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final wide =
-              constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
-              constraints.maxWidth > constraints.maxHeight;
-          final maxWidth = wide
-              ? AppSizes.maxWideContentWidth
-              : AppSizes.maxContentWidth;
+          const maxWidth = AppSizes.maxContentWidth;
           // Side padding that keeps content centered at [maxWidth] on big
           // screens. Used as scroll padding (not a wrapper) so you can
           // still scroll by dragging in the empty side margins.
@@ -109,12 +104,9 @@ class TrailScreen extends StatelessWidget {
                     ? () => Navigator.of(context).pop()
                     : null,
                 backLabel: AppLocalizations.of(context).homeBackToHome,
+                showTitle: false,
               ),
-              Expanded(
-                child: wide
-                    ? _wideBody(context, sidePadding)
-                    : _narrowBody(context, sidePadding),
-              ),
+              Expanded(child: _narrowBody(context, sidePadding)),
             ],
           );
         },
@@ -130,55 +122,7 @@ class TrailScreen extends StatelessWidget {
         sidePadding,
         AppSizes.gap24,
       ),
-      children: [
-        _cogWithBubble(context),
-        const SizedBox(height: AppSizes.gap24),
-        ..._lessons(context),
-      ],
-    );
-  }
-
-  Widget _wideBody(BuildContext context, double sidePadding) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          flex: 2,
-          child: Center(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                sidePadding,
-                AppSizes.gap8,
-                AppSizes.gap12,
-                AppSizes.gap24,
-              ),
-              child: _cogWithBubble(context),
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 3,
-          child: ListView(
-            padding: EdgeInsets.fromLTRB(
-              AppSizes.gap12,
-              AppSizes.gap8,
-              sidePadding,
-              AppSizes.gap24,
-            ),
-            children: _lessons(context),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _cogWithBubble(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CogArt(pose: CogPose.waving, size: CogPlaceholder.sizeFor(context)),
-        SpeechBubble(text: AppLocalizations.of(context).cogGreeting),
-      ],
+      children: _lessons(context),
     );
   }
 

@@ -232,6 +232,7 @@ void main() {
       });
       await tester.pumpWidget(
         PyCogApp(
+          intro: false,
           settings: await SettingsController.load(),
           progress: await ProgressController.load(),
         ),

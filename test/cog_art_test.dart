@@ -86,10 +86,10 @@ void main() {
       expect(find.byType(CogPlaceholder), findsNothing);
     });
 
-    testWidgets('lesson trail', (tester) async {
+    testWidgets('lesson trail: no Cog there any more', (tester) async {
       await startApp(tester);
       await openTrail(tester);
-      expect(pose(CogPose.waving), findsOneWidget);
+      expect(find.byType(CogArt), findsNothing);
       expect(find.byType(CogPlaceholder), findsNothing);
     });
 

@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../l10n/generated/app_localizations.dart';
 import '../theme/app_theme.dart';
+import '../sound/sounds.dart';
 
 /// Types [text] into [controller] where the cursor is (replacing any
 /// selection), then puts the cursor [back] characters before the end of it
@@ -91,7 +92,7 @@ class CodeHelperBar extends StatelessWidget {
                       key: ValueKey('$keyPrefix-key-$label'),
                       canRequestFocus: false,
                       borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
-                      onTap: () => onInsert(text, back: back),
+                      onTap: Sounds.tapThen(() => onInsert(text, back: back)),
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(
                           minWidth: AppSizes.minTouchTarget,

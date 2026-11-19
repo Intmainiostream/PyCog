@@ -15,6 +15,8 @@ import '../widgets/output_box.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/title_top_bar.dart';
 import 'about_screen.dart';
+import '../sound/sounds.dart';
+import '../sound/music_zone.dart';
 
 /// What the student typed in the playground. Kept while the app is open,
 /// so leaving the screen and coming back keeps the code.
@@ -37,6 +39,9 @@ class CodingSession {
 /// Python runs fully offline with [runPython] (Pyodide in a hidden WebView).
 class CodingScreen extends StatefulWidget {
   const CodingScreen({super.key, required this.settings, this.engine});
+
+  /// How long the "Code cleared / Undo" bar stays after Clear.
+  static const undoDuration = Duration(seconds: 3);
 
   final SettingsController settings;
 
@@ -88,6 +93,7 @@ class _CodingScreenState extends State<CodingScreen> {
   }
 
   Future<void> _run() async {
+    Sounds.play(Sfx.run);
     _codeFocus.unfocus();
     setState(() {
       _running = true;
@@ -99,6 +105,7 @@ class _CodingScreenState extends State<CodingScreen> {
       _running = false;
       _result = result;
     });
+    if (result.error == null && !result.timedOut) Sounds.play(Sfx.output);
   }
 
   void _clear() {
@@ -114,13 +121,19 @@ class _CodingScreenState extends State<CodingScreen> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
+          // Shown for 3 seconds, then it hides by itself (a bar with an
+          // Undo button would otherwise stay until it is closed).
+          duration: CodingScreen.undoDuration,
+          persist: false,
           content: Text(l10n.codingCleared),
           action: SnackBarAction(
             label: l10n.codingUndo,
-            onPressed: () => setState(() {
-              _code.text = oldCode;
-              _answers.text = oldAnswers;
-            }),
+            onPressed: Sounds.tapThen(
+              () => setState(() {
+                _code.text = oldCode;
+                _answers.text = oldAnswers;
+              }),
+            )!,
           ),
         ),
       );
@@ -140,43 +153,47 @@ class _CodingScreenState extends State<CodingScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final side = math.max(
-              AppSizes.screenPadding,
-              (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
-            );
-            return Column(
-              children: [
-                TitleTopBar(
-                  padding: side,
-                  title: l10n.codingTitle,
-                  backLabel: l10n.lessonBack,
-                  settingsLabel: l10n.settingsTooltip,
-                  onSettings: () => showSettingsSheet(context, widget.settings),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      side,
-                      AppSizes.gap4,
-                      side,
-                      AppSizes.gap24,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: _content(l10n),
+    return MusicZone(
+      song: Song.game,
+      child: Scaffold(
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final side = math.max(
+                AppSizes.screenPadding,
+                (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
+              );
+              return Column(
+                children: [
+                  TitleTopBar(
+                    padding: side,
+                    title: l10n.codingTitle,
+                    backLabel: l10n.lessonBack,
+                    settingsLabel: l10n.settingsTooltip,
+                    onSettings: () =>
+                        showSettingsSheet(context, widget.settings),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        side,
+                        AppSizes.gap4,
+                        side,
+                        AppSizes.gap24,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: _content(l10n),
+                      ),
                     ),
                   ),
-                ),
-                // Hard-to-type symbols, right above the keyboard.
-                if (_codeFocus.hasFocus)
-                  CodeHelperBar(l10n: l10n, padding: side, onInsert: _insert),
-              ],
-            );
-          },
+                  // Hard-to-type symbols, right above the keyboard.
+                  if (_codeFocus.hasFocus)
+                    CodeHelperBar(l10n: l10n, padding: side, onInsert: _insert),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -312,9 +329,11 @@ class _CodingScreenState extends State<CodingScreen> {
         alignment: AlignmentDirectional.centerStart,
         child: TextButton(
           key: const ValueKey('coding-about'),
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => AboutScreen(settings: widget.settings),
+          onPressed: Sounds.tapThen(
+            () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => AboutScreen(settings: widget.settings),
+              ),
             ),
           ),
           child: Text(l10n.aboutTitle),
@@ -367,7 +386,11 @@ class _ExamplesButton extends StatelessWidget {
     return PopupMenuButton<CodingExample>(
       key: const ValueKey('coding-examples'),
       tooltip: label,
-      onSelected: onPick,
+      onOpened: () => Sounds.play(Sfx.tap),
+      onSelected: (example) {
+        Sounds.play(Sfx.tap);
+        onPick(example);
+      },
       itemBuilder: (context) => [
         for (final example in codingExamples)
           PopupMenuItem(value: example, child: Text(example.title(l10n))),

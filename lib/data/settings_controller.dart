@@ -22,6 +22,7 @@ class SettingsController extends ChangeNotifier {
     : _locale = Locale(_prefs.getString(_kLanguage) ?? 'en'),
       _soundOn = _prefs.getBool(_kSound) ?? true,
       _musicOn = _prefs.getBool(_kMusic) ?? true,
+      _onboardingSeen = _prefs.getBool(_kOnboardingSeen) ?? false,
       _textSize =
           TextSize.values.asNameMap()[_prefs.getString(_kTextSize)] ??
           TextSize.medium;
@@ -36,6 +37,7 @@ class SettingsController extends ChangeNotifier {
   static const _kSound = 'settings.sound';
   static const _kMusic = 'settings.music';
   static const _kTextSize = 'settings.textSize';
+  static const _kOnboardingSeen = 'app.onboardingSeen';
 
   static const english = Locale('en');
   static const tagalog = Locale('tl');
@@ -46,11 +48,15 @@ class SettingsController extends ChangeNotifier {
   bool _soundOn;
   bool _musicOn;
   TextSize _textSize;
+  bool _onboardingSeen;
 
   Locale get locale => _locale;
   bool get soundOn => _soundOn;
   bool get musicOn => _musicOn;
   TextSize get textSize => _textSize;
+
+  /// Whether the first-launch onboarding was already shown.
+  bool get onboardingSeen => _onboardingSeen;
 
   void setLocale(Locale value) {
     _locale = value;
@@ -68,6 +74,13 @@ class SettingsController extends ChangeNotifier {
     _musicOn = value;
     _prefs.setBool(_kMusic, value);
     notifyListeners();
+  }
+
+  /// Remembers that the onboarding was shown, so it never shows again.
+  void markOnboardingSeen() {
+    if (_onboardingSeen) return;
+    _onboardingSeen = true;
+    _prefs.setBool(_kOnboardingSeen, true);
   }
 
   void setTextSize(TextSize value) {

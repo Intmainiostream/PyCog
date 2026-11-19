@@ -19,6 +19,8 @@ import '../widgets/lesson_top_bar.dart';
 import '../widgets/output_box.dart';
 import '../widgets/settings_sheet.dart';
 import 'minigame_map_screen.dart';
+import '../sound/sounds.dart';
+import '../sound/music_zone.dart';
 
 /// One MINIGAME challenge: a quiz, fill the blank, fix the bug, or write it
 /// yourself.
@@ -127,6 +129,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
   void _useHint() {
     if (_hintsUsed >= _challenge.hints.length || _solved) return;
+    Sounds.play(Sfx.hint);
     setState(() => _hintsUsed++);
     widget.progress.saveHintsUsed(_challenge.id, _hintsUsed);
   }
@@ -138,6 +141,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
       _pass();
       return;
     }
+    Sounds.play(Sfx.wrong);
     setState(() {
       _wrongPicked.add(picked);
       _lastWrong = picked;
@@ -166,6 +170,9 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
       await _pass();
       return;
     }
+    // A wrong answer (not when Python itself could not start).
+    final error = result.got?.error;
+    if (error == null || !isStartError(error)) Sounds.play(Sfx.wrong);
     setState(() {
       _running = false;
       _check = result;
@@ -181,6 +188,13 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     await widget.progress.clearAttempt(_challenge.id);
     final after = widget.progress.unlockedCount(widget.levels);
     if (!mounted) return;
+    // Right quiz pick: correct. Code challenge done, or a new level
+    // opened: finish. Then one star sound per earned star.
+    final opened = after > before;
+    Sounds.stars(
+      stars,
+      first: _challenge.runsCode || opened ? Sfx.finish : Sfx.correct,
+    );
     setState(() {
       _solved = true;
       _earned = stars;
@@ -229,53 +243,57 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final total = widget.level.challenges.length;
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final side = math.max(
-              AppSizes.screenPadding,
-              (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
-            );
-            return Column(
-              children: [
-                LessonTopBar(
-                  sidePadding: side,
-                  current: widget.index + 1,
-                  total: total,
-                  progressLabel: l10n.mgChallengeProgress(
-                    widget.index + 1,
-                    total,
-                  ),
-                  closeLabel: l10n.mgClose,
-                  onClose: () => Navigator.of(context).pop(),
-                  onSettings: () => showSettingsSheet(context, widget.settings),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      side,
-                      AppSizes.gap8,
-                      side,
-                      AppSizes.gap24,
+    return MusicZone(
+      song: Song.game,
+      child: Scaffold(
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final side = math.max(
+                AppSizes.screenPadding,
+                (constraints.maxWidth - AppSizes.maxContentWidth) / 2,
+              );
+              return Column(
+                children: [
+                  LessonTopBar(
+                    sidePadding: side,
+                    current: widget.index + 1,
+                    total: total,
+                    progressLabel: l10n.mgChallengeProgress(
+                      widget.index + 1,
+                      total,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: _content(l10n),
+                    closeLabel: l10n.mgClose,
+                    onClose: () => Navigator.of(context).pop(),
+                    onSettings: () =>
+                        showSettingsSheet(context, widget.settings),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        side,
+                        AppSizes.gap8,
+                        side,
+                        AppSizes.gap24,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: _content(l10n),
+                      ),
                     ),
                   ),
-                ),
-                if (_codeFocus.hasFocus)
-                  CodeHelperBar(
-                    l10n: l10n,
-                    padding: side,
-                    keyPrefix: 'mg',
-                    onInsert: (text, {back = 0}) =>
-                        insertCode(_code, text, back: back),
-                  ),
-              ],
-            );
-          },
+                  if (_codeFocus.hasFocus)
+                    CodeHelperBar(
+                      l10n: l10n,
+                      padding: side,
+                      keyPrefix: 'mg',
+                      onInsert: (text, {back = 0}) =>
+                          insertCode(_code, text, back: back),
+                    ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -462,7 +480,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
           alignment: AlignmentDirectional.centerEnd,
           child: TextButton.icon(
             key: const ValueKey('mg-reset'),
-            onPressed: _running ? null : _resetCode,
+            onPressed: _running ? null : Sounds.tapThen(_resetCode),
             icon: const Icon(Icons.restart_alt_rounded),
             label: Text(l10n.mgReset),
           ),

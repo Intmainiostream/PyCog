@@ -18,6 +18,8 @@ import '../widgets/lesson_top_bar.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
 import 'game_results_screen.dart';
+import '../sound/sounds.dart';
+import '../sound/music_zone.dart';
 
 /// What Cog is saying under the boxes right now.
 enum _Say { nothing, cheer, hint, tapValueFirst, roundDone }
@@ -118,10 +120,12 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {
       _selected = null;
       if (_chip(value).box == boxName) {
+        Sounds.play(Sfx.correct);
         _placed[value] = boxName; // snaps in
         _cheers++;
         _say = _roundDone ? _Say.roundDone : _Say.cheer;
       } else {
+        Sounds.play(Sfx.wrong);
         _wrong++; // bounces back
         _shakes[value] = (_shakes[value] ?? 0) + 1;
         _hintChip = value;
@@ -172,42 +176,45 @@ class _GameScreenState extends State<GameScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final wide =
-                constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
-                constraints.maxWidth > constraints.maxHeight;
-            final maxWidth = wide
-                ? AppSizes.maxWideContentWidth
-                : AppSizes.maxContentWidth;
-            final sidePadding = math.max(
-              AppSizes.screenPadding,
-              (constraints.maxWidth - maxWidth) / 2,
-            );
+    return MusicZone(
+      song: Song.game,
+      child: Scaffold(
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final wide =
+                  constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
+                  constraints.maxWidth > constraints.maxHeight;
+              final maxWidth = wide
+                  ? AppSizes.maxWideContentWidth
+                  : AppSizes.maxContentWidth;
+              final sidePadding = math.max(
+                AppSizes.screenPadding,
+                (constraints.maxWidth - maxWidth) / 2,
+              );
 
-            final topBar = LessonTopBar(
-              sidePadding: sidePadding,
-              current: _r + 1,
-              total: _rounds.length,
-              progressLabel: l10n.gameProgress(_r + 1, _rounds.length),
-              closeLabel: l10n.gameClose,
-              onClose: () => Navigator.of(context).pop(),
-              onSettings: () => showSettingsSheet(context, widget.settings),
-            );
+              final topBar = LessonTopBar(
+                sidePadding: sidePadding,
+                current: _r + 1,
+                total: _rounds.length,
+                progressLabel: l10n.gameProgress(_r + 1, _rounds.length),
+                closeLabel: l10n.gameClose,
+                onClose: () => Navigator.of(context).pop(),
+                onSettings: () => showSettingsSheet(context, widget.settings),
+              );
 
-            return Column(
-              children: [
-                topBar,
-                Expanded(
-                  child: wide
-                      ? _wideLayout(l10n, sidePadding)
-                      : _narrowLayout(l10n, sidePadding, constraints),
-                ),
-              ],
-            );
-          },
+              return Column(
+                children: [
+                  topBar,
+                  Expanded(
+                    child: wide
+                        ? _wideLayout(l10n, sidePadding)
+                        : _narrowLayout(l10n, sidePadding, constraints),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

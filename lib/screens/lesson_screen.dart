@@ -20,6 +20,8 @@ import '../widgets/speech_bubble.dart';
 import '../widgets/truth_table.dart';
 import '../widgets/variable_box.dart';
 import 'quiz_screen.dart';
+import '../sound/music_zone.dart';
+import '../sound/sounds.dart';
 
 /// Shows any lesson's explanation, one card at a time, with Cog explaining.
 ///
@@ -89,61 +91,68 @@ class _LessonScreenState extends State<LessonScreen> {
     assert(_cards.isNotEmpty, 'LessonScreen needs a lesson with cards');
     final l10n = AppLocalizations.of(context);
 
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final wide =
-                constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
-                constraints.maxWidth > constraints.maxHeight;
-            final maxWidth = wide
-                ? AppSizes.maxWideContentWidth
-                : AppSizes.maxContentWidth;
-            final sidePadding = math.max(
-              AppSizes.screenPadding,
-              (constraints.maxWidth - maxWidth) / 2,
-            );
+    return MusicZone(
+      song: Song.game,
+      child: Scaffold(
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final wide =
+                  constraints.maxWidth >= AppSizes.wideLayoutMinWidth &&
+                  constraints.maxWidth > constraints.maxHeight;
+              final maxWidth = wide
+                  ? AppSizes.maxWideContentWidth
+                  : AppSizes.maxContentWidth;
+              final sidePadding = math.max(
+                AppSizes.screenPadding,
+                (constraints.maxWidth - maxWidth) / 2,
+              );
 
-            return Column(
-              children: [
-                LessonTopBar(
-                  sidePadding: sidePadding,
-                  current: _index + 1,
-                  total: _cards.length,
-                  progressLabel: l10n.lessonProgress(_index + 1, _cards.length),
-                  closeLabel: l10n.lessonClose,
-                  onClose: () => Navigator.of(context).pop(),
-                  onSettings: () => showSettingsSheet(context, widget.settings),
-                ),
-                Expanded(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    transitionBuilder: _slideAndFade,
-                    layoutBuilder: (current, previous) => Stack(
-                      fit: StackFit.expand,
-                      children: [...previous, ?current],
+              return Column(
+                children: [
+                  LessonTopBar(
+                    sidePadding: sidePadding,
+                    current: _index + 1,
+                    total: _cards.length,
+                    progressLabel: l10n.lessonProgress(
+                      _index + 1,
+                      _cards.length,
                     ),
-                    // A new key per card = new scroll position (starts at top).
-                    child: _CardView(
-                      key: ValueKey(_index),
-                      card: _cards[_index],
-                      lesson: widget.lesson,
-                      lessonNumber: widget.lessonNumber,
-                      wide: wide,
-                      sidePadding: sidePadding,
+                    closeLabel: l10n.lessonClose,
+                    onClose: () => Navigator.of(context).pop(),
+                    onSettings: () =>
+                        showSettingsSheet(context, widget.settings),
+                  ),
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      transitionBuilder: _slideAndFade,
+                      layoutBuilder: (current, previous) => Stack(
+                        fit: StackFit.expand,
+                        children: [...previous, ?current],
+                      ),
+                      // A new key per card = new scroll position (starts at top).
+                      child: _CardView(
+                        key: ValueKey(_index),
+                        card: _cards[_index],
+                        lesson: widget.lesson,
+                        lessonNumber: widget.lessonNumber,
+                        wide: wide,
+                        sidePadding: sidePadding,
+                      ),
                     ),
                   ),
-                ),
-                _LessonNavBar(
-                  sidePadding: sidePadding,
-                  isFirst: _isFirst,
-                  isLast: _isLast,
-                  onBack: () => _goTo(_index - 1),
-                  onNext: _next,
-                ),
-              ],
-            );
-          },
+                  _LessonNavBar(
+                    sidePadding: sidePadding,
+                    isFirst: _isFirst,
+                    isLast: _isLast,
+                    onBack: () => _goTo(_index - 1),
+                    onNext: _next,
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
