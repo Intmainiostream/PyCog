@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -7,6 +9,8 @@ import 'data/progress_controller.dart';
 import 'data/settings_controller.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'screens/home_screen.dart';
+import 'sound/audio_clips.dart';
+import 'sound/sounds.dart';
 import 'theme/app_theme.dart';
 
 Future<void> main() async {
@@ -17,6 +21,9 @@ Future<void> main() async {
   final settings = await SettingsController.load();
   final progress = await ProgressController.load();
   final minigame = await MinigameProgress.load();
+  // Sound effects: loaded in the background, so the app starts right away.
+  Sounds.player = SequencedSoundPlayer(AudioplayersClips());
+  unawaited(Sounds.player.preload());
   runApp(PyCogApp(settings: settings, progress: progress, minigame: minigame));
 }
 
@@ -36,6 +43,8 @@ class PyCogApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Sounds follow the "Sound effects" switch.
+    Sounds.useSettings(settings);
     // Rebuild the whole app whenever a setting changes.
     return ListenableBuilder(
       listenable: settings,
