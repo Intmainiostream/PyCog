@@ -317,6 +317,44 @@ void main() {
       expect(missingCode("print('Hi')", ['print("Ho")']), ['print("Ho")']);
     });
 
+    test('a list over several lines matches the same list on one line', () {
+      const piece = 'items = ["sword", "shield", "potion"]';
+      for (final code in [
+        'items = ["sword",\n         "shield",\n         "potion"]',
+        "items = ['sword',\n\t'shield',\n\t'potion']",
+        'items = ["sword",  # a sword\n         "shield",\n         "potion"]',
+      ]) {
+        expect(missingCode(code, [piece]), isEmpty, reason: code);
+      }
+      // Calls split over lines inside ( ) match too.
+      expect(
+        missingCode('print(add(2,\n          3))', ['print(add(2, 3))']),
+        isEmpty,
+      );
+    });
+
+    test('outside brackets, line breaks still count', () {
+      // Two lines are not one line.
+      expect(missingCode('x = 1\nprint(x)', ['x = 1 print(x)']), [
+        'x = 1 print(x)',
+      ]);
+      // Indentation of a block is not joined to the line above.
+      expect(
+        missingCode('for n in range(3):\n    print(n)', [
+          'for n in range(3): print(n)',
+        ]),
+        ['for n in range(3): print(n)'],
+      );
+    });
+
+    test('a bracket inside quotes does not open anything', () {
+      // The "[" is text, so the line break after it still counts.
+      expect(missingCode('print("[")\nprint(1)', ['print("[") print(1)']), [
+        'print("[") print(1)',
+      ]);
+      expect(missingCode('print("[")\nprint(1)', ['print(1)']), isEmpty);
+    });
+
     test('AnyOf: any one option counts', () {
       const pieces = [
         'score = 10',

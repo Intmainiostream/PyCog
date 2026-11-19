@@ -109,6 +109,25 @@ void main() {
           // The solution written with no spaces around signs and after
           // commas (e.g. `if lives>0:`, `range(1,6)`, `battery-1`) still
           // passes, pieces included. Lines inside quotes are left alone.
+          // The solution split over lines after each comma inside
+          // brackets (like a list written over several lines) still
+          // passes, pieces included.
+          final split = splitInsideBrackets(c.solutionProgram);
+          if (split != c.solutionProgram) {
+            final r = await checkProgram(
+              engine,
+              split,
+              c.tests,
+              required: c.requiredCode,
+            );
+            report(
+              c.id,
+              'solution split over lines passes',
+              r.passed,
+              shown(r),
+            );
+          }
+
           final tight = c.solutionProgram
               .split('\n')
               .map(
@@ -224,4 +243,38 @@ void main() {
     expect(total, greaterThanOrEqualTo(70));
     expect(failures, isEmpty, reason: 'failed: $failures');
   });
+}
+
+/// [code] with a line break and 8 spaces after every comma that is inside
+/// brackets (not inside quotes), e.g. `print(add(2,\n        3))`. Still
+/// valid Python, like a list written over several lines.
+String splitInsideBrackets(String code) {
+  final out = StringBuffer();
+  String? quote;
+  var depth = 0;
+  for (var i = 0; i < code.length; i++) {
+    final c = code[i];
+    if (quote != null) {
+      out.write(c);
+      if (c == r'\' && i + 1 < code.length) {
+        out.write(code[++i]);
+      } else if (c == quote) {
+        quote = null;
+      }
+    } else if (c == '"' || c == "'") {
+      quote = c;
+      out.write(c);
+    } else if (c == ',' && depth > 0) {
+      out.write(',\n        ');
+      while (i + 1 < code.length && code[i + 1] == ' ') {
+        i++;
+      }
+    } else {
+      if (c == '(' || c == '[' || c == '{') depth++;
+      if (c == ')' || c == ']' || c == '}') depth--;
+      if (c == '\n') quote = null;
+      out.write(c);
+    }
+  }
+  return out.toString();
 }

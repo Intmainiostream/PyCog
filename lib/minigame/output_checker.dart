@@ -49,13 +49,10 @@ class CheckResult {
 /// `range(1,6)` and `range(1, 6)`, `print( speed )` and `print(speed)` all
 /// match. The signs stay different: `<` never matches `<=`, `*` never
 /// matches `**`, `/` never matches `//`, and `+` never matches `-`.
+/// Inside an open bracket, line breaks and indentation don't matter, so a
+/// list written over several lines matches the same list on one line.
 String normalizeCode(String code) {
-  final lines = [
-    for (final line in code.replaceAll('\r\n', '\n').split('\n'))
-      _sameQuotesNoComment(line),
-  ];
-  return lines
-      .join('\n')
+  return _flatten(code.replaceAll('\r\n', '\n'))
       // Longest signs first, so `<=`, `**` and `//` stay whole.
       .replaceAllMapped(
         RegExp(r'[ \t]*(==|!=|<=|>=|\*\*|//|<|>|=|\+|-|\*|/|%|,)[ \t]*'),
@@ -65,19 +62,38 @@ String normalizeCode(String code) {
       .replaceAllMapped(RegExp(r'[ \t]+([)\]}])'), (m) => m[1]!);
 }
 
-/// The line up to a `#` that is not inside quotes, with each string's
-/// opening and closing quote written as `"`. The text inside a string is
-/// kept as it is (an apostrophe in "It's" stays an apostrophe).
-String _sameQuotesNoComment(String line) {
+/// One pass over the code: drops `#` comments (a `#` inside quotes is
+/// text), writes each string's opening and closing quote as `"` (the text
+/// inside is kept, so an apostrophe in "It's" stays an apostrophe), and
+/// inside an open bracket (`(`, `[` or `{`) turns a line break and the
+/// indentation after it into one space, so a list written over several
+/// lines reads like one line. A bracket inside quotes does not count.
+String _flatten(String code) {
   final out = StringBuffer();
   String? quote; // the quote that opened the current string
-  for (var i = 0; i < line.length; i++) {
-    final c = line[i];
-    if (quote != null) {
-      if (c == r'\' && i + 1 < line.length) {
+  var depth = 0; // open brackets
+  var inComment = false;
+  for (var i = 0; i < code.length; i++) {
+    final c = code[i];
+    if (c == '\n') {
+      inComment = false;
+      quote = null; // a string never goes past the end of its line
+      if (depth > 0) {
+        out.write(' ');
+        while (i + 1 < code.length &&
+            (code[i + 1] == ' ' || code[i + 1] == '\t')) {
+          i++;
+        }
+      } else {
+        out.write(c);
+      }
+    } else if (inComment) {
+      // skip the comment
+    } else if (quote != null) {
+      if (c == r'\' && i + 1 < code.length && code[i + 1] != '\n') {
         out
           ..write(c)
-          ..write(line[i + 1]);
+          ..write(code[i + 1]);
         i++; // the escaped letter is text
       } else if (c == quote) {
         out.write('"');
@@ -89,8 +105,10 @@ String _sameQuotesNoComment(String line) {
       out.write('"');
       quote = c;
     } else if (c == '#') {
-      break;
+      inComment = true;
     } else {
+      if (c == '(' || c == '[' || c == '{') depth++;
+      if ((c == ')' || c == ']' || c == '}') && depth > 0) depth--;
       out.write(c);
     }
   }

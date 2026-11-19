@@ -470,6 +470,22 @@ void main() {
     }
   });
 
+  test('a solution split over lines inside brackets still has its pieces', () {
+    for (final c in allChallenges.where((c) => c.requiredCode.isNotEmpty)) {
+      final split = splitInsideBrackets(c.solutionProgram);
+      expect(
+        missingCode(split, c.requiredCode),
+        isEmpty,
+        reason: '${c.id}:\n$split',
+      );
+    }
+    // The helper really splits.
+    expect(
+      splitInsideBrackets('print(add(2, 3))'),
+      'print(add(2,\n        3))',
+    );
+  });
+
   test('fix and write challenges with input() have 2+ different tests', () {
     for (final c in allChallenges.where(
       (c) =>
@@ -573,4 +589,38 @@ void main() {
       }
     }
   });
+}
+
+/// [code] with a line break and 8 spaces after every comma that is inside
+/// brackets (not inside quotes), e.g. `print(add(2,\n        3))`. Still
+/// valid Python, like a list written over several lines.
+String splitInsideBrackets(String code) {
+  final out = StringBuffer();
+  String? quote;
+  var depth = 0;
+  for (var i = 0; i < code.length; i++) {
+    final c = code[i];
+    if (quote != null) {
+      out.write(c);
+      if (c == r'\' && i + 1 < code.length) {
+        out.write(code[++i]);
+      } else if (c == quote) {
+        quote = null;
+      }
+    } else if (c == '"' || c == "'") {
+      quote = c;
+      out.write(c);
+    } else if (c == ',' && depth > 0) {
+      out.write(',\n        ');
+      while (i + 1 < code.length && code[i + 1] == ' ') {
+        i++;
+      }
+    } else {
+      if (c == '(' || c == '[' || c == '{') depth++;
+      if (c == ')' || c == ']' || c == '}') depth--;
+      if (c == '\n') quote = null;
+      out.write(c);
+    }
+  }
+  return out.toString();
 }
