@@ -37,8 +37,8 @@ void main() {
     expect(ids.toSet().length, ids.length);
   });
 
-  // Levels 1-9 use the same mix, easy to harder.
-  for (final number in [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+  // Levels 1-10 use the same mix, easy to harder.
+  for (final number in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
     test('Level $number is full: 3 quizzes, 2 fill, 2 fix, 3 write', () {
       final challenges = minigameLevels[number - 1].challenges;
       expect(challenges.map((c) => c.type), [
@@ -226,6 +226,46 @@ void main() {
         'input',
       },
     ),
+    // + Lesson 10 (logic): and, or, not (and "between": 1 <= n <= 10,
+    // which uses signs already allowed). No new functions.
+    10: (
+      calls: {
+        'print',
+        'type',
+        'range',
+        'len',
+        'str',
+        'upper',
+        'lower',
+        'append',
+        'input',
+        'int',
+        'float',
+      },
+      ideas: {
+        'if',
+        'elif',
+        'else',
+        '<',
+        '>',
+        '==',
+        'for',
+        'while',
+        'break',
+        '-',
+        'def',
+        'return',
+        '+',
+        '*',
+        '/',
+        '%',
+        '[',
+        'input',
+        'and',
+        'or',
+        'not',
+      },
+    ),
   };
   const laterSymbols = ['+', '-', '*', '/', '%', '[', '{', '<', '>', '=='];
   const laterWords = [
@@ -398,6 +438,9 @@ void main() {
             (i >= 3 && c.type == ChallengeType.fixBug),
       )) {
         if (!comparison.hasMatch(c.solutionProgram)) continue;
+        // With input(), the hidden tests (different typed answers, edges
+        // included) check the comparison instead of pieces.
+        if (c.solutionProgram.contains('input(')) continue;
         expect(
           c.requiredFirst.any(comparison.hasMatch),
           isTrue,
@@ -577,6 +620,19 @@ void main() {
           );
         }
       }
+    }
+  });
+
+  test('every Level 10 challenge practices logic: and, or, not or a '
+      '"between" check', () {
+    final logic = RegExp(r'\b(and|or|not)\b|<=?\s*\w+\s*<=?');
+    for (final c in minigameLevels[9].challenges) {
+      final code = [
+        for (final line in c.code) line.code,
+        c.template,
+        c.solutionProgram,
+      ].join('\n');
+      expect(logic.hasMatch(code), isTrue, reason: c.id);
     }
   });
 
