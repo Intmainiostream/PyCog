@@ -9,6 +9,8 @@ import 'data/progress_controller.dart';
 import 'data/settings_controller.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'screens/home_screen.dart';
+import 'screens/onboarding_screen.dart';
+import 'screens/splash_screen.dart';
 import 'sound/audio_clips.dart';
 import 'sound/sounds.dart';
 import 'theme/app_theme.dart';
@@ -33,6 +35,7 @@ class PyCogApp extends StatelessWidget {
     required this.settings,
     required this.progress,
     this.minigame,
+    this.intro = true,
   });
 
   final SettingsController settings;
@@ -40,6 +43,23 @@ class PyCogApp extends StatelessWidget {
 
   /// MINIGAME stars (the home screen loads them itself if not given).
   final MinigameProgress? minigame;
+
+  /// Show the splash first (and the onboarding on the first launch).
+  /// Tests that start at the home screen turn this off.
+  final bool intro;
+
+  Widget _home(BuildContext context) =>
+      HomeScreen(settings: settings, progress: progress, minigame: minigame);
+
+  /// Splash, then the onboarding (first launch only), then home.
+  Widget _start(BuildContext context) {
+    if (!intro) return _home(context);
+    return SplashScreen(
+      next: (context) => settings.onboardingSeen
+          ? _home(context)
+          : OnboardingScreen(settings: settings, home: _home),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,11 +93,7 @@ class PyCogApp extends StatelessWidget {
             child: child!,
           );
         },
-        home: HomeScreen(
-          settings: settings,
-          progress: progress,
-          minigame: minigame,
-        ),
+        home: Builder(builder: _start),
       ),
     );
   }

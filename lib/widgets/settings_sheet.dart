@@ -78,7 +78,7 @@ class SettingsSheet extends StatelessWidget {
                   _SettingCard(
                     icon: Icons.translate,
                     label: l10n.settingsLanguage,
-                    below: _OptionPicker<Locale>(
+                    below: OptionPicker<Locale>(
                       selected: settings.locale,
                       onChanged: settings.setLocale,
                       options: {
@@ -112,7 +112,7 @@ class SettingsSheet extends StatelessWidget {
                   _SettingCard(
                     icon: Icons.format_size_rounded,
                     label: l10n.settingsTextSize,
-                    below: _OptionPicker<TextSize>(
+                    below: OptionPicker<TextSize>(
                       selected: settings.textSize,
                       onChanged: settings.setTextSize,
                       options: {
@@ -205,8 +205,9 @@ class _SettingCard extends StatelessWidget {
 }
 
 /// A row of chunky buttons where exactly one is selected (teal).
-class _OptionPicker<T> extends StatelessWidget {
-  const _OptionPicker({
+class OptionPicker<T> extends StatelessWidget {
+  const OptionPicker({
+    super.key,
     required this.options,
     required this.selected,
     required this.onChanged,

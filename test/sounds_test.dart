@@ -131,7 +131,11 @@ void main() {
       final fake = useFakeSounds();
       final settings = await settingsWith({});
       await tester.pumpWidget(
-        PyCogApp(settings: settings, progress: await ProgressController.load()),
+        PyCogApp(
+          intro: false,
+          settings: settings,
+          progress: await ProgressController.load(),
+        ),
       );
       await tester.pumpAndSettle();
       showSettingsSheet(tester.element(find.byType(Scaffold).first), settings);

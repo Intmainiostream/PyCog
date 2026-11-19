@@ -245,7 +245,11 @@ void main() {
 
       // A fresh app start reads the saved stars.
       await tester.pumpWidget(
-        PyCogApp(settings: settings, progress: await ProgressController.load()),
+        PyCogApp(
+          intro: false,
+          settings: settings,
+          progress: await ProgressController.load(),
+        ),
       );
       await tester.pumpAndSettle();
       await openTrail(tester); // app opens on the home screen

@@ -130,6 +130,8 @@ class AppSizes {
   // PyCog wordmark in the home top bar: as tall as the buttons beside it,
   // so the bar (and everything under it) keeps its height.
   static const wordmarkHeight = 48.0;
+  // Splash screen: the wordmark is 70% of the screen width, up to this.
+  static const splashWordmarkMaxWidth = 360.0;
 
   // End of the lesson trail
   static const trailTailHeight = 70.0; // path past the last lesson

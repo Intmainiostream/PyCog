@@ -67,6 +67,7 @@ void main() {
             final settings = await SettingsController.load();
             await tester.pumpWidget(
               PyCogApp(
+                intro: false,
                 settings: settings,
                 progress: await ProgressController.load(),
               ),

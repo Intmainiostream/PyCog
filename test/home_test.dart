@@ -41,7 +41,9 @@ Future<(SettingsController, ProgressController)> startApp(
   SharedPreferences.setMockInitialValues(saved);
   final settings = await SettingsController.load();
   final progress = await ProgressController.load();
-  await tester.pumpWidget(PyCogApp(settings: settings, progress: progress));
+  await tester.pumpWidget(
+    PyCogApp(intro: false, settings: settings, progress: progress),
+  );
   await tester.pumpAndSettle();
   return (settings, progress);
 }
