@@ -1926,5 +1926,15 @@
   "mgL10C10Title": "The robot gate",
   "mgL10C10Prompt": "Final challenge! Make `vip = [\"Ana\", \"Cog\"]`. Ask `name = input(\"Name? \")` and `lvl = int(input(\"Level? \"))`. Make `good = 5 <= lvl <= 9`. If `name in vip or good`, print `\"Hi, \" + name`. Else, print `\"Sorry, \" + name`.",
   "mgL10C10Hint1": "A VIP can always enter. Others need a level from 5 to 9.",
-  "mgL10C10Hint2": "`in` asks if the name is in the list. Only the level needs `int()`."
+  "mgL10C10Hint2": "`in` asks if the name is in the list. Only the level needs `int()`.",
+  "@mgAllDone": {
+    "description": "Shown at the top of the last MINIGAME level when all its challenges have a star. count = all challenges in the game (100).",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "100"
+      }
+    }
+  },
+  "mgAllDone": "You finished all {count} challenges! Great job, Python coder!"
 }

@@ -1493,5 +1493,6 @@
   "mgL10C10Title": "Ang gate ng robot",
   "mgL10C10Prompt": "Huling challenge! Gumawa ng `vip = [\"Ana\", \"Cog\"]`. Itanong ang `name = input(\"Name? \")` at `lvl = int(input(\"Level? \"))`. Gumawa ng `good = 5 <= lvl <= 9`. Kung `name in vip or good`, i-print ang `\"Hi, \" + name`. Kung hindi, i-print ang `\"Sorry, \" + name`.",
   "mgL10C10Hint1": "Laging puwedeng pumasok ang VIP. Kailangan ng iba ng level na 5 hanggang 9.",
-  "mgL10C10Hint2": "Itinatanong ng `in` kung nasa list ang pangalan. Ang level lang ang kailangan ng `int()`."
+  "mgL10C10Hint2": "Itinatanong ng `in` kung nasa list ang pangalan. Ang level lang ang kailangan ng `int()`.",
+  "mgAllDone": "Natapos mo ang lahat ng {count} challenge! Galing mo, Python coder!"
 }
