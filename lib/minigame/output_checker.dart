@@ -40,11 +40,14 @@ class CheckResult {
 }
 
 /// Makes code easy to search for a required piece: `#` comments are removed
-/// (a piece inside a comment does not count), and spaces around `=` and the
-/// comparison signs (`==`, `!=`, `<`, `>`, `<=`, `>=`) and just inside
-/// brackets are dropped, so `speed=5`, `speed = 5`, `print( speed )` and
-/// `print(speed)` all match, and so do `lives>0` and `lives > 0`. The signs
-/// stay different: `lives < 0` does not match `lives <= 0`.
+/// (a piece inside a comment does not count), and spaces are dropped around
+/// `=`, the comparison signs (`==`, `!=`, `<`, `>`, `<=`, `>=`), the math
+/// signs (`+`, `-`, `*`, `/`, `//`, `%`, `**`), around commas and just
+/// inside brackets. So `speed=5` and `speed = 5`, `lives>0` and
+/// `lives > 0`, `battery-1` and `battery - 1`, `range(1,6)` and
+/// `range(1, 6)`, `print( speed )` and `print(speed)` all match. The signs
+/// stay different: `<` never matches `<=`, `*` never matches `**`, `/`
+/// never matches `//`, and `+` never matches `-`.
 String normalizeCode(String code) {
   final lines = [
     for (final line in code.replaceAll('\r\n', '\n').split('\n'))
@@ -52,9 +55,9 @@ String normalizeCode(String code) {
   ];
   return lines
       .join('\n')
-      // Longest signs first, so `<=` stays `<=` and never matches `<`.
+      // Longest signs first, so `<=`, `**` and `//` stay whole.
       .replaceAllMapped(
-        RegExp(r'[ \t]*(==|!=|<=|>=|<|>|=)[ \t]*'),
+        RegExp(r'[ \t]*(==|!=|<=|>=|\*\*|//|<|>|=|\+|-|\*|/|%|,)[ \t]*'),
         (m) => m[1]!,
       )
       .replaceAllMapped(RegExp(r'([(\[{])[ \t]+'), (m) => m[1]!)

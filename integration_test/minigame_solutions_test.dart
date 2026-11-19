@@ -90,12 +90,22 @@ void main() {
           report(c.id, 'starting code fails', !start.passed);
         }
         if (c.requiredCode.isNotEmpty) {
-          // The solution written with no spaces around = and the comparison
-          // signs (e.g. `if lives>0:`) still passes, pieces included.
-          final tight = c.solutionProgram.replaceAllMapped(
-            RegExp(r' *(==|!=|<=|>=|<|>|=) *'),
-            (m) => m[1]!,
-          );
+          // The solution written with no spaces around signs and after
+          // commas (e.g. `if lives>0:`, `range(1,6)`, `battery-1`) still
+          // passes, pieces included. Lines inside quotes are left alone.
+          final tight = c.solutionProgram
+              .split('\n')
+              .map(
+                (line) => line.contains('"')
+                    ? line
+                    : line.replaceAllMapped(
+                        RegExp(
+                          r' *(==|!=|<=|>=|\*\*|//|<|>|=|\+|-|\*|/|%|,) *',
+                        ),
+                        (m) => m[1]!,
+                      ),
+              )
+              .join('\n');
           final tightResult = await checkProgram(
             engine,
             tight,
@@ -109,32 +119,37 @@ void main() {
             shown(tightResult),
           );
 
-          // A wrong comparison (the first sign in a piece, swapped, e.g.
-          // `>` for `>=`) must not pass: its output is wrong, or a piece
-          // is missing.
+          // A wrong sign in any piece (the first sign swapped, e.g. `>` for
+          // `>=`, `-` for `+`) must not pass: its output is wrong, or a
+          // piece is missing.
           const swap = {
             '>=': '>',
             '<=': '<',
             '==': '!=',
             '!=': '==',
+            '**': '*',
+            '//': '/',
             '>': '>=',
             '<': '<=',
+            '+': '-',
+            '-': '+',
+            '*': '**',
+            '/': '//',
+            '%': '//',
           };
-          final sign = RegExp(r'==|!=|<=|>=|<|>');
-          final piece = c.requiredCode.where(sign.hasMatch).firstOrNull;
-          if (piece != null) {
+          final sign = RegExp(r'==|!=|<=|>=|\*\*|//|<|>|\+|-|\*|/|%');
+          for (final piece in c.requiredCode.where(sign.hasMatch)) {
             final s = sign.firstMatch(piece)![0]!;
             final wrongPiece = piece.replaceFirst(s, swap[s]!);
             final wrong = c.solutionProgram.replaceFirst(piece, wrongPiece);
-            if (wrong != c.solutionProgram) {
-              final r = await checkProgram(
-                engine,
-                wrong,
-                c.tests,
-                required: c.requiredCode,
-              );
-              report(c.id, 'wrong comparison ($wrongPiece) fails', !r.passed);
-            }
+            if (wrong == c.solutionProgram) continue;
+            final r = await checkProgram(
+              engine,
+              wrong,
+              c.tests,
+              required: c.requiredCode,
+            );
+            report(c.id, 'wrong sign ($wrongPiece) fails', !r.passed);
           }
 
           // e.g. print(5) for "5", print("Cog") for "Cog".

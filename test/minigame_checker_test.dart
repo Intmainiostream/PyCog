@@ -273,6 +273,40 @@ void main() {
       }
     });
 
+    test('spaces after commas and around math signs do not matter', () {
+      for (final (code, piece) in [
+        ('for n in range(1,6):', 'for n in range(1, 6)'),
+        ('for n in range(1 , 6):', 'for n in range(1, 6)'),
+        ('battery = battery-1', 'battery = battery - 1'),
+        ('total=a+b', 'total = a + b'),
+        ('area = w*h', 'area = w * h'),
+        ('half = n/2', 'half = n / 2'),
+        ('half = n//2', 'half = n // 2'),
+        ('left = n%2', 'left = n % 2'),
+        ('big = n**2', 'big = n ** 2'),
+        ('print(add(2,3))', 'print(add(2, 3))'),
+        ('x -= 1', 'x-=1'),
+      ]) {
+        expect(missingCode(code, [piece]), isEmpty, reason: code);
+      }
+    });
+
+    test('math signs stay different from each other', () {
+      for (final (code, piece) in [
+        ('big = n ** 2', 'big = n * 2'),
+        ('big = n * 2', 'big = n ** 2'),
+        ('half = n // 2', 'half = n / 2'),
+        ('half = n / 2', 'half = n // 2'),
+        ('total = a - b', 'total = a + b'),
+        ('total = a + b', 'total = a - b'),
+        ('left = n % 2', 'left = n / 2'),
+        ('for n in range(1, 7):', 'for n in range(1, 6)'),
+        ('for n in range(16):', 'for n in range(1, 6)'),
+      ]) {
+        expect(missingCode(code, [piece]), [piece], reason: '$code vs $piece');
+      }
+    });
+
     test('only the missing pieces are listed, in order', () async {
       final result = await checkProgram(
         fivePrinter(),
