@@ -11,7 +11,7 @@ import '../playground/python_runner.dart';
 import '../theme/app_theme.dart';
 import '../widgets/chunky_button.dart';
 import '../widgets/cog_feedback_card.dart';
-import '../widgets/cog_placeholder.dart';
+import '../widgets/cog_art.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
 import '../widgets/title_top_bar.dart';
@@ -139,7 +139,7 @@ class CogSays extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const CogPlaceholder(size: AppSizes.gameCogSize),
+        const CogArt(pose: CogPose.waving, size: AppSizes.gameCogSize),
         const SizedBox(width: AppSizes.gap4),
         Expanded(
           child: SpeechBubble(

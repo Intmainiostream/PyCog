@@ -11,6 +11,7 @@ import '../theme/app_theme.dart';
 import '../widgets/app_top_bar.dart';
 import '../widgets/cloud_footer.dart';
 import 'lesson_screen.dart';
+import '../widgets/cog_art.dart';
 import '../widgets/cog_placeholder.dart';
 import '../widgets/lesson_path.dart';
 import '../widgets/settings_sheet.dart';
@@ -175,7 +176,7 @@ class TrailScreen extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CogPlaceholder(size: CogPlaceholder.sizeFor(context)),
+        CogArt(pose: CogPose.waving, size: CogPlaceholder.sizeFor(context)),
         SpeechBubble(text: AppLocalizations.of(context).cogGreeting),
       ],
     );

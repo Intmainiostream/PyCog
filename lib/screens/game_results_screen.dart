@@ -8,6 +8,7 @@ import '../l10n/generated/app_localizations.dart';
 import '../models/lesson.dart';
 import '../theme/app_theme.dart';
 import '../widgets/chunky_button.dart';
+import '../widgets/cog_art.dart';
 import '../widgets/cog_placeholder.dart';
 import '../widgets/result_widgets.dart';
 import '../widgets/speech_bubble.dart';
@@ -116,7 +117,8 @@ class GameResultsScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSizes.gap16),
                         Center(
-                          child: CogPlaceholder(
+                          child: CogArt(
+                            pose: CogPose.cheering,
                             size: CogPlaceholder.lessonSizeFor(context),
                           ),
                         ),
