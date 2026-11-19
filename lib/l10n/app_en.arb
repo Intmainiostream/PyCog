@@ -1848,5 +1848,49 @@
   "mgL8C10Title": "Score list",
   "mgL8C10Prompt": "Make `scores = [5, 8]`. Then `scores.append(10)` and `scores[0] = 6`. Use `for s in scores:` to `print(s * 2)`. Last, `print(len(scores))`.",
   "mgL8C10Hint1": "After the changes, the list is `[6, 8, 10]`.",
-  "mgL8C10Hint2": "`print(len(scores))` goes after the loop, with no spaces."
+  "mgL8C10Hint2": "`print(len(scores))` goes after the loop, with no spaces.",
+  "mgL9C1Title": "Commas add spaces",
+  "mgL9C1Prompt": "What does this code show on the screen?",
+  "mgL9C2Title": "Say hi back",
+  "mgL9C2Prompt": "Cog asks with `input(\"Name? \")`. Pick the blank, so it says hi with the typed name.",
+  "mgL9C2Hint1": "`name` holds what the person typed.",
+  "mgL9C2Hint2": "Use the variable, with no quotes.",
+  "mgL9C3Title": "Ask a name",
+  "mgL9C3Prompt": "Ask with `name = input(\"Name? \")`. Then `print(\"Hi,\", name)`.",
+  "mgL9C3Hint1": "`input()` waits until the person types.",
+  "mgL9C3Hint2": "With a comma, Python adds the space for you.",
+  "mgL9C4Title": "Text, not a number",
+  "mgL9C4Prompt": "You type `12`. What does the last line show?",
+  "mgL9C5Title": "Make it a number",
+  "mgL9C5Prompt": "Type the word for the blank, so `input(\"Age? \")` gives a number and the code prints the age plus 1.",
+  "mgL9C5Hint1": "`input()` always gives text.",
+  "mgL9C5Hint2": "One function turns text into a whole number.",
+  "mgL9C6Title": "Next birthday",
+  "mgL9C6Prompt": "This code gives an error. Fix it so it prints the age plus 1. Keep the question `input(\"Age? \")`.",
+  "mgL9C6Hint1": "`age` is text, so `age + 1` is an error.",
+  "mgL9C6Hint2": "Wrap `input()` in `int()`.",
+  "mgL9C7Title": "Mind the space",
+  "mgL9C7Prompt": "You type `Cog`. What does the last line show?",
+  "mgL9C8Title": "Two bugs",
+  "mgL9C8Prompt": "This code has two bugs. Ask with `input(\"Number? \")`, with a space at the end, and print the number times 2.",
+  "mgL9C8Hint1": "The question needs a space after the `?`.",
+  "mgL9C8Hint2": "Text `* 2` repeats the text. Use `int()` first.",
+  "mgL9C9Title": "Add two numbers",
+  "mgL9C9Prompt": "Ask `a = int(input(\"First? \"))` and `b = int(input(\"Second? \"))`. Then `print(\"Total:\", a + b)`.",
+  "mgL9C9Hint1": "Each `input()` needs its own `int()`.",
+  "mgL9C9Hint2": "Without `int()`, `+` joins text: 2 and 3 give 23.",
+  "mgL9C10Title": "Name and age",
+  "mgL9C10Prompt": "Ask `name = input(\"Name? \")` and `age = int(input(\"Age? \"))`. Then `print(name, \"is\", age)` and `print(\"Next year:\", age + 1)`.",
+  "mgL9C10Hint1": "Commas add the spaces for you.",
+  "mgL9C10Hint2": "Only the age needs `int()`.",
+  "@mgWrongQuestion": {
+    "description": "Shown when the student's input() question is different from the one the challenge needs. question = the exact input(...) to use, in code style.",
+    "placeholders": {
+      "question": {
+        "type": "String",
+        "example": "`input(\"Age? \")`"
+      }
+    }
+  },
+  "mgWrongQuestion": "Almost! Ask with this exact question: {question}. Copy every letter and space."
 }
