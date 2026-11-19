@@ -49,6 +49,12 @@ void main() {
           }
           final code = c.code.map((line) => line.code).join('\n');
           final result = await engine.run(code);
+          if (!code.contains('print(')) {
+            // The question is about the code (e.g. a value's type), not
+            // what it prints: it just has to run without an error.
+            report(c.id, 'quiz code runs without an error', result.ok);
+            continue;
+          }
           final printed = normalizeOutput(result.stdout);
           final right = c.answers.indexWhere((a) => a.correct);
           String label(int i) => c.answers[i].label(en).replaceAll('`', '');
@@ -98,7 +104,10 @@ void main() {
     }
     // ignore: avoid_print
     print('MINIGAME checked $checked challenges');
-    expect(checked, greaterThanOrEqualTo(10));
+    // Every challenge of every level was checked (Level 1 and 2: 20).
+    final total = minigameLevels.fold(0, (n, l) => n + l.challenges.length);
+    expect(checked, total);
+    expect(total, greaterThanOrEqualTo(20));
     expect(failures, isEmpty, reason: 'failed: $failures');
   });
 }

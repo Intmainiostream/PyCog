@@ -37,51 +37,74 @@ void main() {
     expect(ids.toSet().length, ids.length);
   });
 
-  test('Level 1 is full: 10 challenges, 3 quizzes, 2 fill, 2 fix, 3 write', () {
-    final level1 = minigameLevels.first.challenges;
-    expect(level1.map((c) => c.type), [
-      ChallengeType.quiz,
-      ChallengeType.fillBlank,
-      ChallengeType.writeCode,
-      ChallengeType.quiz,
-      ChallengeType.fillBlank,
-      ChallengeType.fixBug,
-      ChallengeType.quiz,
-      ChallengeType.fixBug,
-      ChallengeType.writeCode,
-      ChallengeType.writeCode,
-    ]);
-    // One fill the blank is picked, the other is typed.
-    final fills = level1.where((c) => c.type == ChallengeType.fillBlank);
-    expect(fills.map((c) => c.choices.isNotEmpty), [true, false]);
-  });
+  // Levels 1 and 2 use the same mix, easy to harder.
+  for (final number in [1, 2]) {
+    test('Level $number is full: 3 quizzes, 2 fill, 2 fix, 3 write', () {
+      final challenges = minigameLevels[number - 1].challenges;
+      expect(challenges.map((c) => c.type), [
+        ChallengeType.quiz,
+        ChallengeType.fillBlank,
+        ChallengeType.writeCode,
+        ChallengeType.quiz,
+        ChallengeType.fillBlank,
+        ChallengeType.fixBug,
+        ChallengeType.quiz,
+        ChallengeType.fixBug,
+        ChallengeType.writeCode,
+        ChallengeType.writeCode,
+      ]);
+      // One fill the blank is picked, the other is typed.
+      final fills = challenges.where((c) => c.type == ChallengeType.fillBlank);
+      expect(fills.map((c) => c.choices.isNotEmpty), [true, false]);
+    });
+  }
 
-  test('Level 1 uses only Lesson 1 (variables), plus print()', () {
-    for (final c in minigameLevels.first.challenges) {
-      final code = [
-        for (final line in c.code) line.code,
-        for (final a in c.answers) a.label(en).replaceAll('`', ''),
-        c.template,
-        c.starter,
-        c.solutionProgram,
-        ...c.choices,
-      ].join('\n');
-      // print() is the only function.
-      final calls = RegExp(r'(\w+)\(').allMatches(code).map((m) => m[1]);
-      expect(calls.toSet().difference({'print'}), isEmpty, reason: c.id);
-      // No math, lists, comparisons or later keywords.
-      for (final later in ['+', '-', '*', '/', '[', '{', '<', '>', '==']) {
-        expect(code, isNot(contains(later)), reason: '${c.id}: $later');
+  // What each level may use: the functions its lessons teach. Levels 1-2
+  // have no math, lists, comparisons or later keywords.
+  const allowedCalls = {
+    1: {'print'}, // Lesson 1 (variables) + print()
+    2: {'print', 'type'}, // + Lesson 2 (data types): type()
+  };
+  for (final MapEntry(key: number, value: calls) in allowedCalls.entries) {
+    test('Level $number uses only Lessons 1-$number: $calls', () {
+      for (final c in minigameLevels[number - 1].challenges) {
+        final code = [
+          for (final line in c.code) line.code,
+          c.template,
+          c.starter,
+          c.solutionProgram,
+          ...c.choices,
+        ].join('\n');
+        // Quiz answers are outputs (e.g. <class 'int'>), so they are only
+        // checked for function calls.
+        final answers = c.answers.map((a) => a.label(en)).join('\n');
+        final used = RegExp(r'(\w+)\(')
+            .allMatches('$code\n$answers')
+            .map((m) => m[1]!);
+        expect(used.toSet().difference(calls), isEmpty, reason: c.id);
+        for (final later in ['+', '-', '*', '/', '[', '{', '<', '>', '==']) {
+          expect(code, isNot(contains(later)), reason: '${c.id}: $later');
+        }
+        for (final word in [
+          'if',
+          'else',
+          'for',
+          'while',
+          'def',
+          'and',
+          'or',
+          'not',
+          'input',
+        ]) {
+          expect(
+            RegExp('\\b$word\\b').hasMatch(code),
+            isFalse,
+            reason: '${c.id}: $word',
+          );
+        }
       }
-      for (final word in ['if', 'else', 'for', 'while', 'def', 'and', 'or']) {
-        expect(
-          RegExp('\\b$word\\b').hasMatch(code),
-          isFalse,
-          reason: '${c.id}: $word',
-        );
-      }
-    }
-  });
+    });
+  }
 
   test('a challenge with input() says the exact question in both texts', () {
     for (final c in allChallenges) {
@@ -111,32 +134,53 @@ void main() {
     }
   });
 
-  test('required code only uses names the problem text gives', () {
+  test('required code only uses names the problem text shows as code', () {
+    final word = RegExp(r'[A-Za-z_]\w*');
     for (final c in allChallenges.where((c) => c.requiredCode.isNotEmpty)) {
       final names = {
         for (final piece in c.requiredCode)
-          ...RegExp(r'[A-Za-z_]\w*').allMatches(piece).map((m) => m[0]!),
+          ...word.allMatches(piece).map((m) => m[0]!),
       }..remove('print');
-      for (final name in names) {
-        for (final l10n in [en, tl]) {
+      for (final l10n in [en, tl]) {
+        // The words inside `code spans` of the text.
+        final parts = c.prompt(l10n).split('`');
+        final shown = {
+          for (var i = 1; i < parts.length; i += 2)
+            ...word.allMatches(parts[i]).map((m) => m[0]!),
+        };
+        for (final name in names) {
           expect(
-            c.prompt(l10n),
-            contains('`$name'),
-            reason: '${c.id}: the text must name `$name`',
+            shown,
+            contains(name),
+            reason: '${c.id}: the text must show `$name` as code',
           );
         }
       }
     }
   });
 
-  test('Level 1 write-it challenges: printing the answer does not pass', () {
-    final writes = minigameLevels.first.challenges.where(
+  test('from Level 2 on, fix and write challenges without input() have '
+      'required code', () {
+    for (final level in minigameLevels.skip(1)) {
+      for (final c in level.challenges.where(
+        (c) =>
+            (c.type == ChallengeType.fixBug ||
+                c.type == ChallengeType.writeCode) &&
+            !c.solutionProgram.contains('input('),
+      )) {
+        expect(c.requiredCode, isNotEmpty, reason: c.id);
+      }
+    }
+    // Level 1 (written before this rule): its write-it challenges have it.
+    final level1Writes = minigameLevels.first.challenges.where(
       (c) => c.type == ChallengeType.writeCode,
     );
-    expect(writes.map((c) => c.id), ['mgL1C3', 'mgL1C9', 'mgL1C10']);
-    for (final c in writes) {
-      expect(c.requiredCode, isNotEmpty, reason: c.id);
-      // e.g. print(5) for "5", print("Cog") for "Cog".
+    expect(level1Writes.every((c) => c.requiredCode.isNotEmpty), isTrue);
+  });
+
+  test('required code: printing the answer does not pass', () {
+    for (final c in allChallenges.where((c) => c.requiredCode.isNotEmpty)) {
+      // e.g. print(5) for "5", print("<class 'int'>") for <class 'int'>.
       final fixedAnswer = [
         for (final line in c.tests.first.output)
           int.tryParse(line) != null || line == 'True' || line == 'False'
