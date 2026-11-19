@@ -1423,6 +1423,25 @@
   "codingTipOther": "Read the last line: it says what went wrong. You can fix it!",
   "codingAbout": "Python runs on your phone, even offline. Made with Pyodide (MPL-2.0) and CPython (PSF License).",
   "codingLicenses": "See licenses",
+  "aboutTitle": "About PyCog",
+  "@aboutTitle": {
+    "description": "Title of the About screen, and the button on the CODING screen that opens it."
+  },
+  "aboutText": "PyCog was made to help students learn the basics of Python programming. It is not only about robotics, and it is not based on any DepEd curriculum. PyCog is a free app, created by Joshua.",
+  "aboutVersion": "Version {version}",
+  "@aboutVersion": {
+    "description": "The app version at the bottom of the About screen.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.0.0"
+      }
+    }
+  },
+  "aboutNotices": "Open-source notices",
+  "@aboutNotices": {
+    "description": "Small link at the very bottom of the About screen. Opens the license page (Pyodide, CPython, fonts, Flutter packages)."
+  },
   "codingInsertTab": "Add 4 spaces",
   "@codingInsert": {
     "description": "Screen reader label of a helper button that types a symbol into the code box.",

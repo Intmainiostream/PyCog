@@ -19,6 +19,9 @@ class AppColors {
   static const outline = Color(0xFF3B2416); // thick dark brown outline
   static const text = Color(0xFF3B2416);
   static const textMuted = Color(0xFF7D6352);
+  // Very light gray: the small "Open-source notices" link on the About
+  // screen, meant to stay out of the way.
+  static const textFaint = Color(0xFFB5ABA2);
 
   // Cog's colors
   static const teal = Color(0xFF26A69A); // main color (Cog's body)
