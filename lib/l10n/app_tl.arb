@@ -1161,5 +1161,6 @@
   "mgL1C3Prompt": "Itanong ang edad gamit ang `input(\"Age? \")`. Tapos i-print ang edad dagdag ang 1.",
   "mgL1C3Hint1": "Text ang ibinibigay ng `input()`. Gamitin ang `int()` para maging number ito.",
   "mgL1C3Hint2": "Subukan ang `age = int(input(\"Age? \"))`, tapos `print(age + 1)`.",
-  "mgLocked": "Nakakandado"
+  "mgLocked": "Nakakandado",
+  "mgMustUse": "Dapat gamitin ng code mo ang: {pieces}"
 }

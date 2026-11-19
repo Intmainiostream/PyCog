@@ -54,6 +54,7 @@ class Challenge {
        solution = '',
        tests = const [],
        showFirstTest = false,
+       requiredCode = const [],
        assert(answers.where((a) => a.correct).length == 1);
 
   /// Fill the blank: [template] has [blankMarker] once. With [choices] the
@@ -73,6 +74,7 @@ class Challenge {
        answers = const [],
        code = const [],
        starter = '',
+       requiredCode = const [],
        assert(hints.length == hintsPerChallenge),
        assert(tests.isNotEmpty);
 
@@ -87,6 +89,7 @@ class Challenge {
     required this.solution,
     required this.tests,
     this.showFirstTest = false,
+    this.requiredCode = const [],
   }) : type = ChallengeType.fixBug,
        answers = const [],
        code = const [],
@@ -106,6 +109,7 @@ class Challenge {
     required this.tests,
     this.starter = '',
     this.showFirstTest = false,
+    this.requiredCode = const [],
   }) : type = ChallengeType.writeCode,
        answers = const [],
        code = const [],
@@ -152,6 +156,13 @@ class Challenge {
   /// When true, the first test is shown as an example before the student
   /// runs anything (so it is not hidden).
   final bool showFirstTest;
+
+  /// Fix the bug / write it yourself, optional: pieces the student's code
+  /// must contain, e.g. `speed =` or `print(speed)`, so printing a fixed
+  /// answer does not pass. Checked before running (spaces around `=` and
+  /// inside brackets don't matter, and `#` comments don't count). Empty =
+  /// no check.
+  final List<String> requiredCode;
 
   /// True for the three types whose answer is code that runs.
   bool get runsCode => type != ChallengeType.quiz;

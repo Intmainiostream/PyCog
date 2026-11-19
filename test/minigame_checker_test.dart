@@ -178,4 +178,110 @@ void main() {
       expect(challenge.solutionProgram, 'name = "Cog"\nprint(name)');
     });
   });
+
+  group('Required code ("must use")', () {
+    const required = ['speed = 5', 'print(speed)'];
+    const tests = [
+      TestCase(output: ['5']),
+    ];
+    ScriptedEngine fivePrinter() =>
+        ScriptedEngine((code, inputs) => printed('5\n'));
+
+    test(
+      'a missing piece: the code is not run, and the piece is listed',
+      () async {
+        final engine = fivePrinter();
+        final result = await checkProgram(
+          engine,
+          'print(5)',
+          tests,
+          required: required,
+        );
+        expect(result.passed, isFalse);
+        expect(result.missing, ['speed = 5', 'print(speed)']);
+        expect(result.failedNumber, isNull); // no test ran or failed
+        expect(engine.runs, isEmpty);
+      },
+    );
+
+    test('only the missing pieces are listed, in order', () async {
+      final result = await checkProgram(
+        fivePrinter(),
+        'speed = 5\nprint(5)',
+        tests,
+        required: required,
+      );
+      expect(result.missing, ['print(speed)']);
+    });
+
+    test('extra spaces around = and inside brackets do not matter', () {
+      for (final code in [
+        'speed=5\nprint(speed)',
+        'speed = 5\nprint(speed)',
+        'speed   =   5\nprint( speed )',
+        'speed\t=\t5\nprint(speed )',
+      ]) {
+        expect(missingCode(code, required), isEmpty, reason: code);
+      }
+      // A piece written with no spaces matches code with spaces too.
+      expect(missingCode('speed = 5', ['speed=5']), isEmpty);
+    });
+
+    test('other spaces still count', () {
+      expect(missingCode('spe ed = 5', ['speed =']), ['speed =']);
+      expect(missingCode('print (speed)', ['print(speed)']), ['print(speed)']);
+    });
+
+    test('a piece inside a # comment does not count', () {
+      expect(
+        missingCode('# speed = 5 print(speed)\nprint(5)', required),
+        required,
+      );
+      // But a # inside quotes is not a comment.
+      expect(missingCode('name = "#1"\nprint(name)', ['print(name)']), isEmpty);
+    });
+
+    test('with all pieces there, the code runs and is checked', () async {
+      final engine = fivePrinter();
+      final result = await checkProgram(
+        engine,
+        'speed = 5\nprint(speed)',
+        tests,
+        required: required,
+      );
+      expect(result.passed, isTrue);
+      expect(engine.runs, hasLength(1));
+    });
+
+    test('no required list: nothing changes', () async {
+      final engine = fivePrinter();
+      final result = await checkProgram(engine, 'print(5)', tests);
+      expect(result.passed, isTrue);
+      expect(result.missing, isEmpty);
+      expect(engine.runs, hasLength(1));
+    });
+
+    test('only fix the bug and write it yourself can have a list', () {
+      final write = Challenge.writeCode(
+        id: 'w',
+        title: (_) => '',
+        prompt: (_) => '',
+        hints: [(_) => '', (_) => ''],
+        solution: 'speed = 5\nprint(speed)',
+        tests: tests,
+        requiredCode: required,
+      );
+      expect(write.requiredCode, required);
+      final fill = Challenge.fillBlank(
+        id: 'f',
+        title: (_) => '',
+        prompt: (_) => '',
+        hints: [(_) => '', (_) => ''],
+        template: 'print($blankMarker)',
+        solution: '5',
+        tests: tests,
+      );
+      expect(fill.requiredCode, isEmpty);
+    });
+  });
 }

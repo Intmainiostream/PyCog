@@ -54,6 +54,8 @@ class FakePython implements PythonEngine {
         return _age(inputs[0], '13');
       case 'print(1 + 1)':
         return _out('2\n');
+      case 'speed = 5\nprint(speed)':
+        return _out('5\n');
     }
     return _out('', 'SyntaxError: invalid syntax');
   }
@@ -223,7 +225,7 @@ void main() {
     ) async {
       final (progress, _) = await pumpMap(tester);
       await openChallenge(tester, 'mgL1C1');
-      expect(find.text(en.mgL1C1Prompt), findsOneWidget);
+      expect(find.text(plain(en.mgL1C1Prompt)), findsOneWidget);
       expect(find.text('battery = battery + 10'), findsOneWidget);
       expect(key('mg-hint'), findsNothing);
       expect(starsLeft(tester), 3);
@@ -529,6 +531,97 @@ void main() {
       await tester.tap(key('mg-key-( )'));
       await tester.pumpAndSettle();
       expect(tester.widget<TextField>(key('mg-code')).controller!.text, '()');
+    });
+  });
+
+  group('Required code ("must use")', () {
+    /// The message as the screen shows it (non-breaking spaces inside
+    /// each piece, no backticks).
+    String mustUse(AppLocalizations l10n, List<String> pieces) => plain(
+      l10n.mgMustUse(
+        pieces.map((p) => '`${p.replaceAll(' ', '\u00A0')}`').join(', '),
+      ),
+    );
+    // A test-only challenge, so these tests don't depend on lesson content.
+    final need = Challenge.writeCode(
+      id: 'need',
+      title: (_) => 'Make speed',
+      prompt: (_) => 'Make speed = 5 and print(speed).',
+      hints: [(_) => 'h1', (_) => 'h2'],
+      solution: 'speed = 5\nprint(speed)',
+      requiredCode: const ['speed = 5', 'print(speed)'],
+      tests: const [
+        TestCase(output: ['5']),
+      ],
+    );
+
+    testWidgets('a missing piece: not run, a short message, no star lost', (
+      tester,
+    ) async {
+      final (progress, engine) = await pumpMap(
+        tester,
+        levels: [
+          MinigameLevel(number: 1, challenges: [need]),
+        ],
+      );
+      await openChallenge(tester, 'need');
+      await tester.enterText(key('mg-code'), 'print(5)');
+      await tapAndSettle(tester, key('mg-run'));
+      expect(engine.runs, isEmpty);
+      expect(
+        find.text(mustUse(en, ['speed = 5', 'print(speed)'])),
+        findsOneWidget,
+      );
+      expect(key('mg-failed'), findsNothing); // no test is shown
+      expect(starsLeft(tester), 3);
+      expect(progress.bestStars('need'), 0);
+
+      // Only the piece still missing is named.
+      await tester.enterText(key('mg-code'), 'speed = 5\nprint(5)');
+      await tapAndSettle(tester, key('mg-run'));
+      expect(engine.runs, isEmpty);
+      expect(find.text(mustUse(en, ['print(speed)'])), findsOneWidget);
+    });
+
+    testWidgets('extra spaces still count; with every piece it runs', (
+      tester,
+    ) async {
+      final (progress, engine) = await pumpMap(
+        tester,
+        levels: [
+          MinigameLevel(number: 1, challenges: [need]),
+        ],
+      );
+      await openChallenge(tester, 'need');
+      // Has every piece (spaces differ): it runs, and the pretend Python
+      // doesn't know it, so test 1 fails - but no "must use" message.
+      await tester.enterText(key('mg-code'), 'speed=5\nprint( speed )');
+      await tapAndSettle(tester, key('mg-run'));
+      expect(engine.runs, hasLength(1));
+      expect(key('mg-missing'), findsNothing);
+      expect(find.text(en.mgFailed(1)), findsOneWidget);
+
+      await tester.enterText(key('mg-code'), 'speed = 5\nprint(speed)');
+      await tapAndSettle(tester, key('mg-run'));
+      expect(find.text(en.mgPassed(3)), findsOneWidget);
+      expect(progress.bestStars('need'), 3);
+    });
+
+    testWidgets('the message is in Tagalog too', (tester) async {
+      await pumpMap(
+        tester,
+        lang: 'tl',
+        levels: [
+          MinigameLevel(number: 1, challenges: [need]),
+        ],
+      );
+      await openChallenge(tester, 'need');
+      await tester.enterText(key('mg-code'), 'print(5)');
+      await tapAndSettle(tester, key('mg-run'));
+      expect(
+        find.text(mustUse(tl, ['speed = 5', 'print(speed)'])),
+        findsOneWidget,
+      );
     });
   });
 

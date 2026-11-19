@@ -6,13 +6,20 @@ class CheckResult {
   const CheckResult.passed()
     : failedNumber = null,
       failedCase = null,
-      got = null;
+      got = null,
+      missing = const [];
 
   const CheckResult.failed({
     required int this.failedNumber,
     required TestCase this.failedCase,
     required PythonResult this.got,
-  });
+  }) : missing = const [];
+
+  /// The code was not run: it does not contain these required pieces.
+  const CheckResult.missing(this.missing)
+    : failedNumber = null,
+      failedCase = null,
+      got = null;
 
   /// Which test failed, counting from 1 (null when every test passed).
   final int? failedNumber;
@@ -24,7 +31,57 @@ class CheckResult {
   /// What the code did in [failedCase].
   final PythonResult? got;
 
-  bool get passed => failedNumber == null;
+  /// Required code pieces the student's code does not contain (the code
+  /// was not run). Empty otherwise.
+  final List<String> missing;
+
+  bool get passed => failedNumber == null && missing.isEmpty;
+}
+
+/// Makes code easy to search for a required piece: `#` comments are removed
+/// (a piece inside a comment does not count), and spaces around `=` and
+/// just inside brackets are dropped, so `speed=5`, `speed = 5`,
+/// `print( speed )` and `print(speed)` all match.
+String normalizeCode(String code) {
+  final lines = [
+    for (final line in code.replaceAll('\r\n', '\n').split('\n'))
+      _withoutComment(line),
+  ];
+  return lines
+      .join('\n')
+      .replaceAll(RegExp(r'[ \t]*=[ \t]*'), '=')
+      .replaceAllMapped(RegExp(r'([(\[{])[ \t]+'), (m) => m[1]!)
+      .replaceAllMapped(RegExp(r'[ \t]+([)\]}])'), (m) => m[1]!);
+}
+
+/// The line up to a `#` that is not inside quotes.
+String _withoutComment(String line) {
+  String? quote;
+  for (var i = 0; i < line.length; i++) {
+    final c = line[i];
+    if (quote != null) {
+      if (c == r'\') {
+        i++; // skip the escaped letter
+      } else if (c == quote) {
+        quote = null;
+      }
+    } else if (c == '"' || c == "'") {
+      quote = c;
+    } else if (c == '#') {
+      return line.substring(0, i);
+    }
+  }
+  return line;
+}
+
+/// The [required] pieces that [code] does not contain (see [normalizeCode]
+/// for what does not matter). Empty when all are there.
+List<String> missingCode(String code, List<String> required) {
+  final normalized = normalizeCode(code);
+  return [
+    for (final piece in required)
+      if (!normalized.contains(normalizeCode(piece))) piece,
+  ];
 }
 
 /// Makes two outputs comparable: spaces and tabs at the end of each line are
@@ -50,11 +107,17 @@ bool outputMatches(String stdout, List<String> expected) =>
 /// Runs [code] once per test, in order, and stops at the first test that
 /// fails. A test passes only if the program finished without an error, did
 /// not run too long, and printed exactly the expected output.
+///
+/// When [required] pieces are missing from the code, nothing runs and the
+/// result lists them ([CheckResult.missing]).
 Future<CheckResult> checkProgram(
   PythonEngine engine,
   String code,
-  List<TestCase> tests,
-) async {
+  List<TestCase> tests, {
+  List<String> required = const [],
+}) async {
+  final missing = missingCode(code, required);
+  if (missing.isNotEmpty) return CheckResult.missing(missing);
   for (final (i, test) in tests.indexed) {
     final result = await engine.run(code, inputs: test.inputs);
     final ok = result.ok && outputMatches(result.stdout, test.output);

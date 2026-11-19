@@ -1576,5 +1576,15 @@
   "mgL1C3Prompt": "Ask for an age with `input(\"Age? \")`. Then print the age plus 1.",
   "mgL1C3Hint1": "`input()` gives text. Use `int()` to make it a number.",
   "mgL1C3Hint2": "Try `age = int(input(\"Age? \"))`, then `print(age + 1)`.",
-  "mgLocked": "Locked"
+  "mgLocked": "Locked",
+  "@mgMustUse": {
+    "description": "Shown when the student's code is missing a required piece, so it was not run. pieces = the missing code pieces, in code style.",
+    "placeholders": {
+      "pieces": {
+        "type": "String",
+        "example": "`speed =`"
+      }
+    }
+  },
+  "mgMustUse": "Your code must use: {pieces}"
 }

@@ -158,6 +158,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
       _engine,
       _challenge.programFor(_entered),
       _challenge.tests,
+      required: _challenge.requiredCode,
     );
     if (!mounted) return;
     if (result.passed) {
@@ -595,6 +596,21 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   /// The first failed test: what was typed (in the output box), what the
   /// code showed, and what was expected. Tests after it are never shown.
   List<Widget> _failure(AppLocalizations l10n, CheckResult check) {
+    if (check.missing.isNotEmpty) {
+      // Not run (so no test is shown): a required piece is missing.
+      return [
+        CogFeedbackCard(
+          key: const ValueKey('mg-missing'),
+          // Non-breaking spaces keep each piece (e.g. `speed =`) on one line.
+          text: l10n.mgMustUse(
+            check.missing
+                .map((p) => '`${p.replaceAll(' ', '\u00A0')}`')
+                .join(', '),
+          ),
+          mood: CogMood.hint,
+        ),
+      ];
+    }
     final got = check.got!;
     final test = check.failedCase!;
     final error = got.error;
