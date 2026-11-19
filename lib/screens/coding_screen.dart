@@ -14,6 +14,7 @@ import '../widgets/cog_feedback_card.dart';
 import '../widgets/output_box.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/title_top_bar.dart';
+import 'about_screen.dart';
 
 /// What the student typed in the playground. Kept while the app is open,
 /// so leaving the screen and coming back keeps the code.
@@ -310,9 +311,13 @@ class _CodingScreenState extends State<CodingScreen> {
       Align(
         alignment: AlignmentDirectional.centerStart,
         child: TextButton(
-          onPressed: () =>
-              showLicensePage(context: context, applicationName: 'PyCog'),
-          child: Text(l10n.codingLicenses),
+          key: const ValueKey('coding-about'),
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => AboutScreen(settings: widget.settings),
+            ),
+          ),
+          child: Text(l10n.aboutTitle),
         ),
       ),
     ];
