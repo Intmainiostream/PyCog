@@ -52,6 +52,27 @@ class FakePython implements PythonEngine {
         return _age(inputs[0], '${int.parse(inputs[0]) + 1}');
       case 'age = int(input("Age? "))\nprint(13)':
         return _age(inputs[0], '13');
+      case 'vip = ["Ana", "Cog"]\n'
+          'name = input("Name? ")\n'
+          'lvl = int(input("Level? "))\n'
+          'good = 5 <= lvl <= 9\n'
+          'if name in vip or good:\n'
+          '    print("Hi, " + name)\n'
+          'else:\n'
+          '    print("Sorry, " + name)':
+        // The final challenge of the game, run like real Python.
+        final name = inputs[0];
+        final lvl = int.parse(inputs[1]);
+        final ok = ['Ana', 'Cog'].contains(name) || (lvl >= 5 && lvl <= 9);
+        final first = 'Name? $name\n';
+        return PythonResult(
+          stdout: '${first}Level? $lvl\n${ok ? 'Hi, $name' : 'Sorry, $name'}\n',
+          typed: [
+            TypedAnswer('Name? '.length, name),
+            TypedAnswer(first.length + 'Level? '.length, '$lvl'),
+          ],
+          elapsed: Duration.zero,
+        );
       case 'age = int(input("Age? "))\nprint(age + 2)':
         return _age(inputs[0], '${int.parse(inputs[0]) + 2}');
       case 'age = int(input("Age: "))\nprint(age + 1)':
@@ -1149,8 +1170,89 @@ void main() {
     });
   });
 
+  group('Level 10, the last level', () {
+    final levels1to8 = {
+      for (var l = 1; l <= 8; l++)
+        for (var c = 1; c <= 7; c++) 'minigame.stars.mgL${l}C$c': 1,
+    };
+    final levels1to9 = {
+      ...levels1to8,
+      for (var c = 1; c <= 7; c++) 'minigame.stars.mgL9C$c': 1,
+    };
+
+    testWidgets('opens after 7 Level 9 stars and lists its 10 challenges', (
+      tester,
+    ) async {
+      await pumpMap(tester, size: const Size(800, 2000), saved: levels1to8);
+      await tester.scrollUntilVisible(
+        key('mg-level-10'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tapAndSettle(tester, key('mg-level-10'));
+      expect(find.text(en.mgLevelLocked(9)), findsOneWidget);
+
+      await pumpMap(tester, size: const Size(800, 2000), saved: levels1to9);
+      await tester.scrollUntilVisible(
+        key('mg-level-10'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tapAndSettle(tester, key('mg-level-10'));
+      expect(find.byType(MinigameLevelScreen), findsOneWidget);
+      for (final c in minigameLevels[9].challenges) {
+        expect(find.text(c.title(en)), findsOneWidget, reason: c.id);
+      }
+    });
+
+    testWidgets('the finish line: the last challenge of the game ends '
+        'cleanly', (tester) async {
+      final (progress, _) = await pumpMap(
+        tester,
+        size: const Size(800, 2400),
+        saved: {
+          ...levels1to9,
+          for (var c = 1; c <= 9; c++) 'minigame.stars.mgL10C$c': 3,
+        },
+      );
+      await tester.scrollUntilVisible(
+        key('mg-level-10'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tapAndSettle(tester, key('mg-level-10'));
+      await tapAndSettle(tester, key('mg-challenge-mgL10C10'));
+      await tester.enterText(
+        key('mg-code'),
+        'vip = ["Ana", "Cog"]\n'
+        'name = input("Name? ")\n'
+        'lvl = int(input("Level? "))\n'
+        'good = 5 <= lvl <= 9\n'
+        'if name in vip or good:\n'
+        '    print("Hi, " + name)\n'
+        'else:\n'
+        '    print("Sorry, " + name)',
+      );
+      await tapAndSettle(tester, key('mg-run'));
+      // Solved: 3 stars, no "Next challenge" (it is the last one) and no
+      // "Level 11 is now open!" (there is no Level 11).
+      expect(find.text(en.mgPassed(3)), findsOneWidget);
+      expect(find.textContaining('11'), findsNothing);
+      expect(key('mg-next'), findsNothing);
+      expect(progress.bestStars('mgL10C10'), 3);
+
+      await tapAndSettle(tester, key('mg-back-level'));
+      expect(find.textContaining(en.mgSolved(10, 10)), findsOneWidget);
+      await goBack(tester);
+      // The map: all 10 levels open, nothing locked, nothing broken.
+      expect(find.text(en.mgLocked), findsNothing);
+      expect(progress.unlockedCount(minigameLevels), 10);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('Fits a 360px phone', () {
-    for (final number in [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+    for (final number in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
       for (final lang in ['en', 'tl']) {
         testWidgets('every Level $number challenge, with hints and a failed '
             'run ($lang)', (tester) async {
@@ -1168,6 +1270,7 @@ void main() {
               for (var c = 1; c <= 7; c++) 'minigame.stars.mgL6C$c': 1,
               for (var c = 1; c <= 7; c++) 'minigame.stars.mgL7C$c': 1,
               for (var c = 1; c <= 7; c++) 'minigame.stars.mgL8C$c': 1,
+              for (var c = 1; c <= 7; c++) 'minigame.stars.mgL9C$c': 1,
             },
           );
           expect(find.text(l10n.mgMapTitle), findsOneWidget);
