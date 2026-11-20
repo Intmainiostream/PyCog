@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.1.1+3
+version: 1.1.2+4
 
 environment:
   sdk: ^3.14.0
@@ -94,6 +94,9 @@ flutter:
     # Only the files directly in this folder are bundled: originals/ (the
     # untouched source files) and icon/ (app icon sources) stay out.
     - assets/branding/
+    # Star Shop pictures (app colors and Cog name tag badges). Only the
+    # files directly in this folder are bundled: originals/ stays out.
+    - assets/shop/
     # Sound effects (short .mp3 files, played by lib/sound/sounds.dart).
     - assets/sfx/
     # Background music (looped, played quietly by lib/sound/).

@@ -8,10 +8,15 @@ import '../theme/app_theme.dart';
 enum ShopGroup { theme, editor, tag }
 
 /// Colors for the home screen and the Play trail background.
+/// The extra picture a theme paints behind the home screen and the Play
+/// trail (see ThemeBackdropPainter).
+enum ThemeDecor { none, sunset, mint, ocean, candy }
+
 class ThemeLook {
-  const ThemeLook(this.background);
+  const ThemeLook(this.background, {this.decor = ThemeDecor.none});
 
   final Color background;
+  final ThemeDecor decor;
 }
 
 /// Colors of the CODING editor box.
@@ -50,6 +55,12 @@ class ShopItem {
   final EditorLook? editor;
 
   bool get free => price == 0;
+
+  /// Its picture in assets/shop/ (app colors and name tags; the code
+  /// editor looks have none yet and show a small code sample instead).
+  String? get image => group == ShopGroup.editor
+      ? null
+      : 'assets/shop/${id.replaceAll('.', '_')}.png';
 }
 
 /// Everything in the shop. The first item of each group is its free default.
@@ -68,28 +79,28 @@ final List<ShopItem> shopItems = [
     group: ShopGroup.theme,
     price: 10,
     name: (l) => l.shopThemeSunset,
-    theme: const ThemeLook(Color(0xFFFFEDE0)),
+    theme: const ThemeLook(Color(0xFFFFEDE0), decor: ThemeDecor.sunset),
   ),
   ShopItem(
     id: 'theme.mint',
     group: ShopGroup.theme,
     price: 15,
     name: (l) => l.shopThemeMint,
-    theme: const ThemeLook(Color(0xFFE6F8EF)),
+    theme: const ThemeLook(Color(0xFFE6F8EF), decor: ThemeDecor.mint),
   ),
   ShopItem(
     id: 'theme.ocean',
     group: ShopGroup.theme,
     price: 20,
     name: (l) => l.shopThemeOcean,
-    theme: const ThemeLook(Color(0xFFE4F3FF)),
+    theme: const ThemeLook(Color(0xFFE4F3FF), decor: ThemeDecor.ocean),
   ),
   ShopItem(
     id: 'theme.candy',
     group: ShopGroup.theme,
     price: 30,
     name: (l) => l.shopThemeCandy,
-    theme: const ThemeLook(Color(0xFFFFF0F6)),
+    theme: const ThemeLook(Color(0xFFFFF0F6), decor: ThemeDecor.candy),
   ),
   // CODING editor looks.
   ShopItem(

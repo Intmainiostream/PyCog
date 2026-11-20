@@ -21,6 +21,7 @@ import 'shop_screen.dart';
 import 'trail_screen.dart';
 import '../sound/music_zone.dart';
 import '../sound/sounds.dart';
+import '../widgets/coin_icon.dart';
 
 /// The first screen: Cog says hi, with three big buttons.
 ///  * PLAY opens the lesson trail.
@@ -156,17 +157,6 @@ class HomeScreen extends StatelessWidget {
             pose: CogPose.waving,
             size: AppSizes.homeCogSize,
           ),
-          // Cog's name tag from the Star Shop (plain text).
-          if (settings.shop.tag case final tag?)
-            Text(
-              tag.name(AppLocalizations.of(context)),
-              key: const ValueKey('home-tag'),
-              textAlign: TextAlign.center,
-              style: AppTextStyles.small.copyWith(
-                color: AppColors.tealDark,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
           ConstrainedBox(
             key: const ValueKey('home-bubble'),
             constraints: BoxConstraints(
@@ -254,7 +244,7 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(width: AppSizes.gap8),
                 Flexible(child: Text(l10n.homeShop)),
                 const SizedBox(width: AppSizes.gap12),
-                const Icon(Icons.star_rounded, color: AppColors.star),
+                const CoinIcon(size: 22),
                 const SizedBox(width: 2),
                 Text(
                   '${settings.shop.points}',

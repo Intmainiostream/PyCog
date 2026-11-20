@@ -21,6 +21,7 @@ import '../widgets/settings_sheet.dart';
 import 'minigame_map_screen.dart';
 import '../sound/sounds.dart';
 import '../sound/music_zone.dart';
+import '../widgets/coin_icon.dart';
 
 /// One MINIGAME challenge: a quiz, fill the blank, fix the bug, or write it
 /// yourself.
@@ -937,7 +938,8 @@ class _PointsLine extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.star_rounded, color: AppColors.star, size: 26),
+            // A gold coin (not a star): Star Points are not challenge stars.
+            const CoinIcon(size: 24),
             const SizedBox(width: 4),
             Flexible(
               child: Text(

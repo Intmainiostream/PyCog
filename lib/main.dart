@@ -15,6 +15,7 @@ import 'sound/audio_clips.dart';
 import 'sound/music_zone.dart';
 import 'sound/sounds.dart';
 import 'theme/app_theme.dart';
+import 'widgets/shop_scope.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -100,7 +101,8 @@ class PyCogApp extends StatelessWidget {
               .clamp(0.5, AppSizes.maxTextScale);
           return MediaQuery(
             data: media.copyWith(textScaler: TextScaler.linear(scale)),
-            child: child!,
+            // Every screen can see the shop (Cog's name tag badge).
+            child: ShopScope(shop: settings.shop, child: child!),
           );
         },
         home: Builder(builder: _start),
