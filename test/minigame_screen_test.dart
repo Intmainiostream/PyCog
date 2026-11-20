@@ -368,7 +368,7 @@ void main() {
       await tapAndSettle(tester, key('mg-check'));
       await tapAndSettle(tester, answer('80'));
       await tapAndSettle(tester, key('mg-check'));
-      expect(find.text(en.mgPassed(2)), findsOneWidget);
+      expect(find.text('${en.mgPassed(2)}\n${en.recordKept}'), findsOneWidget);
       expect(progress.bestStars('mgL1C1'), 3);
     });
   });
@@ -477,7 +477,7 @@ void main() {
 
       await tapAndSettle(tester, key('mg-challenge-mgL1C3'));
       await solve(tester);
-      expect(find.text(en.mgPassed(1)), findsOneWidget);
+      expect(find.text('${en.mgPassed(1)}\n${en.recordKept}'), findsOneWidget);
       expect(progress.bestStars('mgL1C3'), 3);
       expect(progress.hintsUsed('mgL1C3'), 0);
     });

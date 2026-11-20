@@ -219,13 +219,12 @@ void main() {
       expect(progress.solvedCount(levels[0]), 1);
     });
 
-    test('only a better result replaces the saved stars', () async {
+    test('the first solve is the permanent record: replays never change '
+        'it', () async {
       final progress = await loadWith({'minigame.stars.L1C1': 2});
-      expect(await progress.saveStars('L1C1', 1), isFalse);
+      expect(await progress.saveStars('L1C1', 1), isFalse); // worse
+      expect(await progress.saveStars('L1C1', 3), isFalse); // better
       expect(progress.bestStars('L1C1'), 2);
-      expect(await progress.saveStars('L1C1', 2), isFalse);
-      expect(await progress.saveStars('L1C1', 3), isTrue);
-      expect(progress.bestStars('L1C1'), 3);
     });
 
     test('saving tells listeners (the map redraws)', () async {

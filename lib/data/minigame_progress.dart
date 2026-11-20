@@ -3,8 +3,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/minigame.dart';
 
-/// Remembers the student's best stars for each MINIGAME challenge, saved on
-/// the phone with shared_preferences (so it stays after the app closes).
+/// Remembers the student's stars for each MINIGAME challenge, saved on the
+/// phone with shared_preferences (so it stays after the app closes).
+///
+/// The first solve of a challenge (always 1 to 3 stars) is its permanent
+/// RECORD: replaying never changes it. Stars saved by earlier versions are
+/// records already (same keys).
 ///
 /// It decides which levels are open: Level 1 always is, and each next level
 /// opens once at least [challengesToUnlockNext] challenges of the level
@@ -49,25 +53,26 @@ class MinigameProgress extends ChangeNotifier {
   }
 
   /// Forgets the hints and wrong picks of the last try (called when the
-  /// challenge is finished, so a replay starts fresh). Best stars stay.
+  /// challenge is finished, so a replay starts fresh). The record stays.
   Future<void> clearAttempt(String challengeId) async {
     await _prefs.remove(_hintsKey(challengeId));
     await _prefs.remove(_wrongKey(challengeId));
   }
 
-  /// Best stars ever earned on this challenge (0 = not solved yet).
+  /// The permanent record of this challenge (0 = not solved yet).
   int bestStars(String challengeId) => _prefs.getInt(_key(challengeId)) ?? 0;
 
-  /// Saves a result. Only replaces the saved value if it's better.
-  /// Returns true if this is a new best.
+  /// Saves a solve. Only the first solve with at least 1 star is saved (the
+  /// record); later solves change nothing. Returns true if this solve
+  /// became the record.
   Future<bool> saveStars(String challengeId, int stars) async {
-    if (stars <= bestStars(challengeId)) return false;
+    if (stars < 1 || bestStars(challengeId) >= 1) return false;
     await _prefs.setInt(_key(challengeId), stars);
     notifyListeners();
     return true;
   }
 
-  /// All best stars in a level added up.
+  /// All recorded stars in a level added up.
   int levelStars(MinigameLevel level) => level.challenges.fold(
     0,
     (sum, challenge) => sum + bestStars(challenge.id),

@@ -156,7 +156,7 @@
   "@results1Star": {
     "description": "Cog's reaction to 1 star. Must stay encouraging."
   },
-  "resultsBest": "Your best: {stars, plural, =1{1 star} other{{stars} stars}}",
+  "resultsBest": "Your record: {stars, plural, =1{1 star} other{{stars} stars}}",
   "@resultsBest": {
     "description": "Best score ever saved for this lesson.",
     "placeholders": {
@@ -165,7 +165,11 @@
       }
     }
   },
-  "resultsNewBest": "New best!",
+  "recordKept": "Your first score stays.",
+  "@recordKept": {
+    "description": "Shown on a result after a replay: replays never change the first (permanent) record."
+  },
+  "resultsNewBest": "New record!",
   "resultsUnlocked": "Lesson {number} is now open!",
   "@resultsUnlocked": {
     "description": "Shown on the results screen when this quiz opened the next lesson.",
@@ -273,7 +277,7 @@
       }
     }
   },
-  "gameBestBonus": "Your best: {stars, plural, =1{1 bonus star} other{{stars} bonus stars}}",
+  "gameBestBonus": "Your record: {stars, plural, =1{1 bonus star} other{{stars} bonus stars}}",
   "@gameBestBonus": {
     "description": "Best bonus score ever saved for this lesson's game.",
     "placeholders": {

@@ -36,6 +36,8 @@ class QuizResultsScreen extends StatelessWidget {
   final Lesson lesson;
   final int lessonNumber;
   final int stars;
+
+  /// True when this run became the lesson's first (permanent) record.
   final bool isNewBest;
 
   /// The lesson this result just opened, if any (e.g. 2).
@@ -201,6 +203,16 @@ class QuizResultsScreen extends StatelessWidget {
                               ),
                             ],
                           ),
+                          // A replay: the first (permanent) record stays.
+                          if (!isNewBest) ...[
+                            const SizedBox(height: AppSizes.gap8),
+                            Text(
+                              l10n.recordKept,
+                              key: const ValueKey('results-record-kept'),
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.small,
+                            ),
+                          ],
                         ],
                       ),
                     ),

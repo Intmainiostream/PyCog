@@ -79,6 +79,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   CheckResult? _check;
   bool _solved = false;
   int _earned = 0;
+  bool _firstRecord = true; // false on a replay: the record stays
   int? _openedLevel; // level number that solving this opened
 
   Challenge get _challenge => widget.level.challenges[widget.index];
@@ -183,8 +184,8 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   Future<void> _pass() async {
     final stars = _starsNow;
     final before = widget.progress.unlockedCount(widget.levels);
-    // Only a better result replaces the best stars.
-    await widget.progress.saveStars(_challenge.id, stars);
+    // Only the first solve is saved (the permanent record).
+    final first = await widget.progress.saveStars(_challenge.id, stars);
     await widget.progress.clearAttempt(_challenge.id);
     final after = widget.progress.unlockedCount(widget.levels);
     if (!mounted) return;
@@ -198,6 +199,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     setState(() {
       _solved = true;
       _earned = stars;
+      _firstRecord = first;
       _check = null;
       _selected = null;
       _openedLevel = after > before ? widget.levels[after - 1].number : null;
@@ -564,6 +566,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
           text: [
             l10n.mgPassed(_earned),
             if (opened != null) l10n.mgUnlocked(opened),
+            if (!_firstRecord) l10n.recordKept,
           ].join('\n'),
           mood: CogMood.happy,
         ),

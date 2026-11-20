@@ -34,6 +34,8 @@ class GameResultsScreen extends StatelessWidget {
   final Lesson lesson;
   final int lessonNumber;
   final int stars;
+
+  /// True when this run became the lesson's first (permanent) record.
   final bool isNewBest;
   final SettingsController settings;
   final ProgressController progress;
@@ -151,6 +153,16 @@ class GameResultsScreen extends StatelessWidget {
                               ),
                             ],
                           ),
+                          // A replay: the first (permanent) record stays.
+                          if (!isNewBest) ...[
+                            const SizedBox(height: AppSizes.gap8),
+                            Text(
+                              l10n.recordKept,
+                              key: const ValueKey('results-record-kept'),
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.small,
+                            ),
+                          ],
                         ],
                       ),
                     ),

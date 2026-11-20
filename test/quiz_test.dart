@@ -207,7 +207,7 @@ void main() {
 
   group('Saved progress', () {
     test(
-      'keeps the best stars, adds them up, unlocks the next lesson',
+      'keeps the first record, adds it up, unlocks the next lesson',
       () async {
         final progress = await ProgressController.load();
         expect(progress.unlockedCount(lessons), 1);
@@ -218,10 +218,11 @@ void main() {
         expect(progress.bestStars('variables'), 2);
         expect(progress.unlockedCount(lessons), 2);
 
-        expect(await progress.saveStars('variables', 3), isTrue);
+        // A better replay does not change the record either.
+        expect(await progress.saveStars('variables', 3), isFalse);
         final reloaded = await ProgressController.load();
-        expect(reloaded.bestStars('variables'), 3);
-        expect(reloaded.totalStars(lessons), 3);
+        expect(reloaded.bestStars('variables'), 2);
+        expect(reloaded.totalStars(lessons), 2);
       },
     );
 
