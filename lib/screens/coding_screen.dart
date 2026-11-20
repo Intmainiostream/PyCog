@@ -14,7 +14,6 @@ import '../widgets/cog_feedback_card.dart';
 import '../widgets/output_box.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/title_top_bar.dart';
-import 'about_screen.dart';
 import '../sound/sounds.dart';
 import '../sound/music_zone.dart';
 
@@ -324,20 +323,6 @@ class _CodingScreenState extends State<CodingScreen> {
       Text(
         l10n.codingAbout,
         style: AppTextStyles.small.copyWith(color: AppColors.textMuted),
-      ),
-      Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: TextButton(
-          key: const ValueKey('coding-about'),
-          onPressed: Sounds.tapThen(
-            () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => AboutScreen(settings: widget.settings),
-              ),
-            ),
-          ),
-          child: Text(l10n.aboutTitle),
-        ),
       ),
     ];
   }

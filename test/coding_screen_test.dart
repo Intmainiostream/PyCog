@@ -10,7 +10,6 @@ import 'package:pycog/l10n/generated/app_localizations.dart';
 import 'package:pycog/playground/coding_examples.dart';
 import 'package:pycog/playground/coding_output.dart';
 import 'package:pycog/playground/python_runner.dart';
-import 'package:pycog/screens/about_screen.dart';
 import 'package:pycog/screens/coding_screen.dart';
 import 'package:pycog/theme/app_theme.dart';
 import 'package:pycog/widgets/cog_feedback_card.dart';
@@ -368,29 +367,15 @@ void main() {
       expect(find.text(tl.codingAbout), findsOneWidget);
     });
 
-    testWidgets('About line and the "About PyCog" button; no licenses '
-        'button for students', (tester) async {
+    testWidgets('the credit line stays; no About or licenses button here '
+        '(About is in Settings now)', (tester) async {
       await pumpCoding(tester);
       expect(find.text(en.codingAbout), findsOneWidget);
       expect(en.codingAbout, allOf(contains('MPL-2.0'), contains('PSF')));
       expect(find.text(en.codingLicenses), findsNothing);
       expect(find.byType(LicensePage), findsNothing);
-      final about = find.byKey(const ValueKey('coding-about'));
-      expect(
-        find.descendant(of: about, matching: find.text(en.aboutTitle)),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('"About PyCog" opens the About screen', (tester) async {
-      await pumpCoding(tester);
-      final about = find.byKey(const ValueKey('coding-about'));
-      await tester.ensureVisible(about);
-      await tester.pumpAndSettle();
-      await tester.tap(about);
-      await tester.pumpAndSettle();
-      expect(find.byType(AboutScreen), findsOneWidget);
-      expect(find.text(en.aboutText), findsOneWidget);
+      expect(find.byKey(const ValueKey('coding-about')), findsNothing);
+      expect(find.text(en.aboutTitle), findsNothing);
     });
 
     test('the license texts are bundled', () async {

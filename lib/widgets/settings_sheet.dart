@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../data/settings_controller.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../screens/about_screen.dart';
 import '../theme/app_theme.dart';
 import 'chunky_button.dart';
 import 'sticker_switch.dart';
@@ -123,6 +124,9 @@ class SettingsSheet extends StatelessWidget {
                     ),
                   ),
 
+                  // ---- About PyCog (opens the About screen) ----
+                  _AboutRow(settings: settings),
+
                   const SizedBox(height: AppSizes.gap8),
                   ChunkyButton(
                     onTap: () => Navigator.of(context).pop(),
@@ -134,6 +138,51 @@ class SettingsSheet extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// "About PyCog": a row like the setting cards that opens the About screen
+/// (which also has the small link to the open-source notices).
+class _AboutRow extends StatelessWidget {
+  const _AboutRow({required this.settings});
+
+  final SettingsController settings;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scaler = MediaQuery.textScalerOf(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSizes.gap16),
+      child: ChunkyButton(
+        key: const ValueKey('settings-about'),
+        color: AppColors.surface,
+        padding: const EdgeInsets.all(AppSizes.gap12),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => AboutScreen(settings: settings),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.info_outline_rounded,
+              color: AppColors.teal,
+              size: scaler.scale(24),
+            ),
+            const SizedBox(width: AppSizes.gap8),
+            Expanded(
+              child: Text(l10n.aboutTitle, style: AppTextStyles.subtitle),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textMuted,
+              size: scaler.scale(24),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
