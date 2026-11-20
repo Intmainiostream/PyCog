@@ -1483,7 +1483,7 @@
   "codingInsert": "Add {symbol}",
   "mgMapTitle": "Mini games",
   "mgMapIntro": "Solve Python challenges with Cog!",
-  "mgUnlockRule": "Get at least 1 star on 7 challenges to open the next level.",
+  "mgUnlockRule": "To open a level: finish its lesson in Play mode, then get at least 1 star on 7 challenges in the level before.",
   "@mgLevel": {
     "description": "A level on the MINIGAME map.",
     "placeholders": {
@@ -1623,6 +1623,15 @@
   "mgL1C3Prompt": "Make a variable `speed` with the value `5`. Then show it with `print(speed)`.",
   "mgL1C3Hint1": "Write the name, then `=`, then the value.",
   "mgL1C3Hint2": "Your first line is `speed = 5`.",
+  "mgNeedLesson": "Finish Lesson {number} in Play mode first.",
+  "@mgNeedLesson": {
+    "description": "A locked MINIGAME level: its Play lesson (same number) is not finished yet.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "mgLocked": "Locked",
   "mgL1C4Title": "A good name",
   "mgL1C4Prompt": "Which variable name follows the rules?",

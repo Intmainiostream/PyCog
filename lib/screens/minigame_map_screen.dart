@@ -21,9 +21,9 @@ import '../sound/sound_on_show.dart';
 import '../sound/music_zone.dart';
 
 /// The MINIGAME map (opened by MINIGAME on the home screen): 10 levels of
-/// challenges, with the stars earned on each. Level 1 is open; each next
-/// level opens when [challengesToUnlockNext] challenges of the level before
-/// it have at least 1 star.
+/// challenges, with the stars earned on each. A level opens when its Play
+/// lesson is finished and (from Level 2) [challengesToUnlockNext]
+/// challenges of the level before it have at least 1 star.
 class MinigameMapScreen extends StatelessWidget {
   MinigameMapScreen({
     super.key,
@@ -61,7 +61,7 @@ class MinigameMapScreen extends StatelessWidget {
     }
     final message = unlocked
         ? l10n.mgLevelSoon
-        : l10n.mgLevelLocked(levels[index - 1].number);
+        : lockedMessage(l10n, progress, levels, index);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
@@ -114,6 +114,9 @@ class MinigameMapScreen extends StatelessWidget {
                               key: ValueKey('mg-level-${level.number}'),
                               level: level,
                               unlocked: i < unlocked,
+                              lockedDetail: i < unlocked
+                                  ? null
+                                  : lockedDetail(l10n, progress, levels, i),
                               stars: progress.levelStars(level),
                               solved: progress.solvedCount(level),
                               onTap: () =>
@@ -168,6 +171,7 @@ class _LevelTile extends StatelessWidget {
     super.key,
     required this.level,
     required this.unlocked,
+    this.lockedDetail,
     required this.stars,
     required this.solved,
     required this.onTap,
@@ -175,6 +179,9 @@ class _LevelTile extends StatelessWidget {
 
   final MinigameLevel level;
   final bool unlocked;
+
+  /// What a locked level says under its name (why it is locked).
+  final String? lockedDetail;
   final int stars;
   final int solved;
   final VoidCallback onTap;
@@ -189,7 +196,7 @@ class _LevelTile extends StatelessWidget {
 
     final String detail;
     if (!unlocked) {
-      detail = l10n.mgLocked;
+      detail = lockedDetail ?? l10n.mgLocked;
     } else if (empty) {
       detail = l10n.mgLevelSoon;
     } else {
@@ -526,4 +533,33 @@ class _ChallengeTile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Everything a locked level still needs, one line each (shown when the
+/// student taps it).
+String lockedMessage(
+  AppLocalizations l10n,
+  MinigameProgress progress,
+  List<MinigameLevel> levels,
+  int index,
+) {
+  final why = progress.whyLocked(levels, index);
+  return [
+    if (why.needsLesson) l10n.mgNeedLesson(levels[index].number),
+    if (why.needsStars) l10n.mgLevelLocked(levels[index - 1].number),
+  ].join('\n');
+}
+
+/// The short reason under a locked level's name: the lesson first, since
+/// it is done in Play mode.
+String lockedDetail(
+  AppLocalizations l10n,
+  MinigameProgress progress,
+  List<MinigameLevel> levels,
+  int index,
+) {
+  final why = progress.whyLocked(levels, index);
+  return why.needsLesson
+      ? l10n.mgNeedLesson(levels[index].number)
+      : l10n.mgLocked;
 }

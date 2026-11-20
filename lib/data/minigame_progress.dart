@@ -2,6 +2,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/minigame.dart';
+import 'lessons.dart';
+import 'progress_controller.dart';
 
 /// Remembers the student's stars for each MINIGAME challenge, saved on the
 /// phone with shared_preferences (so it stays after the app closes).
@@ -10,9 +12,12 @@ import '../models/minigame.dart';
 /// RECORD: replaying never changes it. Stars saved by earlier versions are
 /// records already (same keys).
 ///
-/// It decides which levels are open: Level 1 always is, and each next level
-/// opens once at least [challengesToUnlockNext] challenges of the level
-/// before it have 1 star or more.
+/// It decides which levels are open. A level opens only when BOTH are true:
+///  * its Play lesson is finished (Level N goes with Lesson N: the lesson's
+///    quiz has at least 1 star, the same rule that opens the next lesson);
+///  * for Level 2 and up: the level before it is open and at least
+///    [challengesToUnlockNext] of its challenges have 1 star or more.
+/// Locking a level again never deletes its saved stars.
 class MinigameProgress extends ChangeNotifier {
   MinigameProgress._(this._prefs);
 
@@ -82,14 +87,42 @@ class MinigameProgress extends ChangeNotifier {
   int solvedCount(MinigameLevel level) =>
       level.challenges.where((c) => bestStars(c.id) >= 1).length;
 
+  /// The Play lesson that goes with [level] (Level N = Lesson N).
+  static String? lessonIdFor(MinigameLevel level) =>
+      level.number >= 1 && level.number <= lessons.length
+      ? lessons[level.number - 1].id
+      : null;
+
+  /// Whether the Play lesson of [level] is finished (its quiz has a star).
+  bool lessonFinished(MinigameLevel level) {
+    final id = lessonIdFor(level);
+    if (id == null) return false;
+    return (_prefs.getInt(ProgressController.quizStarsKey(id)) ?? 0) >= 1;
+  }
+
   /// How many levels, from the start, are open.
   int unlockedCount(List<MinigameLevel> levels) {
-    if (levels.isEmpty) return 0;
-    var count = 1;
+    var count = 0;
     while (count < levels.length &&
-        solvedCount(levels[count - 1]) >= challengesToUnlockNext) {
+        lessonFinished(levels[count]) &&
+        (count == 0 ||
+            solvedCount(levels[count - 1]) >= challengesToUnlockNext)) {
       count++;
     }
     return count;
+  }
+
+  /// Why the level at [index] is locked: its lesson is not finished, and/or
+  /// the level before it is not open with stars on enough challenges.
+  ({bool needsLesson, bool needsStars}) whyLocked(
+    List<MinigameLevel> levels,
+    int index,
+  ) {
+    final needsLesson = !lessonFinished(levels[index]);
+    final needsStars =
+        index > 0 &&
+        !(index - 1 < unlockedCount(levels) &&
+            solvedCount(levels[index - 1]) >= challengesToUnlockNext);
+    return (needsLesson: needsLesson, needsStars: needsStars);
   }
 }

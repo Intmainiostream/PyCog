@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:pycog/data/lessons.dart';
 import 'package:pycog/data/minigame_progress.dart';
 import 'package:pycog/models/minigame.dart';
 import 'package:pycog/models/quiz.dart';
@@ -31,8 +32,20 @@ Map<String, Object> solved(int level, int count, {int stars = 1}) => {
   for (var c = 1; c <= count; c++) 'minigame.stars.L${level}C$c': stars,
 };
 
-Future<MinigameProgress> loadWith(Map<String, Object> saved) async {
-  SharedPreferences.setMockInitialValues(saved);
+/// Saved data for: every Play lesson finished (each level also needs its
+/// lesson; these tests are about the star rule).
+final allLessonsDone = <String, Object>{
+  for (final lesson in lessons) 'progress.stars.${lesson.id}': 1,
+};
+
+Future<MinigameProgress> loadWith(
+  Map<String, Object> saved, {
+  bool lessonsDone = true,
+}) async {
+  SharedPreferences.setMockInitialValues({
+    if (lessonsDone) ...allLessonsDone,
+    ...saved,
+  });
   return MinigameProgress.load();
 }
 

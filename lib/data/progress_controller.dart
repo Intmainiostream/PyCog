@@ -23,7 +23,11 @@ class ProgressController extends ChangeNotifier {
 
   final SharedPreferences _prefs;
 
-  static String _key(String lessonId) => 'progress.stars.$lessonId';
+  static String _key(String lessonId) => quizStarsKey(lessonId);
+
+  /// Where a lesson's quiz record is saved (MINIGAME reads it too: a level
+  /// needs its lesson finished).
+  static String quizStarsKey(String lessonId) => 'progress.stars.$lessonId';
   static String _bonusKey(String lessonId) => 'progress.bonus.$lessonId';
 
   /// The permanent record of this lesson's quiz (0 = not finished yet).

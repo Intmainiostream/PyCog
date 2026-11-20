@@ -118,7 +118,10 @@ void main() {
     testWidgets('MINIGAME opens the level map; the back arrow returns', (
       tester,
     ) async {
-      await startApp(tester, saved: {'minigame.stars.mgL1C1': 3});
+      await startApp(
+        tester,
+        saved: {'minigame.stars.mgL1C1': 3, 'progress.stars.variables': 1},
+      );
       await tapAndSettle(tester, minigame);
       expect(find.byType(MinigameMapScreen), findsOneWidget);
       expect(find.byType(ComingSoonScreen), findsNothing);
