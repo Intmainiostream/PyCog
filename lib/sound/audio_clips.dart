@@ -52,10 +52,16 @@ class AudioplayersClips implements SoundClips {
     if (player == null) return; // missing or broken file: stay quiet
     final before = _current;
     _current = player;
+    // Only stop what is really still playing: most taps are then a
+    // single call to the phone instead of three.
     unawaited(
       _try(sfx.name, () async {
-        if (before != null && !identical(before, player)) await before.stop();
-        await player.stop(); // back to the start if it is still playing
+        if (before != null &&
+            !identical(before, player) &&
+            before.state == PlayerState.playing) {
+          await before.stop();
+        }
+        if (player.state == PlayerState.playing) await player.stop();
         await player.resume();
       }),
     );
@@ -77,16 +83,16 @@ class AudioplayersClips implements SoundClips {
   }
 }
 
-/// The real background music, played with the audioplayers package.
+/// The real background music: ONE audioplayers player for the whole app,
+/// on a loop. The [MusicManager] decides what it does.
 ///
-/// Each song has its own player, on a loop, so it keeps its place while
-/// the other one plays. Music uses normal media audio focus on Android:
-/// a phone call pauses it and it continues afterwards; if another app
-/// takes the audio for good, it continues when the student comes back to
-/// PyCog. (Sound effects take no focus at all.) On iOS it uses the same
-/// "ambient" session as the sound effects, so it mixes with other apps.
-class AudioplayersTracks implements MusicTracks {
-  final _players = <Song, AudioPlayer>{};
+/// Music uses normal media audio focus on Android: a phone call pauses it
+/// and it continues afterwards; if another app takes the audio for good,
+/// it continues when the student comes back to PyCog. (Sound effects take
+/// no focus at all.) On iOS it uses the same "ambient" session as the
+/// sound effects, so it mixes with other apps.
+class AudioplayersMusic implements MusicBackend {
+  final _player = AudioPlayer(playerId: 'music');
 
   static final _context = AudioContext(
     android: const AudioContextAndroid(
@@ -99,33 +105,36 @@ class AudioplayersTracks implements MusicTracks {
     iOS: AudioContextIOS(category: AVAudioSessionCategory.ambient),
   );
 
+  /// Sets the player up and copies both songs out of the app once (the
+  /// player can only play files), so switching songs later only points the
+  /// player at a ready file.
   @override
-  Future<void> preload() async {
+  Future<void> preload() => AudioplayersClips._try('music setup', () async {
+    await _player.setAudioContext(_context);
+    await _player.setReleaseMode(ReleaseMode.loop);
+    await _player.setVolume(0);
     for (final song in Song.values) {
-      await AudioplayersClips._try(song.name, () async {
-        final player = AudioPlayer(playerId: 'music-${song.name}');
-        await player.setAudioContext(_context);
-        await player.setReleaseMode(ReleaseMode.loop);
-        await player.setVolume(0);
-        await player.setSource(AssetSource('music/${song.file}'));
-        _players[song] = player;
-      });
+      await _player.audioCache.load('music/${song.file}');
     }
-  }
+  });
+
+  // AssetSource adds the "assets/" folder itself.
+  @override
+  Future<void> load(Song song) =>
+      _player.setSource(AssetSource('music/${song.file}'));
 
   @override
-  void play(Song song) => _do(song, (p) => p.resume());
+  Future<void> play() => _player.resume();
 
   @override
-  void pause(Song song) => _do(song, (p) => p.pause());
+  Future<void> pause() => _player.pause();
 
   @override
-  void setVolume(Song song, double volume) =>
-      _do(song, (p) => p.setVolume(volume));
+  Future<void> setVolume(double volume) => _player.setVolume(volume);
 
-  void _do(Song song, Future<void> Function(AudioPlayer) action) {
-    final player = _players[song];
-    if (player == null) return; // missing or broken file: stay quiet
-    unawaited(AudioplayersClips._try(song.name, () => action(player)));
-  }
+  @override
+  Future<Duration?> position() => _player.getCurrentPosition();
+
+  @override
+  Future<void> seek(Duration position) => _player.seek(position);
 }

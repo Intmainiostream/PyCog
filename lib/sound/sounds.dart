@@ -150,6 +150,15 @@ class Sounds {
   static void _updateMusic() =>
       _safely(() => music.playSong(musicOn ? _screenSong : null));
 
+  static Future<void>? _loading;
+
+  /// Loads the sound effects, then the music, one after the other. Runs
+  /// only once (later calls wait for the same loading).
+  static Future<void> loadAll() => _loading ??= () async {
+    await player.preload();
+    await music.preload();
+  }();
+
   static AppLifecycleListener? _lifecycle;
 
   /// Starts following the app going to the background and coming back
@@ -198,6 +207,7 @@ class Sounds {
     player = SilentSoundPlayer();
     music = SilentMusicPlayer();
     _screenSong = null;
+    _loading = null;
   }
 
   static void _safely(void Function() action) {
@@ -275,119 +285,205 @@ class SequencedSoundPlayer extends SoundPlayer {
   }
 }
 
-/// Something that can play the two songs (each keeps its own place).
-abstract class MusicTracks {
+/// The one music player of the app (the real one plays with audioplayers;
+/// tests use a fake). Every call may take a moment; the manager waits.
+abstract class MusicBackend {
+  /// Gets both songs ready once (never throws).
   Future<void> preload();
 
-  /// Starts [song], or continues it from where it was paused.
-  void play(Song song);
+  /// Puts [song] in the player (from the copy made by [preload]).
+  Future<void> load(Song song);
 
-  void pause(Song song);
+  Future<void> play();
 
-  void setVolume(Song song, double volume);
+  Future<void> pause();
+
+  Future<void> setVolume(double volume);
+
+  /// Where the song is now (null if unknown).
+  Future<Duration?> position();
+
+  Future<void> seek(Duration position);
 }
 
-/// The music rules, on top of [MusicTracks]: one song at a time, quiet
-/// ([volume]), and a short fade ([fade]) when the song changes, pauses or
-/// comes back. A song that was faded out is paused, so it continues from
-/// the same place later.
-class FadingMusicPlayer extends MusicPlayer {
-  FadingMusicPlayer(this.tracks);
+/// The one music manager of the app.
+///
+/// It keeps the "wanted song" (none, [Song.title] or [Song.game]) and moves
+/// the one player towards it, one step at a time:
+///  * the wanted song is already playing: nothing happens (no restart);
+///  * another song: the old one fades out, the new one fades in
+///    ([fadeOut] + [fadeIn], under a second), and a song continues from
+///    where it was when it comes back;
+///  * requests that come fast: only the newest counts. Every step checks
+///    that no newer request came in, so a slow, older step can never make
+///    the wrong song play.
+/// The music is quiet ([volume]) and pauses at once when the app is away.
+class MusicManager extends MusicPlayer {
+  MusicManager(this.backend);
 
-  final MusicTracks tracks;
+  final MusicBackend backend;
 
-  /// Quiet, so the sound effects are heard clearly above it.
   static const volume = 0.35;
+  static const fadeOut = Duration(milliseconds: 350);
+  static const fadeIn = Duration(milliseconds: 350);
 
-  static const fade = Duration(milliseconds: 700);
-  static const _tick = Duration(milliseconds: 50);
+  /// Volume changes per fade (few, so the phone is not kept busy).
+  static const fadeSteps = 5;
 
-  Song? _song;
-  bool _paused = false;
-  final _volume = {for (final song in Song.values) song: 0.0};
-  final _playing = <Song>{};
-  Timer? _timer;
+  Song? _wanted;
+  bool _away = false;
+  bool _ready = false;
 
-  /// The song that is playing (or will, when the app comes back).
-  Song? get song => _song;
+  // What the player really does (changed only after a step finished).
+  Song? _loaded;
+  bool _playing = false;
+  double _volume = 0;
+  final _positions = <Song, Duration>{};
+  final _broken = <Song>{};
 
-  /// The current volume of [song] (for tests).
+  int _request = 0; // grows with every new request
+  bool _working = false;
+
+  /// The song the app wants now (null: none).
+  Song? get wanted => _wanted;
+
+  /// The song in the player, and whether it is playing (for tests).
   @visibleForTesting
-  double volumeOf(Song song) => _volume[song]!;
+  (Song?, bool, double) get state => (_loaded, _playing, _volume);
+
+  Song? get _target => _away ? null : _wanted;
 
   @override
   Future<void> preload() async {
-    await tracks.preload();
-    // A song asked for while loading starts now.
-    final song = _song;
-    if (song != null && !_paused) {
-      _playing.remove(song);
-      _fadeToTargets();
-    }
+    await backend.preload();
+    _ready = true;
+    _kick();
   }
 
   @override
   void playSong(Song? song) {
-    if (song == _song) return; // the same song keeps going
-    _song = song;
-    _fadeToTargets();
+    if (song == _wanted) return; // the same song keeps going
+    _wanted = song;
+    _kick();
   }
 
   @override
   void pause() {
-    if (_paused) return;
-    _paused = true;
-    _timer?.cancel();
-    _timer = null;
-    for (final song in Song.values) {
-      if (_playing.remove(song)) tracks.pause(song);
-      _volume[song] = 0;
-      tracks.setVolume(song, 0);
-    }
+    if (_away) return;
+    _away = true;
+    _request++; // anything still running is now out of date
+    _playing = false;
+    _volume = 0;
+    // Always sent, after anything already sent, so the player ends up
+    // paused even if a song was just starting.
+    unawaited(
+      _quietly(() async {
+        await backend.pause();
+        await backend.setVolume(0);
+      }),
+    );
   }
 
   @override
   void resume() {
-    if (!_paused) return;
-    _paused = false;
-    _fadeToTargets();
+    if (!_away) return;
+    _away = false;
+    _kick();
   }
 
-  double _target(Song song) => !_paused && song == _song ? volume : 0;
-
-  void _fadeToTargets() {
-    _timer?.cancel();
-    final song = _song;
-    if (song != null && !_paused && !_playing.contains(song)) {
-      tracks.setVolume(song, _volume[song]!);
-      tracks.play(song);
-      _playing.add(song);
-    }
-    _timer = Timer.periodic(_tick, (_) => _step());
+  void _kick() {
+    _request++;
+    if (!_working) unawaited(_work());
   }
 
-  void _step() {
-    final delta = volume * _tick.inMicroseconds / fade.inMicroseconds;
-    var done = true;
-    for (final song in Song.values) {
-      final target = _target(song);
-      final before = _volume[song]!;
-      var v = before;
-      if (v < target) {
-        v = v + delta > target ? target : v + delta;
-      } else if (v > target) {
-        v = v - delta < target ? target : v - delta;
+  bool _settled() {
+    final target = _target;
+    if (target == null) return !_playing;
+    if (_broken.contains(target)) return !_playing;
+    return _loaded == target && _playing && _volume == volume;
+  }
+
+  Future<void> _work() async {
+    _working = true;
+    try {
+      while (_ready && !_settled()) {
+        await _step(_request, _target);
       }
-      if (v != target) done = false;
-      if (v != before) {
-        _volume[song] = v;
-        tracks.setVolume(song, v);
-      }
-      if (v == 0 && target == 0 && _playing.remove(song)) tracks.pause(song);
+    } finally {
+      _working = false;
     }
-    if (done) {
-      _timer?.cancel();
-      _timer = null;
+  }
+
+  /// Moves the player one way towards [target]. Returns early if a newer
+  /// request came in ([request] is out of date); the loop then starts
+  /// again from what the player really does, with the newest target.
+  Future<void> _step(int request, Song? target) async {
+    bool stale() => request != _request;
+
+    // 1. Something else is playing (or nothing is wanted): fade it out.
+    if (_playing &&
+        (_loaded != target || target == null || _broken.contains(target))) {
+      if (!await _fadeTo(0, fadeOut, stale)) return;
+      final playing = _loaded;
+      if (playing != null) {
+        final at = await _quietly(backend.position);
+        if (at != null) _positions[playing] = at;
+      }
+      await _quietly(backend.pause);
+      _playing = false;
+      if (stale()) return;
+    }
+    if (target == null || _broken.contains(target)) return;
+
+    // 2. Put the wanted song in the player (it continues where it was).
+    if (_loaded != target) {
+      final ok = await _quietly(() async {
+        await backend.load(target);
+        return true;
+      });
+      if (ok != true) {
+        _broken.add(target); // missing or broken file: stay quiet
+        return;
+      }
+      _loaded = target;
+      final at = _positions[target];
+      if (at != null) await _quietly(() => backend.seek(at));
+      if (stale()) return; // a newer request: never start this song
+    }
+
+    // 3. Start it quietly and fade in.
+    if (!_playing) {
+      await _quietly(() => backend.setVolume(_volume));
+      if (stale()) return;
+      _playing = true; // before the await: a pause now sees it
+      await _quietly(backend.play);
+      if (stale()) return;
+    }
+    await _fadeTo(volume, fadeIn, stale);
+  }
+
+  /// Changes the volume to [to] in [fadeSteps] steps over [time]. Returns
+  /// false if a newer request came in on the way.
+  Future<bool> _fadeTo(double to, Duration time, bool Function() stale) async {
+    final from = _volume;
+    if (from == to) return !stale();
+    for (var i = 1; i <= fadeSteps; i++) {
+      await Future<void>.delayed(time ~/ fadeSteps);
+      if (stale()) return false;
+      final v = i == fadeSteps ? to : from + (to - from) * i / fadeSteps;
+      await _quietly(() => backend.setVolume(v));
+      if (stale()) return false; // a pause may have set the volume to 0
+      _volume = v;
+    }
+    return !stale();
+  }
+
+  static Future<T?> _quietly<T>(Future<T> Function() action) async {
+    try {
+      return await action();
+    } catch (error) {
+      debugPrint('Music skipped: $error');
+      return null;
     }
   }
 }

@@ -18,7 +18,7 @@ import 'package:pycog/widgets/settings_sheet.dart';
 import 'fake_sounds.dart';
 import 'home_test.dart' as home;
 import 'minigame_screen_test.dart' as mg;
-import 'music_test.dart' show FakeTracks;
+import 'music_test.dart' show FakeBackend;
 import 'test_helpers.dart';
 
 /// The songs asked for, with repeats of the same song removed (asking for
@@ -142,25 +142,46 @@ void main() {
     expect(music.current, Song.game);
   });
 
-  testWidgets('with the real fade rules: the game song starts once and keeps '
+  testWidgets('with the real music manager: GameBg starts once and keeps '
       'going from the trail into a lesson and back', (tester) async {
-    final tracks = FakeTracks();
+    final backend = FakeBackend();
     Sounds.reset();
     addTearDown(Sounds.reset);
-    Sounds.music = FadingMusicPlayer(tracks);
+    final manager = MusicManager(backend);
+    Sounds.music = manager;
+    await manager.preload();
     await home.startApp(tester);
+    await tester.pump(const Duration(seconds: 2));
     await openTrail(tester);
     await openLesson(tester);
     await goBack(tester);
     await tester.pump(const Duration(seconds: 2)); // let the fades finish
-    expect(tracks.log.where((e) => e == 'play game').length, 1);
-    expect(tracks.playing, {Song.game});
-    expect(tracks.volume[Song.game], FadingMusicPlayer.volume);
+    expect(backend.log.where((e) => e == 'play game').length, 1);
+    expect(backend.loaded, Song.game);
+    expect(backend.playing, isTrue);
+    expect(backend.volume, MusicManager.volume);
 
-    // Home again: the title song fades back in, the game song pauses.
+    // Home again: TitleSong comes back.
     await goBack(tester);
     await tester.pump(const Duration(seconds: 2));
-    expect(tracks.playing, {Song.title});
-    expect(tracks.volume[Song.game], 0);
+    expect(backend.loaded, Song.title);
+    expect(backend.playing, isTrue);
+  });
+
+  testWidgets('moving fast between screens: one decision per frame, and the '
+      'song of the last screen wins', (tester) async {
+    final music = useFakeMusic();
+    await home.startApp(tester);
+    expect(changes(music), [Song.title]);
+    final navigator = tester.state<NavigatorState>(find.byType(Navigator));
+    // Three screens pushed and one popped in the same frame.
+    await openTrail(tester);
+    final before = music.asked.length;
+    navigator.push(MaterialPageRoute<void>(builder: (_) => const SizedBox()));
+    navigator.pop();
+    navigator.pop(); // back to home
+    await tester.pumpAndSettle();
+    expect(music.asked.length - before, 1);
+    expect(music.current, Song.title);
   });
 }

@@ -15,7 +15,7 @@ import 'package:pycog/screens/minigame_map_screen.dart';
 import 'package:pycog/screens/quiz_results_screen.dart';
 import 'package:pycog/screens/trail_screen.dart';
 import 'package:pycog/widgets/chunky_button.dart';
-import 'package:pycog/widgets/cloud_footer.dart';
+import 'package:pycog/widgets/fog_footer.dart';
 import 'package:pycog/widgets/lesson_path.dart';
 
 import 'test_helpers.dart';
@@ -199,24 +199,24 @@ void main() {
     });
   });
 
-  group('Clouds at the end of the trail', () {
+  group('Fog at the end of the trail', () {
     testWidgets('after Lesson 5, in English and Tagalog', (tester) async {
       final (settings, _) = await startApp(tester);
       await openTrail(tester);
 
       final path = tester.widget<LessonPath>(find.byType(LessonPath));
-      expect(path.showTail, isTrue); // the path runs on into the clouds
+      expect(path.showTail, isTrue); // the path runs on into the fog
 
-      final clouds = find.byType(CloudFooter);
+      final fog = find.byType(FogFooter);
       await tester.scrollUntilVisible(
-        clouds,
+        fog,
         300,
         scrollable: find.byType(Scrollable).last,
       );
       await tester.pumpAndSettle();
       // Below the last lesson.
       expect(
-        tester.getTopLeft(clouds).dy,
+        tester.getTopLeft(fog).dy,
         greaterThan(
           tester
               .getBottomLeft(
@@ -232,13 +232,13 @@ void main() {
       expect(find.text(tl.cloudsMoreLessons), findsOneWidget);
     });
 
-    testWidgets('the clouds are not tappable', (tester) async {
+    testWidgets('the fog is not tappable', (tester) async {
       await startApp(tester);
       await openTrail(tester);
-      final clouds = find.byType(CloudFooter);
+      final fog = find.byType(FogFooter);
       for (final type in [GestureDetector, ChunkyButton, InkWell]) {
         expect(
-          find.descendant(of: clouds, matching: find.byType(type)),
+          find.descendant(of: fog, matching: find.byType(type)),
           findsNothing,
         );
       }
@@ -282,12 +282,12 @@ void main() {
         await tapAndSettle(tester, play);
         expectBigEnough(tester); // trail top bar with back arrow
         await tester.scrollUntilVisible(
-          find.byType(CloudFooter),
+          find.byType(FogFooter),
           300,
           scrollable: find.byType(Scrollable).last,
         );
         await tester.drag(find.byType(Scrollable).last, const Offset(0, -3000));
-        await tester.pumpAndSettle(); // clouds fully in view, no overflow
+        await tester.pumpAndSettle(); // fog fully in view, no overflow
       });
     }
   }

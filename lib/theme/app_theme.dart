@@ -51,11 +51,10 @@ class AppColors {
   // Quiz feedback
   static const hintBackground = Color(0xFFFFDCD3); // soft coral: "try again"
 
-  // Clouds at the end of the lesson trail (back to front)
-  static const cloudBack = Color(0xFFD6F4E6); // pale mint
-  static const cloudMiddle = Color(0xFFFFF8E8); // warm cream
-  static const cloudFront = Color(0xFFFFFFFF); // white
-  static const cloudEdge = Color(0x333B2416); // soft outline (outline at 20%)
+  // Fog at the end of the lesson trail (drawn see-through)
+  static const fog = Color(0xFFFFFFFF); // white mist
+  static const fogLight = Color(0xFFFFFFFF); // the drifting patches
+  static const fogMint = Color(0xFFE6F8EF); // a few patches: a hint of mint
 }
 
 /// Font family names. They match the `family:` names in pubspec.yaml.
@@ -145,8 +144,9 @@ class AppSizes {
 
   // End of the lesson trail
   static const trailTailHeight = 70.0; // path past the last lesson
-  static const cloudFooterMinHeight = 230.0;
-  static const cloudOverlap = 40.0; // clouds cover the end of the path
+  static const fogMinHeight = 280.0;
+  static const fogOverlap = 90.0; // the fog covers the end of the path
+  static const fogTextTop = 150.0; // the text sits low in the fog
 
   // Game: "Label the Robot Box"
   static const gameBoxMinHeight = 56.0; // drop area (well above 48)

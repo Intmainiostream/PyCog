@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -10,30 +11,72 @@ import 'package:pycog/sound/sounds.dart';
 
 import 'fake_sounds.dart';
 
-/// Records what [FadingMusicPlayer] does with the two songs.
-class FakeTracks implements MusicTracks {
+/// The one music player, pretend version: remembers what it was told and
+/// can make loading a song slow (to test requests that finish late).
+class FakeBackend implements MusicBackend {
   final log = <String>[];
-  final volume = {for (final s in Song.values) s: 0.0};
-  final playing = <Song>{};
+  Song? loaded;
+  bool playing = false;
+  double volume = 0;
+  Duration at = Duration.zero;
+  int preloads = 0;
+  final loads = <Song>[];
+
+  /// When set, load() waits for this before it finishes.
+  final slow = <Song, Completer<void>>{};
+
+  /// Songs whose file is missing.
+  final missing = <Song>{};
 
   @override
-  Future<void> preload() async {}
+  Future<void> preload() async => preloads++;
 
   @override
-  void play(Song song) {
-    log.add('play ${song.name}');
-    playing.add(song);
+  Future<void> load(Song song) async {
+    log.add('load ${song.name}');
+    loads.add(song);
+    await slow[song]?.future;
+    if (missing.contains(song)) throw Exception('no file');
+    loaded = song;
+    at = Duration.zero;
   }
 
   @override
-  void pause(Song song) {
-    log.add('pause ${song.name}');
-    playing.remove(song);
+  Future<void> play() async {
+    log.add('play ${loaded?.name}');
+    playing = true;
   }
 
   @override
-  void setVolume(Song song, double v) => volume[song] = v;
+  Future<void> pause() async {
+    if (playing) log.add('pause ${loaded?.name}');
+    playing = false;
+  }
+
+  @override
+  Future<void> setVolume(double v) async => volume = v;
+
+  @override
+  Future<Duration?> position() async => at;
+
+  @override
+  Future<void> seek(Duration position) async {
+    log.add('seek ${position.inSeconds}s');
+    at = position;
+  }
 }
+
+/// A ready manager with a fake player.
+Future<(MusicManager, FakeBackend)> manager() async {
+  final backend = FakeBackend();
+  final music = MusicManager(backend);
+  await music.preload();
+  return (music, backend);
+}
+
+/// Lets every fade finish.
+Future<void> settle(WidgetTester tester) =>
+    tester.pump(const Duration(seconds: 2));
 
 class BrokenMusic extends MusicPlayer {
   @override
@@ -162,117 +205,182 @@ void main() {
     });
   });
 
-  group('Fading music player', () {
+  group('Music manager (one player)', () {
     testWidgets('a song fades in to a quiet volume', (tester) async {
-      final tracks = FakeTracks();
-      final player = FadingMusicPlayer(tracks);
-      player.playSong(Song.title);
-      expect(tracks.log, ['play title']);
-      expect(tracks.volume[Song.title], 0);
-      await tester.pump(FadingMusicPlayer.fade ~/ 2);
-      expect(tracks.volume[Song.title], inExclusiveRange(0.05, 0.3));
-      await tester.pump(FadingMusicPlayer.fade);
-      expect(tracks.volume[Song.title], FadingMusicPlayer.volume);
-      expect(FadingMusicPlayer.volume, inInclusiveRange(0.3, 0.4));
-      expect(
-        FadingMusicPlayer.fade.inMilliseconds,
-        inInclusiveRange(500, 1000),
-      );
+      final (music, backend) = await manager();
+      music.playSong(Song.title);
+      await tester.pump(const Duration(milliseconds: 10));
+      expect(backend.log, ['load title', 'play title']);
+      expect(backend.volume, lessThan(0.1));
+      await settle(tester);
+      expect(backend.volume, MusicManager.volume);
+      expect(MusicManager.volume, inInclusiveRange(0.3, 0.4));
+      final fade = MusicManager.fadeOut + MusicManager.fadeIn;
+      expect(fade.inMilliseconds, inInclusiveRange(500, 1000));
     });
 
-    testWidgets('asking for the same song again does not restart it', (
-      tester,
-    ) async {
-      final tracks = FakeTracks();
-      final player = FadingMusicPlayer(tracks);
-      player.playSong(Song.game);
-      await tester.pump(const Duration(seconds: 1));
-      player.playSong(Song.game);
-      player.playSong(Song.game);
-      await tester.pump(const Duration(seconds: 1));
-      expect(tracks.log, ['play game']);
-      expect(tracks.volume[Song.game], FadingMusicPlayer.volume);
+    testWidgets('the same song asked again: nothing happens', (tester) async {
+      final (music, backend) = await manager();
+      music.playSong(Song.game);
+      await settle(tester);
+      final before = List.of(backend.log);
+      music.playSong(Song.game);
+      music.playSong(Song.game);
+      await settle(tester);
+      expect(backend.log, before); // no load, no restart, no cut
+      expect(backend.playing, isTrue);
+      expect(backend.volume, MusicManager.volume);
     });
 
-    testWidgets('another song fades over, then the old one pauses', (
-      tester,
-    ) async {
-      final tracks = FakeTracks();
-      final player = FadingMusicPlayer(tracks);
-      player.playSong(Song.title);
-      await tester.pump(const Duration(seconds: 1));
-      player.playSong(Song.game);
-      expect(tracks.playing, {Song.title, Song.game}); // both, crossfading
-      await tester.pump(FadingMusicPlayer.fade ~/ 2);
-      expect(tracks.volume[Song.title], inExclusiveRange(0, 0.35));
-      expect(tracks.volume[Song.game], inExclusiveRange(0, 0.35));
-      await tester.pump(FadingMusicPlayer.fade);
-      expect(tracks.volume[Song.title], 0);
-      expect(tracks.volume[Song.game], FadingMusicPlayer.volume);
-      expect(tracks.playing, {Song.game});
-      expect(tracks.log, ['play title', 'play game', 'pause title']);
-    });
-
-    testWidgets('going back continues the old song (paused, not restarted)', (
-      tester,
-    ) async {
-      final tracks = FakeTracks();
-      final player = FadingMusicPlayer(tracks);
-      player.playSong(Song.game);
-      await tester.pump(const Duration(seconds: 1));
-      player.playSong(Song.title);
-      await tester.pump(const Duration(seconds: 1));
-      player.playSong(Song.game);
-      await tester.pump(const Duration(seconds: 1));
-      // "play" on a paused song continues it from where it was.
-      expect(tracks.log, [
-        'play game',
+    testWidgets('another song: the old one fades out, then the new one '
+        'fades in', (tester) async {
+      final (music, backend) = await manager();
+      music.playSong(Song.title);
+      await settle(tester);
+      music.playSong(Song.game);
+      await tester.pump(MusicManager.fadeOut ~/ 2);
+      expect(backend.loaded, Song.title); // still fading out
+      expect(backend.volume, inExclusiveRange(0, MusicManager.volume));
+      await settle(tester);
+      expect(backend.loaded, Song.game);
+      expect(backend.volume, MusicManager.volume);
+      expect(backend.log, [
+        'load title',
         'play title',
-        'pause game',
-        'play game',
         'pause title',
+        'load game',
+        'play game',
       ]);
     });
 
-    testWidgets('no song: the music fades out and pauses', (tester) async {
-      final tracks = FakeTracks();
-      final player = FadingMusicPlayer(tracks);
-      player.playSong(Song.title);
-      await tester.pump(const Duration(seconds: 1));
-      player.playSong(null);
-      await tester.pump(const Duration(seconds: 1));
-      expect(tracks.playing, isEmpty);
-      expect(tracks.volume[Song.title], 0);
-    });
-
-    testWidgets('pause (app away) stops at once; resume continues', (
+    testWidgets('a song continues where it was when it comes back', (
       tester,
     ) async {
-      final tracks = FakeTracks();
-      final player = FadingMusicPlayer(tracks);
-      player.playSong(Song.game);
-      await tester.pump(const Duration(seconds: 1));
-      player.pause();
-      expect(tracks.playing, isEmpty);
-      // A new screen while away: nothing plays until the app is back.
-      player.playSong(Song.title);
-      await tester.pump(const Duration(seconds: 1));
-      expect(tracks.playing, isEmpty);
-      player.resume();
-      expect(tracks.playing, {Song.title});
-      await tester.pump(const Duration(seconds: 1));
-      expect(tracks.volume[Song.title], FadingMusicPlayer.volume);
+      final (music, backend) = await manager();
+      music.playSong(Song.game);
+      await settle(tester);
+      backend.at = const Duration(seconds: 30);
+      music.playSong(Song.title);
+      await settle(tester);
+      music.playSong(Song.game);
+      await settle(tester);
+      expect(backend.log.last, 'play game');
+      expect(backend.log, contains('seek 30s'));
     });
 
-    testWidgets('a song asked for while loading starts after loading', (
+    testWidgets('a late, older request is ignored: the newest song wins', (
       tester,
     ) async {
-      final tracks = FakeTracks();
-      final player = FadingMusicPlayer(tracks);
-      player.playSong(Song.title);
-      await player.preload();
-      expect(tracks.log.where((e) => e == 'play title').length, 2);
-      await tester.pump(const Duration(seconds: 1));
+      final (music, backend) = await manager();
+      // TitleSong is slow to load...
+      final slowTitle = backend.slow[Song.title] = Completer<void>();
+      music.playSong(Song.title);
+      await tester.pump(const Duration(milliseconds: 10));
+      // ...and before it is ready, the student is already on a game screen.
+      music.playSong(Song.game);
+      await tester.pump(const Duration(milliseconds: 10));
+      slowTitle.complete(); // the old request finishes late
+      await settle(tester);
+      expect(backend.log, isNot(contains('play title')));
+      expect(backend.loaded, Song.game);
+      expect(backend.playing, isTrue);
+      expect(music.wanted, Song.game);
+    });
+
+    testWidgets('many fast requests: only the newest plays', (tester) async {
+      final (music, backend) = await manager();
+      music.playSong(Song.title);
+      await settle(tester);
+      for (var i = 0; i < 5; i++) {
+        music.playSong(Song.game);
+        await tester.pump(const Duration(milliseconds: 60));
+        music.playSong(Song.title);
+        await tester.pump(const Duration(milliseconds: 60));
+      }
+      music.playSong(Song.game);
+      await settle(tester);
+      expect(backend.loaded, Song.game);
+      expect(backend.playing, isTrue);
+      expect(backend.volume, MusicManager.volume);
+    });
+
+    testWidgets('coming back to the song that was fading out: it fades back '
+        'in, no restart', (tester) async {
+      final (music, backend) = await manager();
+      music.playSong(Song.game);
+      await settle(tester);
+      music.playSong(Song.title);
+      await tester.pump(MusicManager.fadeOut ~/ 2);
+      music.playSong(Song.game); // changed their mind quickly
+      await settle(tester);
+      expect(backend.log, ['load game', 'play game']);
+      expect(backend.volume, MusicManager.volume);
+    });
+
+    testWidgets('no song wanted: the music fades out and pauses', (
+      tester,
+    ) async {
+      final (music, backend) = await manager();
+      music.playSong(Song.title);
+      await settle(tester);
+      music.playSong(null);
+      await settle(tester);
+      expect(backend.playing, isFalse);
+    });
+
+    testWidgets('app away: pause at once; back: the song continues', (
+      tester,
+    ) async {
+      final (music, backend) = await manager();
+      music.playSong(Song.game);
+      await settle(tester);
+      music.pause();
+      await tester.pump();
+      expect(backend.playing, isFalse);
+      music.playSong(Song.title); // a new screen while away
+      await settle(tester);
+      expect(backend.playing, isFalse);
+      music.resume();
+      await settle(tester);
+      expect(backend.loaded, Song.title);
+      expect(backend.playing, isTrue);
+    });
+
+    testWidgets('the app goes away while a song is starting: it ends paused', (
+      tester,
+    ) async {
+      final (music, backend) = await manager();
+      final slow = backend.slow[Song.title] = Completer<void>();
+      music.playSong(Song.title);
+      await tester.pump(const Duration(milliseconds: 10));
+      music.pause();
+      slow.complete();
+      await settle(tester);
+      expect(backend.playing, isFalse);
+    });
+
+    testWidgets('a missing music file: quiet, no error, the other song still '
+        'works', (tester) async {
+      final (music, backend) = await manager();
+      backend.missing.add(Song.title);
+      music.playSong(Song.title);
+      await settle(tester);
+      expect(backend.playing, isFalse);
+      music.playSong(Song.game);
+      await settle(tester);
+      expect(backend.loaded, Song.game);
+      expect(backend.playing, isTrue);
+    });
+
+    testWidgets('nothing plays before the songs are ready', (tester) async {
+      final backend = FakeBackend();
+      final music = MusicManager(backend);
+      music.playSong(Song.title);
+      await settle(tester);
+      expect(backend.log, isEmpty);
+      await music.preload();
+      await settle(tester);
+      expect(backend.log, ['load title', 'play title']);
     });
   });
 }
