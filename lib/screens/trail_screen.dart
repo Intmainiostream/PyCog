@@ -9,7 +9,7 @@ import '../l10n/generated/app_localizations.dart';
 import '../models/lesson.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_top_bar.dart';
-import '../widgets/cloud_footer.dart';
+import '../widgets/fog_footer.dart';
 import 'lesson_screen.dart';
 import '../widgets/lesson_path.dart';
 import '../widgets/settings_sheet.dart';
@@ -139,10 +139,10 @@ class TrailScreen extends StatelessWidget {
         unlockedCount: progress.unlockedCount(lessons),
         onLessonTap: (lesson, unlocked) =>
             _onLessonTap(context, lesson, unlocked),
-        // The path keeps going past the last lesson, into the clouds.
+        // The path keeps going past the last lesson, into the fog.
         showTail: true,
       ),
-      const CloudFooter(),
+      const FogFooter(),
     ];
   }
 }

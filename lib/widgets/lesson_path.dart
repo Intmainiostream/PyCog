@@ -28,7 +28,7 @@ class LessonPath extends StatelessWidget {
   final void Function(Lesson lesson, bool unlocked) onLessonTap;
 
   /// Draws the path on past the last lesson, ending at the bottom center
-  /// (where the trail's cloud area begins).
+  /// (where the trail's fog begins).
   final bool showTail;
 
   static const _labelMaxLines = 3;
@@ -307,7 +307,7 @@ class _TrailPainter extends CustomPainter {
   final int unlockedCount;
 
   /// Also draw a locked-color stretch from the last node down to the
-  /// bottom center (into the clouds below).
+  /// bottom center (into the fog below).
   final bool tail;
 
   @override
