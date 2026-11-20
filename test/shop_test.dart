@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,9 +9,11 @@ import 'package:pycog/data/progress_controller.dart';
 import 'package:pycog/data/settings_controller.dart';
 import 'package:pycog/data/shop.dart';
 import 'package:pycog/screens/coding_screen.dart';
-import 'package:pycog/screens/home_screen.dart';
+import 'package:pycog/screens/lesson_screen.dart';
 import 'package:pycog/screens/shop_screen.dart';
 import 'package:pycog/theme/app_theme.dart';
+import 'package:pycog/widgets/coin_icon.dart';
+import 'package:pycog/widgets/theme_backdrop.dart';
 
 import 'coding_screen_test.dart' as coding;
 import 'home_test.dart' as home;
@@ -247,9 +251,13 @@ void main() {
   });
 
   group('Using the looks (saved)', () {
-    testWidgets('a theme colors the home screen and the Play trail', (
-      tester,
-    ) async {
+    final backdrop = find.byKey(const ValueKey('theme-backdrop'));
+    ThemeLook backdropLook(WidgetTester tester) =>
+        (tester.widget<CustomPaint>(backdrop).painter! as ThemeBackdropPainter)
+            .look;
+
+    testWidgets('a theme paints its backdrop behind the home screen and the '
+        'Play trail', (tester) async {
       await home.startApp(
         tester,
         saved: {
@@ -257,14 +265,58 @@ void main() {
           'shop.equipped.theme': 'theme.ocean',
         },
       );
-      final ocean = item('theme.ocean').theme!.background;
-      Color pageOf(Type screen) =>
-          Theme.of(tester.element(find.byType(Scaffold).last))
-              .scaffoldBackgroundColor;
-      expect(pageOf(HomeScreen), ocean);
+      final ocean = item('theme.ocean').theme!;
+      expect(backdrop, findsOneWidget);
+      expect(backdropLook(tester).decor, ThemeDecor.ocean);
+      expect(backdropLook(tester).background, ocean.background);
       await home.tapAndSettle(tester, home.play);
-      expect(pageOf(Scaffold), ocean);
+      expect(backdrop, findsWidgets); // the trail has it too
     });
+
+    testWidgets('Classic: no backdrop, the page color as before', (
+      tester,
+    ) async {
+      await home.startApp(tester);
+      expect(backdrop, findsNothing);
+      expect(
+        Theme.of(tester.element(find.byType(Scaffold).last))
+            .scaffoldBackgroundColor,
+        AppColors.background,
+      );
+    });
+
+    for (final id in [
+      'theme.sunset',
+      'theme.mint',
+      'theme.ocean',
+      'theme.candy',
+    ]) {
+      testWidgets('$id: no lag (painted once, no animation, its own '
+          'repaint layer)', (tester) async {
+        await home.startApp(
+          tester,
+          saved: {
+            'shop.owned': [id],
+            'shop.equipped.theme': id,
+          },
+        );
+        expect(backdropLook(tester).decor, item(id).theme!.decor);
+        expect(
+          find.ancestor(of: backdrop, matching: find.byType(RepaintBoundary)),
+          findsWidgets,
+        );
+        // Nothing keeps drawing frames.
+        expect(tester.binding.hasScheduledFrame, isFalse);
+        final painter =
+            tester.widget<CustomPaint>(backdrop).painter!
+                as ThemeBackdropPainter;
+        expect(
+          painter.shouldRepaint(ThemeBackdropPainter(item(id).theme!)),
+          isFalse,
+        );
+        expect(tester.takeException(), isNull);
+      });
+    }
 
     testWidgets('an editor look colors the CODING box', (tester) async {
       final (_, settings) = await coding.pumpCoding(tester);
@@ -284,26 +336,58 @@ void main() {
       expect(tester.widget<TextField>(coding.code).cursorColor, retro.cursor);
     });
 
-    for (final (lang, l10n) in [('en', home.en), ('tl', home.tl)]) {
-      testWidgets('$lang: a name tag shows under Cog on the home screen', (
-        tester,
-      ) async {
-        await home.startApp(
-          tester,
-          saved: {
-            'settings.language': lang,
-            'shop.owned': ['tag.loop'],
-            'shop.equipped.tag': 'tag.loop',
-          },
-        );
-        expect(find.text(l10n.shopTagLoop), findsOneWidget);
-        expect(find.byKey(const ValueKey('home-tag')), findsOneWidget);
-      });
-    }
+    final badge = find.byKey(const ValueKey('cog-badge'));
+    const loopTag = {
+      'shop.owned': ['tag.loop'],
+      'shop.equipped.tag': 'tag.loop',
+    };
 
-    testWidgets('no tag by default', (tester) async {
-      await home.startApp(tester);
+    testWidgets('a name tag in use: Cog wears the badge picture on the home '
+        'screen (no text tag)', (tester) async {
+      await home.startApp(tester, saved: loopTag);
+      expect(badge, findsOneWidget);
+      expect(
+        tester.widget<Image>(badge).image,
+        const AssetImage('assets/shop/tag_loop.png'),
+      );
+      expect(find.text(home.en.shopTagLoop), findsNothing);
       expect(find.byKey(const ValueKey('home-tag')), findsNothing);
+    });
+
+    testWidgets('Cog wears the badge while playing too (a lesson)', (
+      tester,
+    ) async {
+      await home.startApp(tester, saved: loopTag);
+      await home.tapAndSettle(tester, home.play);
+      await tester.tap(find.byKey(const ValueKey('lesson-node-variables')));
+      await tester.pumpAndSettle();
+      expect(find.byType(LessonScreen), findsOneWidget);
+      expect(badge, findsOneWidget);
+    });
+
+    testWidgets('changing the tag in the shop changes the badge at once', (
+      tester,
+    ) async {
+      final (settings, _) = await home.startApp(
+        tester,
+        saved: {...loopTag, 'shop.points': 40},
+      );
+      settings.shop
+        ..buy(item('tag.bug'))
+        ..equip(item('tag.bug'));
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<Image>(badge).image,
+        const AssetImage('assets/shop/tag_bug.png'),
+      );
+      settings.shop.equip(item('tag.none'));
+      await tester.pumpAndSettle();
+      expect(badge, findsNothing);
+    });
+
+    testWidgets('no badge by default', (tester) async {
+      await home.startApp(tester);
+      expect(badge, findsNothing);
     });
 
     test('equipping is saved on the phone', () async {
@@ -319,6 +403,22 @@ void main() {
   });
 
   group('The catalog', () {
+    test('app colors and name tags have their pictures in assets/shop/; '
+        'editor looks have none yet', () {
+      for (final i in shopItems) {
+        if (i.group == ShopGroup.editor) {
+          expect(i.image, isNull, reason: i.id);
+        } else {
+          expect(i.image, 'assets/shop/${i.id.replaceAll('.', '_')}.png');
+          expect(File(i.image!).existsSync(), isTrue, reason: i.image);
+        }
+      }
+      expect(
+        File('pubspec.yaml').readAsStringSync(),
+        contains('- assets/shop/'),
+      );
+    });
+
     test('three groups, a free default and at least 3 items to buy each; '
         'prices 10 to 50', () {
       for (final group in ShopGroup.values) {
@@ -334,6 +434,17 @@ void main() {
         shopItems.where((i) => i.price == 10).length,
         greaterThanOrEqualTo(2),
       );
+    });
+
+    test('the theme decorations keep the dark text easy to read', () {
+      for (final i in shopItemsIn(ShopGroup.theme)) {
+        final look = i.theme!;
+        for (final c in ThemeBackdropPainter.colorsFor(look.decor)) {
+          final shown = Color.alphaBlend(c, look.background);
+          expect(contrast(AppColors.text, shown), greaterThan(7), reason: i.id);
+        }
+      }
+      expect(item('theme.classic').theme!.decor, ThemeDecor.none);
     });
 
     test('every theme keeps good text contrast', () {
@@ -363,6 +474,35 @@ void main() {
   });
 
   group('Home screen', () {
+    testWidgets('Star Points show a gold coin, never the star of '
+        'the lesson star counter', (tester) async {
+      await home.startApp(tester, saved: {'shop.points': 11});
+      expect(
+        find.descendant(of: shopButton, matching: find.byType(CoinIcon)),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: shopButton,
+          matching: find.byIcon(Icons.star_rounded),
+        ),
+        findsNothing,
+      );
+      await openShop(tester);
+      expect(
+        find.descendant(
+          of: find.byType(PointsChip),
+          matching: find.byType(CoinIcon),
+        ),
+        findsOneWidget,
+      );
+      // The shop shows the pictures.
+      expect(
+        find.byKey(const ValueKey('shop-image-theme.classic')),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('the shop button shows the points and opens the shop', (
       tester,
     ) async {

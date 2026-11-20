@@ -10,6 +10,7 @@ import '../theme/app_theme.dart';
 import '../widgets/chunky_button.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/title_top_bar.dart';
+import '../widgets/coin_icon.dart';
 
 /// The Star Shop: spend Star Points on looks (app colors, code editor
 /// colors, a name tag for Cog). Each item is bought once and saved; then it
@@ -186,7 +187,8 @@ class PointsChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.star_rounded, color: AppColors.star, size: 26),
+            // A gold coin (not a star): Star Points are not lesson stars.
+            const CoinIcon(size: 24),
             const SizedBox(width: 4),
             Flexible(
               child: Text(
@@ -246,12 +248,8 @@ class _ItemCard extends StatelessWidget {
                 Row(
                   children: [
                     if (!owned) ...[
-                      const Icon(
-                        Icons.star_rounded,
-                        color: AppColors.star,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 2),
+                      const CoinIcon(size: 16),
+                      const SizedBox(width: 3),
                     ],
                     Flexible(child: Text(status, style: AppTextStyles.small)),
                   ],
@@ -294,6 +292,17 @@ class _Preview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const size = 48.0;
+    // The picture from assets/shop/, when the item has one.
+    if (item.image case final image?) {
+      return Image.asset(
+        image,
+        key: ValueKey('shop-image-${item.id}'),
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.medium,
+      );
+    }
     final theme = item.theme;
     final editor = item.editor;
     if (theme != null) {

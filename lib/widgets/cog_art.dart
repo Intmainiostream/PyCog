@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import 'cog_placeholder.dart';
+import 'shop_scope.dart';
 
 /// Which Cog picture to show.
 enum CogPose {
@@ -50,17 +51,21 @@ class CogArt extends StatelessWidget {
   Widget build(BuildContext context) {
     // A fixed box, so the screen doesn't jump while the picture loads.
     return ExcludeSemantics(
-      child: SizedBox(
-        width: width,
-        height: height,
-        child: Image.asset(
-          asset,
-          fit: BoxFit.contain,
-          filterQuality: FilterQuality.medium,
-          gaplessPlayback: true,
-          // If the picture can't load, the drawn Cog shows instead.
-          errorBuilder: (_, _, _) =>
-              Center(child: CogPlaceholder(size: height)),
+      // Cog wears his name tag badge from the Star Shop, if one is in use.
+      child: CogBadge(
+        cogWidth: width,
+        child: SizedBox(
+          width: width,
+          height: height,
+          child: Image.asset(
+            asset,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.medium,
+            gaplessPlayback: true,
+            // If the picture can't load, the drawn Cog shows instead.
+            errorBuilder: (_, _, _) =>
+                Center(child: CogPlaceholder(size: height)),
+          ),
         ),
       ),
     );

@@ -94,6 +94,9 @@ flutter:
     # Only the files directly in this folder are bundled: originals/ (the
     # untouched source files) and icon/ (app icon sources) stay out.
     - assets/branding/
+    # Star Shop pictures (app colors and Cog name tag badges). Only the
+    # files directly in this folder are bundled: originals/ stays out.
+    - assets/shop/
     # Sound effects (short .mp3 files, played by lib/sound/sounds.dart).
     - assets/sfx/
     # Background music (looped, played quietly by lib/sound/).
