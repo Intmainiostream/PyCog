@@ -28,7 +28,7 @@ Future<void> main() async {
   Sounds.player = SequencedSoundPlayer(AudioplayersClips());
   unawaited(Sounds.player.preload());
   // Background music: quiet, looped, paused while the app is away.
-  Sounds.music = FadingMusicPlayer(AudioplayersTracks());
+  Sounds.music = MusicManager(AudioplayersMusic());
   unawaited(Sounds.music.preload());
   Sounds.followAppLifecycle();
   runApp(PyCogApp(settings: settings, progress: progress, minigame: minigame));
