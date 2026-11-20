@@ -1214,6 +1214,8 @@
   "mgL1C3Hint1": "Isulat ang pangalan, tapos `=`, tapos ang value.",
   "mgL1C3Hint2": "Ang unang linya mo ay `speed = 5`.",
   "mgNeedLesson": "Tapusin muna ang Aralin {number} sa LARO.",
+  "mgPlusPoints": "+{points} Star Points",
+  "mgLevelBonus": "Tapos na ang Level {number}! Bonus: +{points} Star Points.",
   "mgLocked": "Nakakandado",
   "mgL1C4Title": "Tamang pangalan",
   "mgL1C4Prompt": "Aling pangalan ng variable ang sumusunod sa rules?",

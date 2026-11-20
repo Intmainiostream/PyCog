@@ -1732,6 +1732,27 @@
       }
     }
   },
+  "mgPlusPoints": "+{points} Star Points",
+  "@mgPlusPoints": {
+    "description": "Star Points a solved MINIGAME challenge earned.",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "mgLevelBonus": "Level {number} complete! Bonus: +{points} Star Points.",
+  "@mgLevelBonus": {
+    "description": "One-time bonus the first time all 10 challenges of a level have a star.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "points": {
+        "type": "int"
+      }
+    }
+  },
   "mgLocked": "Locked",
   "mgL1C4Title": "A good name",
   "mgL1C4Prompt": "Which variable name follows the rules?",

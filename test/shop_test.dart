@@ -113,16 +113,16 @@ void main() {
       await mg.tapAndSettle(tester, mg.key('mg-check'));
       final settings = await SettingsController.load();
       expect(settings.shop.points, 6);
-      expect(
-        find.text('${mg.en.pointsEarned(6)} ${mg.en.pointsDoubled}'),
-        findsOneWidget,
-      );
+      expect(find.text(mg.en.mgPlusPoints(6)), findsOneWidget);
+      expect(find.text(mg.en.pointsDoubled), findsOneWidget);
       await mg.goBack(tester); // back to the level
       await mg.tapAndSettle(tester, mg.key('mg-challenge-mgL1C1'));
       await mg.tapAndSettle(tester, mg.answer('80'));
       await mg.tapAndSettle(tester, mg.key('mg-check'));
       expect((await SettingsController.load()).shop.points, 9);
-      expect(find.text(mg.en.pointsEarned(3)), findsOneWidget);
+      expect(find.text(mg.en.mgPlusPoints(3)), findsOneWidget);
+      expect(find.textContaining(mg.en.pointsEarned(3)), findsOneWidget);
+      expect(find.text(mg.en.pointsDoubled), findsNothing);
       expect(progress.bestStars('mgL1C1'), 3);
     });
 

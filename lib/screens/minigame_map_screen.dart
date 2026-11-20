@@ -16,6 +16,7 @@ import '../widgets/settings_sheet.dart';
 import '../widgets/speech_bubble.dart';
 import '../widgets/title_top_bar.dart';
 import 'challenge_screen.dart';
+import 'shop_screen.dart';
 import '../sound/sounds.dart';
 import '../sound/sound_on_show.dart';
 import '../sound/music_zone.dart';
@@ -102,6 +103,16 @@ class MinigameMapScreen extends StatelessWidget {
                         ),
                         children: [
                           CogSays(text: l10n.mgMapIntro),
+                          const SizedBox(height: AppSizes.gap8),
+                          // Star Points (only this small part listens to
+                          // the shop).
+                          Center(
+                            child: ListenableBuilder(
+                              listenable: settings.shop,
+                              builder: (context, _) =>
+                                  PointsChip(points: settings.shop.points),
+                            ),
+                          ),
                           const SizedBox(height: AppSizes.gap8),
                           Text(
                             l10n.mgUnlockRule,

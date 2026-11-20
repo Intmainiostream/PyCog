@@ -221,6 +221,14 @@ class ShopController extends ChangeNotifier {
     return earned;
   }
 
+  /// Adds bonus points (e.g. the MINIGAME level bonus) and returns them.
+  int addBonus(int bonus) {
+    if (bonus <= 0) return 0;
+    _prefs.setInt(_kPoints, points + bonus);
+    notifyListeners();
+    return bonus;
+  }
+
   Set<String> get _owned => (_prefs.getStringList(_kOwned) ?? const []).toSet();
 
   bool owns(ShopItem item) => item.free || _owned.contains(item.id);
