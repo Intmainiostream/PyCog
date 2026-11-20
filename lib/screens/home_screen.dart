@@ -13,9 +13,11 @@ import '../widgets/app_top_bar.dart';
 import '../widgets/chunky_button.dart';
 import '../widgets/cog_art.dart';
 import '../widgets/settings_sheet.dart';
+import '../widgets/shop_themed.dart';
 import '../widgets/speech_bubble.dart';
 import 'coding_screen.dart';
 import 'minigame_map_screen.dart';
+import 'shop_screen.dart';
 import 'trail_screen.dart';
 import '../sound/music_zone.dart';
 import '../sound/sounds.dart';
@@ -72,7 +74,9 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _WarmUpPython(child: _build(context));
+    return _WarmUpPython(
+      child: ShopThemed(shop: settings.shop, child: _build(context)),
+    );
   }
 
   Widget _build(BuildContext context) {
@@ -80,7 +84,8 @@ class HomeScreen extends StatelessWidget {
       song: Song.title,
       child: Scaffold(
         body: ListenableBuilder(
-          listenable: progress, // keeps the star counter up to date
+          // Keeps the star counter, Star Points and name tag up to date.
+          listenable: Listenable.merge([progress, settings.shop]),
           builder: (context, _) => SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -151,6 +156,17 @@ class HomeScreen extends StatelessWidget {
             pose: CogPose.waving,
             size: AppSizes.homeCogSize,
           ),
+          // Cog's name tag from the Star Shop (plain text).
+          if (settings.shop.tag case final tag?)
+            Text(
+              tag.name(AppLocalizations.of(context)),
+              key: const ValueKey('home-tag'),
+              textAlign: TextAlign.center,
+              style: AppTextStyles.small.copyWith(
+                color: AppColors.tealDark,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ConstrainedBox(
             key: const ValueKey('home-bubble'),
             constraints: BoxConstraints(
@@ -215,6 +231,38 @@ class HomeScreen extends StatelessWidget {
           icon: Icons.code_rounded,
           color: AppColors.success,
           onTap: () => _openCoding(context),
+        ),
+        const SizedBox(height: AppSizes.gap16),
+        // The Star Shop: small, under the three big buttons.
+        Center(
+          child: ChunkyButton(
+            key: const ValueKey('home-shop'),
+            color: AppColors.surface,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSizes.gap16,
+              vertical: AppSizes.gap8,
+            ),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => ShopScreen(settings: settings),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.storefront_rounded, color: AppColors.teal),
+                const SizedBox(width: AppSizes.gap8),
+                Flexible(child: Text(l10n.homeShop)),
+                const SizedBox(width: AppSizes.gap12),
+                const Icon(Icons.star_rounded, color: AppColors.star),
+                const SizedBox(width: 2),
+                Text(
+                  '${settings.shop.points}',
+                  key: const ValueKey('home-points'),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );

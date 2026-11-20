@@ -28,6 +28,7 @@ class QuizResultsScreen extends StatelessWidget {
     required this.lessonNumber,
     required this.stars,
     required this.isNewBest,
+    this.pointsEarned,
     required this.unlockedLessonNumber,
     required this.settings,
     required this.progress,
@@ -39,6 +40,9 @@ class QuizResultsScreen extends StatelessWidget {
 
   /// True when this run became the lesson's first (permanent) record.
   final bool isNewBest;
+
+  /// Star Points this run earned (null: not shown).
+  final int? pointsEarned;
 
   /// The lesson this result just opened, if any (e.g. 2).
   final int? unlockedLessonNumber;
@@ -203,12 +207,25 @@ class QuizResultsScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          // A replay: the first (permanent) record stays.
+                          // A replay: the first (permanent) record stays,
+                          // but the run still earns points.
                           if (!isNewBest) ...[
                             const SizedBox(height: AppSizes.gap8),
                             Text(
-                              l10n.recordKept,
+                              [
+                                l10n.recordKept,
+                                if (pointsEarned case final p?)
+                                  l10n.pointsEarned(p),
+                              ].join(' '),
                               key: const ValueKey('results-record-kept'),
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.small,
+                            ),
+                          ] else if (pointsEarned case final p?) ...[
+                            const SizedBox(height: AppSizes.gap8),
+                            Text(
+                              '${l10n.pointsEarned(p)} ${l10n.pointsDoubled}',
+                              key: const ValueKey('results-points'),
                               textAlign: TextAlign.center,
                               style: AppTextStyles.small,
                             ),

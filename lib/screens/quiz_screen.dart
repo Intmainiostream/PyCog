@@ -133,6 +133,8 @@ class _QuizScreenState extends State<QuizScreen> {
     final unlockedBefore = widget.progress.unlockedCount(lessons);
     final newBest = await widget.progress.saveStars(widget.lesson.id, stars);
     final unlockedAfter = widget.progress.unlockedCount(lessons);
+    // Star Points: every finished run, doubled the first time.
+    final points = widget.settings.shop.earnRun(stars, first: newBest);
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
@@ -141,6 +143,7 @@ class _QuizScreenState extends State<QuizScreen> {
           lessonNumber: widget.lessonNumber,
           stars: stars,
           isNewBest: newBest,
+          pointsEarned: points,
           unlockedLessonNumber: unlockedAfter > unlockedBefore
               ? unlockedAfter
               : null,
