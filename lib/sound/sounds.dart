@@ -150,6 +150,15 @@ class Sounds {
   static void _updateMusic() =>
       _safely(() => music.playSong(musicOn ? _screenSong : null));
 
+  static Future<void>? _loading;
+
+  /// Loads the sound effects, then the music, one after the other. Runs
+  /// only once (later calls wait for the same loading).
+  static Future<void> loadAll() => _loading ??= () async {
+    await player.preload();
+    await music.preload();
+  }();
+
   static AppLifecycleListener? _lifecycle;
 
   /// Starts following the app going to the background and coming back
@@ -198,6 +207,7 @@ class Sounds {
     player = SilentSoundPlayer();
     music = SilentMusicPlayer();
     _screenSong = null;
+    _loading = null;
   }
 
   static void _safely(void Function() action) {

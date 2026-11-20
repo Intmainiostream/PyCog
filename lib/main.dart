@@ -24,14 +24,17 @@ Future<void> main() async {
   final settings = await SettingsController.load();
   final progress = await ProgressController.load();
   final minigame = await MinigameProgress.load();
-  // Sound effects: loaded in the background, so the app starts right away.
+  // Sound effects and the one music player (quiet, looped, paused while
+  // the app is away).
   Sounds.player = SequencedSoundPlayer(AudioplayersClips());
-  unawaited(Sounds.player.preload());
-  // Background music: quiet, looped, paused while the app is away.
   Sounds.music = MusicManager(AudioplayersMusic());
-  unawaited(Sounds.music.preload());
   Sounds.followAppLifecycle();
   runApp(PyCogApp(settings: settings, progress: progress, minigame: minigame));
+  // Load the sounds only after the first frame is on screen, one after the
+  // other, so the splash animation is not slowed down.
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    unawaited(Sounds.loadAll());
+  });
 }
 
 class PyCogApp extends StatelessWidget {

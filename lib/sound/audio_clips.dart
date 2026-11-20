@@ -52,10 +52,16 @@ class AudioplayersClips implements SoundClips {
     if (player == null) return; // missing or broken file: stay quiet
     final before = _current;
     _current = player;
+    // Only stop what is really still playing: most taps are then a
+    // single call to the phone instead of three.
     unawaited(
       _try(sfx.name, () async {
-        if (before != null && !identical(before, player)) await before.stop();
-        await player.stop(); // back to the start if it is still playing
+        if (before != null &&
+            !identical(before, player) &&
+            before.state == PlayerState.playing) {
+          await before.stop();
+        }
+        if (player.state == PlayerState.playing) await player.stop();
         await player.resume();
       }),
     );
@@ -99,11 +105,17 @@ class AudioplayersMusic implements MusicBackend {
     iOS: AudioContextIOS(category: AVAudioSessionCategory.ambient),
   );
 
+  /// Sets the player up and copies both songs out of the app once (the
+  /// player can only play files), so switching songs later only points the
+  /// player at a ready file.
   @override
   Future<void> preload() => AudioplayersClips._try('music setup', () async {
     await _player.setAudioContext(_context);
     await _player.setReleaseMode(ReleaseMode.loop);
     await _player.setVolume(0);
+    for (final song in Song.values) {
+      await _player.audioCache.load('music/${song.file}');
+    }
   });
 
   // AssetSource adds the "assets/" folder itself.
