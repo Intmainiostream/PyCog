@@ -50,3 +50,6 @@ app.*.map.json
 
 # Generated localization code (rebuilt by flutter gen-l10n / pub get)
 lib/l10n/generated/
+
+# Release APK copied to the project root for easy sharing (never committed).
+/PyCog.apk
