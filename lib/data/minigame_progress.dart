@@ -30,6 +30,11 @@ class MinigameProgress extends ChangeNotifier {
   static String _key(String challengeId) => 'minigame.stars.$challengeId';
   static String _hintsKey(String challengeId) => 'minigame.hints.$challengeId';
   static String _wrongKey(String challengeId) => 'minigame.wrong.$challengeId';
+  static String _bonusKey(MinigameLevel level) =>
+      'minigame.levelBonus.L${level.number}';
+
+  /// Star Points for finishing a whole level, given once per level.
+  static const levelBonusPoints = 10;
 
   /// Hints opened on this challenge since it was last finished (so leaving
   /// and coming back keeps them open and keeps the star limit).
@@ -82,6 +87,23 @@ class MinigameProgress extends ChangeNotifier {
     0,
     (sum, challenge) => sum + bestStars(challenge.id),
   );
+
+  /// Whether every challenge of a full level (10 challenges) has a star.
+  bool levelComplete(MinigameLevel level) =>
+      level.challenges.length >= challengesPerLevel &&
+      solvedCount(level) == level.challenges.length;
+
+  /// Whether the one-time level bonus was already given for [level].
+  bool levelBonusGiven(MinigameLevel level) =>
+      _prefs.getBool(_bonusKey(level)) ?? false;
+
+  /// Gives the level bonus once: true only the first time [level] is found
+  /// complete. Saved, so it can never be given twice.
+  Future<bool> claimLevelBonus(MinigameLevel level) async {
+    if (!levelComplete(level) || levelBonusGiven(level)) return false;
+    await _prefs.setBool(_bonusKey(level), true);
+    return true;
+  }
 
   /// How many challenges in a level have at least 1 star.
   int solvedCount(MinigameLevel level) =>
