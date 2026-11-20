@@ -79,6 +79,8 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   CheckResult? _check;
   bool _solved = false;
   int _earned = 0;
+  bool _firstRecord = true; // false on a replay: the record stays
+  int _points = 0; // Star Points the solve earned
   int? _openedLevel; // level number that solving this opened
 
   Challenge get _challenge => widget.level.challenges[widget.index];
@@ -183,8 +185,10 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   Future<void> _pass() async {
     final stars = _starsNow;
     final before = widget.progress.unlockedCount(widget.levels);
-    // Only a better result replaces the best stars.
-    await widget.progress.saveStars(_challenge.id, stars);
+    // Only the first solve is saved (the permanent record).
+    final first = await widget.progress.saveStars(_challenge.id, stars);
+    // Star Points: every solve, doubled the first time.
+    final points = widget.settings.shop.earnRun(stars, first: first);
     await widget.progress.clearAttempt(_challenge.id);
     final after = widget.progress.unlockedCount(widget.levels);
     if (!mounted) return;
@@ -198,6 +202,8 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     setState(() {
       _solved = true;
       _earned = stars;
+      _firstRecord = first;
+      _points = points;
       _check = null;
       _selected = null;
       _openedLevel = after > before ? widget.levels[after - 1].number : null;
@@ -564,11 +570,23 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
           text: [
             l10n.mgPassed(_earned),
             if (opened != null) l10n.mgUnlocked(opened),
+            if (!_firstRecord) l10n.recordKept,
           ].join('\n'),
           mood: CogMood.happy,
         ),
         const SizedBox(height: AppSizes.gap8),
         Center(child: StarRow(stars: _earned, size: 40)),
+        if (_points > 0) ...[
+          const SizedBox(height: AppSizes.gap4),
+          Text(
+            _firstRecord
+                ? '${l10n.pointsEarned(_points)} ${l10n.pointsDoubled}'
+                : l10n.pointsEarned(_points),
+            key: const ValueKey('mg-points'),
+            textAlign: TextAlign.center,
+            style: AppTextStyles.small,
+          ),
+        ],
         const SizedBox(height: AppSizes.gap12),
         if (!_isLast) ...[
           ChunkyButton(

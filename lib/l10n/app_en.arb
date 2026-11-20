@@ -156,7 +156,7 @@
   "@results1Star": {
     "description": "Cog's reaction to 1 star. Must stay encouraging."
   },
-  "resultsBest": "Your best: {stars, plural, =1{1 star} other{{stars} stars}}",
+  "resultsBest": "Your record: {stars, plural, =1{1 star} other{{stars} stars}}",
   "@resultsBest": {
     "description": "Best score ever saved for this lesson.",
     "placeholders": {
@@ -165,7 +165,11 @@
       }
     }
   },
-  "resultsNewBest": "New best!",
+  "recordKept": "Your first score stays.",
+  "@recordKept": {
+    "description": "Shown on a result after a replay: replays never change the first (permanent) record."
+  },
+  "resultsNewBest": "New record!",
   "resultsUnlocked": "Lesson {number} is now open!",
   "@resultsUnlocked": {
     "description": "Shown on the results screen when this quiz opened the next lesson.",
@@ -273,7 +277,7 @@
       }
     }
   },
-  "gameBestBonus": "Your best: {stars, plural, =1{1 bonus star} other{{stars} bonus stars}}",
+  "gameBestBonus": "Your record: {stars, plural, =1{1 bonus star} other{{stars} bonus stars}}",
   "@gameBestBonus": {
     "description": "Best bonus score ever saved for this lesson's game.",
     "placeholders": {
@@ -1447,6 +1451,106 @@
       }
     }
   },
+  "homeShop": "Star Shop",
+  "@homeShop": {
+    "description": "Short label of the small Star Shop button on the home screen."
+  },
+  "shopTitle": "Star Shop",
+  "@shopTitle": {
+    "description": "Title of the Star Shop screen and the home screen button that opens it."
+  },
+  "shopIntro": "Spend your Star Points on new looks. They are just for fun: they never change your stars or answers.",
+  "shopPoints": "{points} Star Points",
+  "@shopPoints": {
+    "description": "The Star Points balance (shop money).",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "shopGroupTheme": "App colors",
+  "shopGroupThemeNote": "For the home screen and the Play trail.",
+  "shopGroupEditor": "Code editor",
+  "shopGroupEditorNote": "The colors of the CODING box.",
+  "shopGroupTag": "Cog name tags",
+  "shopGroupTagNote": "A title under Cog on the home screen.",
+  "shopFree": "Free",
+  "shopOwned": "Owned",
+  "shopEquipped": "In use",
+  "shopEquip": "Use",
+  "shopBuy": "Buy",
+  "shopCancel": "Cancel",
+  "shopConfirmTitle": "Buy {item}?",
+  "@shopConfirmTitle": {
+    "description": "Confirmation before buying a shop item.",
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "shopConfirmBody": "It costs {price} Star Points. You have {points}.",
+  "@shopConfirmBody": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      },
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "shopNeedMore": "You need {count} more Star Points.",
+  "@shopNeedMore": {
+    "description": "Not enough points to buy a shop item.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shopBought": "You got {item}!",
+  "@shopBought": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "shopPrice": "{price} points",
+  "@shopPrice": {
+    "description": "Price of a shop item.",
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
+  "shopThemeClassic": "Classic",
+  "shopThemeSunset": "Sunset",
+  "shopThemeMint": "Mint",
+  "shopThemeOcean": "Ocean",
+  "shopThemeCandy": "Candy",
+  "shopEditorClassic": "Classic",
+  "shopEditorMidnight": "Midnight",
+  "shopEditorRetro": "Retro green",
+  "shopEditorPaper": "Paper",
+  "shopTagNone": "No tag",
+  "shopTagRookie": "Code Rookie",
+  "shopTagLoop": "Loop Learner",
+  "shopTagBug": "Bug Hunter",
+  "shopTagPro": "Python Pro",
+  "pointsEarned": "You earned {points} Star Points.",
+  "@pointsEarned": {
+    "description": "Points a finished run earned (shop money).",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "pointsDoubled": "First time: double points!",
   "aboutTitle": "About PyCog",
   "@aboutTitle": {
     "description": "Title of the About screen, and the button on the CODING screen that opens it."
@@ -1479,7 +1583,7 @@
   "codingInsert": "Add {symbol}",
   "mgMapTitle": "Mini games",
   "mgMapIntro": "Solve Python challenges with Cog!",
-  "mgUnlockRule": "Get at least 1 star on 7 challenges to open the next level.",
+  "mgUnlockRule": "To open a level: finish its lesson in Play mode, then get at least 1 star on 7 challenges in the level before.",
   "@mgLevel": {
     "description": "A level on the MINIGAME map.",
     "placeholders": {
@@ -1619,6 +1723,15 @@
   "mgL1C3Prompt": "Make a variable `speed` with the value `5`. Then show it with `print(speed)`.",
   "mgL1C3Hint1": "Write the name, then `=`, then the value.",
   "mgL1C3Hint2": "Your first line is `speed = 5`.",
+  "mgNeedLesson": "Finish Lesson {number} in Play mode first.",
+  "@mgNeedLesson": {
+    "description": "A locked MINIGAME level: its Play lesson (same number) is not finished yet.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "mgLocked": "Locked",
   "mgL1C4Title": "A good name",
   "mgL1C4Prompt": "Which variable name follows the rules?",

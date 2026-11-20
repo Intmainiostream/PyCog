@@ -14,7 +14,6 @@ import '../widgets/cog_feedback_card.dart';
 import '../widgets/output_box.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/title_top_bar.dart';
-import 'about_screen.dart';
 import '../sound/sounds.dart';
 import '../sound/music_zone.dart';
 
@@ -201,6 +200,7 @@ class _CodingScreenState extends State<CodingScreen> {
 
   List<Widget> _content(AppLocalizations l10n) {
     final mono = AppTextStyles.code;
+    final look = widget.settings.shop.editor;
     return [
       Text(l10n.codingIntro, style: AppTextStyles.small),
       const SizedBox(height: AppSizes.gap8),
@@ -210,9 +210,9 @@ class _CodingScreenState extends State<CodingScreen> {
         child: _ExamplesButton(label: l10n.codingExamples, onPick: _useExample),
       ),
       const SizedBox(height: AppSizes.gap8),
-      // The code box: dark, like the lessons' code boxes.
+      // The code box (its colors: the editor look from the Star Shop).
       Container(
-        decoration: AppDecorations.card(color: AppColors.codeBackground),
+        decoration: AppDecorations.card(color: look.background),
         padding: const EdgeInsets.symmetric(
           horizontal: AppSizes.gap12,
           vertical: AppSizes.gap8,
@@ -231,11 +231,11 @@ class _CodingScreenState extends State<CodingScreen> {
             smartQuotesType: SmartQuotesType.disabled,
             smartDashesType: SmartDashesType.disabled,
             textCapitalization: TextCapitalization.none,
-            cursorColor: AppColors.codeOperator,
-            style: mono.copyWith(color: AppColors.codeText),
+            cursorColor: look.cursor,
+            style: mono.copyWith(color: look.text),
             decoration: InputDecoration.collapsed(
               hintText: l10n.codingCodeHint,
-              hintStyle: mono.copyWith(color: AppColors.codeComment),
+              hintStyle: mono.copyWith(color: look.hint),
             ),
           ),
         ),
@@ -324,20 +324,6 @@ class _CodingScreenState extends State<CodingScreen> {
       Text(
         l10n.codingAbout,
         style: AppTextStyles.small.copyWith(color: AppColors.textMuted),
-      ),
-      Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: TextButton(
-          key: const ValueKey('coding-about'),
-          onPressed: Sounds.tapThen(
-            () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => AboutScreen(settings: widget.settings),
-              ),
-            ),
-          ),
-          child: Text(l10n.aboutTitle),
-        ),
       ),
     ];
   }

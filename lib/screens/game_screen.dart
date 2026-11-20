@@ -157,6 +157,8 @@ class _GameScreenState extends State<GameScreen> {
       widget.lesson.id,
       stars,
     );
+    // Star Points: every finished run, doubled the first time.
+    final points = widget.settings.shop.earnRun(stars, first: newBest);
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
@@ -165,6 +167,7 @@ class _GameScreenState extends State<GameScreen> {
           lessonNumber: widget.lessonNumber,
           stars: stars,
           isNewBest: newBest,
+          pointsEarned: points,
           settings: widget.settings,
           progress: widget.progress,
         ),

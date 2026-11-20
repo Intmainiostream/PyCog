@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:pycog/data/minigame/levels.dart';
+import 'package:pycog/data/lessons.dart';
 import 'package:pycog/data/minigame_progress.dart';
 import 'package:pycog/data/settings_controller.dart';
 import 'package:pycog/l10n/generated/app_localizations.dart';
@@ -107,6 +108,11 @@ class FakePython implements PythonEngine {
 
 final level1 = minigameLevels.first;
 
+/// Saved data for: every Play lesson finished (its quiz has 1 star).
+final allLessonsDone = <String, Object>{
+  for (final lesson in lessons) 'progress.stars.${lesson.id}': 1,
+};
+
 Finder key(String k) => find.byKey(ValueKey(k));
 
 Future<(MinigameProgress, FakePython)> pumpMap(
@@ -115,11 +121,18 @@ Future<(MinigameProgress, FakePython)> pumpMap(
   List<MinigameLevel>? levels,
   String lang = 'en',
   Size size = const Size(800, 1400),
+  bool lessonsDone = true,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  SharedPreferences.setMockInitialValues({...saved, 'settings.language': lang});
+  SharedPreferences.setMockInitialValues({
+    // Every MINIGAME level also needs its Play lesson finished; most tests
+    // are about MINIGAME itself, so all lessons are finished by default.
+    if (lessonsDone) ...allLessonsDone,
+    ...saved,
+    'settings.language': lang,
+  });
   final settings = await SettingsController.load();
   final progress = await MinigameProgress.load();
   final engine = FakePython();
@@ -368,7 +381,7 @@ void main() {
       await tapAndSettle(tester, key('mg-check'));
       await tapAndSettle(tester, answer('80'));
       await tapAndSettle(tester, key('mg-check'));
-      expect(find.text(en.mgPassed(2)), findsOneWidget);
+      expect(find.text('${en.mgPassed(2)}\n${en.recordKept}'), findsOneWidget);
       expect(progress.bestStars('mgL1C1'), 3);
     });
   });
@@ -477,7 +490,7 @@ void main() {
 
       await tapAndSettle(tester, key('mg-challenge-mgL1C3'));
       await solve(tester);
-      expect(find.text(en.mgPassed(1)), findsOneWidget);
+      expect(find.text('${en.mgPassed(1)}\n${en.recordKept}'), findsOneWidget);
       expect(progress.bestStars('mgL1C3'), 3);
       expect(progress.hintsUsed('mgL1C3'), 0);
     });

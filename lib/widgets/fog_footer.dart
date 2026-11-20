@@ -74,7 +74,11 @@ class _FogFooterState extends State<FogFooter>
                 child: RepaintBoundary(
                   child: CustomPaint(
                     key: const ValueKey('fog-paint'),
-                    painter: FogPainter(_controller),
+                    painter: FogPainter(
+                      _controller,
+                      // The fog fades into the page color (Star Shop theme).
+                      page: Theme.of(context).scaffoldBackgroundColor,
+                    ),
                   ),
                 ),
               ),
@@ -119,9 +123,13 @@ class _FogFooterState extends State<FogFooter>
 /// see-through patches that drift left and right and fade in and out a
 /// little, all driven by one animation value (0 to 1, looping).
 class FogPainter extends CustomPainter {
-  FogPainter(this.time) : super(repaint: time);
+  FogPainter(this.time, {this.page = AppColors.background})
+    : super(repaint: time);
 
   final Animation<double> time;
+
+  /// The page color the fog fades into at the bottom.
+  final Color page;
 
   // Each patch: where it sits (fractions of the size), how big it is, how
   // far it drifts, and its own timing offset.
@@ -157,7 +165,7 @@ class FogPainter extends CustomPainter {
             AppColors.fog.withValues(alpha: 0),
             AppColors.fog.withValues(alpha: 0.7),
             AppColors.fog.withValues(alpha: 0.9),
-            AppColors.background,
+            page,
           ],
           stops: const [0.0, 0.3, 0.72, 1.0],
         ).createShader(all),
@@ -193,5 +201,6 @@ class FogPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(FogPainter oldDelegate) => oldDelegate.time != time;
+  bool shouldRepaint(FogPainter oldDelegate) =>
+      oldDelegate.time != time || oldDelegate.page != page;
 }

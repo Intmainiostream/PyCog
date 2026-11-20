@@ -109,13 +109,14 @@ void main() {
     expect(find.byType(CodingScreen), findsOneWidget);
     expect(changes(music), [Song.title, Song.game]);
 
-    final about = find.byKey(const ValueKey('coding-about'));
-    await tester.ensureVisible(about);
+    // About now lives in Settings (the gear on CODING).
+    await tester.tap(find.byIcon(Icons.settings_rounded).first);
     await tester.pumpAndSettle();
-    await tester.tap(about);
+    await tester.tap(find.byKey(const ValueKey('settings-about')));
     await tester.pumpAndSettle();
     expect(find.byType(AboutScreen), findsOneWidget);
-    await goBack(tester); // About -> CODING
+    await goBack(tester); // About -> Settings
+    await goBack(tester); // Settings -> CODING
     expect(changes(music), [Song.title, Song.game]);
   });
 

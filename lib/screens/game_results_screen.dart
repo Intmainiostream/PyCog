@@ -27,6 +27,7 @@ class GameResultsScreen extends StatelessWidget {
     required this.lessonNumber,
     required this.stars,
     required this.isNewBest,
+    this.pointsEarned,
     required this.settings,
     required this.progress,
   });
@@ -34,7 +35,12 @@ class GameResultsScreen extends StatelessWidget {
   final Lesson lesson;
   final int lessonNumber;
   final int stars;
+
+  /// True when this run became the lesson's first (permanent) record.
   final bool isNewBest;
+
+  /// Star Points this run earned (null: not shown).
+  final int? pointsEarned;
   final SettingsController settings;
   final ProgressController progress;
 
@@ -151,6 +157,29 @@ class GameResultsScreen extends StatelessWidget {
                               ),
                             ],
                           ),
+                          // A replay: the first (permanent) record stays,
+                          // but the run still earns points.
+                          if (!isNewBest) ...[
+                            const SizedBox(height: AppSizes.gap8),
+                            Text(
+                              [
+                                l10n.recordKept,
+                                if (pointsEarned case final p?)
+                                  l10n.pointsEarned(p),
+                              ].join(' '),
+                              key: const ValueKey('results-record-kept'),
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.small,
+                            ),
+                          ] else if (pointsEarned case final p?) ...[
+                            const SizedBox(height: AppSizes.gap8),
+                            Text(
+                              '${l10n.pointsEarned(p)} ${l10n.pointsDoubled}',
+                              key: const ValueKey('results-points'),
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.small,
+                            ),
+                          ],
                         ],
                       ),
                     ),

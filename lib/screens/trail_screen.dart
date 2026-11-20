@@ -10,6 +10,7 @@ import '../models/lesson.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_top_bar.dart';
 import '../widgets/fog_footer.dart';
+import '../widgets/shop_themed.dart';
 import 'lesson_screen.dart';
 import '../widgets/lesson_path.dart';
 import '../widgets/settings_sheet.dart';
@@ -70,11 +71,16 @@ class TrailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MusicZone(
       song: Song.game,
-      child: Scaffold(
-        // Redraw when saved progress changes (stars total, unlocked lessons).
-        body: ListenableBuilder(
-          listenable: progress,
-          builder: (context, _) => _body(context),
+      // The app color theme from the Star Shop (page background).
+      child: ShopThemed(
+        shop: settings.shop,
+        child: Scaffold(
+          // Redraw when saved progress changes (stars total, unlocked
+          // lessons).
+          body: ListenableBuilder(
+            listenable: progress,
+            builder: (context, _) => _body(context),
+          ),
         ),
       ),
     );

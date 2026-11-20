@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'shop.dart';
+
 /// The three text size options in Settings.
 enum TextSize {
   small(0.9),
@@ -43,6 +45,9 @@ class SettingsController extends ChangeNotifier {
   static const tagalog = Locale('tl');
 
   final SharedPreferences _prefs;
+
+  /// Star Points and the Star Shop (saved in the same place).
+  late final ShopController shop = ShopController(_prefs);
 
   Locale _locale;
   bool _soundOn;
